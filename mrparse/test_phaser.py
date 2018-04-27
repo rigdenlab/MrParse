@@ -42,18 +42,22 @@ import sys
 # mc.runMC_fixed(13600, 6130*4, "matt_coef.log")
 
 #for idx in range(20):
+CELL = '73.582 38.733 23.189 90.000 90.000 90.000'
+SYMM = 'P212121'
+RESO = 2.3
+MW = 7071.090
+
 
 idx = 4
 i = phaser.InputCCA()
-i.setCELL6((72.8400, 73.3500, 74.2600, 103.4000, 109.2000, 107.4000))
-i.setRESO_HIGH(1.962)  # 'setRESO', 'setRESO_AUTO_HIGH', 'setRESO_AUTO_OFF', 'setRESO_HIGH', 'setRESO_LOW'
-i.setSPAC_NAME('P1')  # setSPAC_HALL'
+i.setCELL6([float(x) for x in CELL.split()])
+i.setRESO_HIGH(RESO)  # 'setRESO', 'setRESO_AUTO_HIGH', 'setRESO_AUTO_OFF', 'setRESO_HIGH', 'setRESO_LOW'
+i.setSPAC_NAME(SYMM)  # setSPAC_HALL'
 # Add fixed
-i.addCOMP_PROT_MW_NUM(6130, 4)
-i.setMUTE(False)
-# Add target
-
-i.addCOMP_PROT_MW_NUM(13600, idx + 1)
+i.addCOMP_PROT_MW_NUM(MW, 1)
+i.setMUTE(True)
+#
+#i.addCOMP_PROT_MW_NUM(13600, idx + 1)
 r = phaser.runCCA(i)
 
 print "Cell Content Analysis"
