@@ -1,6 +1,52 @@
 #!/usr/bin/env ccp4-python
 
+import os
 import phaser
+import sys
+sys.path.insert(0, '/opt/mrbump-trunk/include/file_info')
+sys.path.insert(0, '/opt/mrbump-trunk/include/tools')
+
+import MRBUMP_target_info
+
+class Keywords(object):
+    """Dummy class fof keywords"""
+    def __init__(self):
+        self.col_labels = {'F': None, 'SIGF' : None, 'FREER_FLAG' : None}
+        self.JOBID = None
+        self.AMORE = False
+        self.FIXED = False
+
+class Init(object):
+    """Dummy init object for testing"""
+    def __init__(self, keywords):
+        self.hklin = None
+        self.init = None
+        self.keywords = keywords
+        self.ONLYMODELS = False
+        self.search_dict = {}
+        self.seqin = None
+
+keywords = Keywords()
+keywords.JOBID = 'jmht'
+keywords.col_labels['F'] =  'FTOXD3'
+keywords.col_labels['SIGF'] = 'SIGFTOXD3'
+keywords.col_labels['FREER_FLAG'] = 'FreeR_flag'
+
+init = Init(keywords)
+init.seqin = 'toxd.fasta'
+init.hklin = 'toxd.mtz'
+mr_search_dir = "."
+
+# Need to create logs dir for setTargetMTZinfo
+logdir = 'logs'
+if not os.path.isdir(logdir):
+    os.mkdir(logdir)
+
+target_info = MRBUMP_target_info.TargetInfo()
+target_info.setMattCoefLogfile(os.path.join(mr_search_dir, logdir, "matt_coef.log"))
+retcode = target_info.setTargetInfo(init, mr_search_dir)
+
+sys.exit()
 
 
 #Anisotropy Correction 	i = InputANO() 	r = runANO(i) 	ResultANO()
