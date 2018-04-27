@@ -41,30 +41,69 @@ import sys
 ##               target fixed
 # mc.runMC_fixed(13600, 6130*4, "matt_coef.log")
 
-#for idx in range(20):
-CELL = '73.582 38.733 23.189 90.000 90.000 90.000'
-SYMM = 'P212121'
-RESO = 2.3
-MW = 7071.090
+def percent_solvent_from_vm(vm):
+    """Calculation taken from PHASER source code
+    phaser/run/runCCA.cc"""
+    vm = float(vm)
+    assert vm > 0.0, 'VM needs to be > 0.0 : {:F}'.format(vm)
+    return (1 - 1.23/vm) * 100
+
+def calc_vm(cell, symmetry, resolution, molecular_weight):
+    i = phaser.InputCCA()
+    i.setCELL6([float(x) for x in cell.split()])
+    i.setRESO_HIGH(resolution)  # 'setRESO', 'setRESO_AUTO_HIGH', 'setRESO_AUTO_OFF', 'setRESO_HIGH', 'setRESO_LOW'
+    i.setSPAC_NAME(symmetry)  # setSPAC_HALL'
+    # Add fixed
+    i.addCOMP_PROT_MW_NUM(molecular_weight, 1)
+    i.setMUTE(False)
+    #
+    #i.addCOMP_PROT_MW_NUM(13600, idx + 1)
+    r = phaser.runCCA(i)
+
+    vm = r.getBestVM()
+    prob = r.getBestProb()
+    z = r.getBestZ()
+    print "Cell Content Analysis"
+    print "Molecular weight of assembly = ", r.getAssemblyMW()
+    print "Best Z value = ", z
+    print "Best VM value = ", vm
+    print "Probability of Best VM = ", prob
+    print "Solvent ", percent_solvent_from_vm(vm)
+
+    return vm, prob, z
+
+def test_calc_vm():
+    cell = '73.582 38.733 23.189 90.000 90.000 90.000'
+    symmetry = 'P212121'
+    resolution = 2.3
+    molecular_weight = 7071.090
+    vm , prob, z = calc_vm(cell, symmetry, resolution, molecular_weight)
+    nplaces = 5
+    assert round(vm, nplaces) == round(2.33662160613, nplaces)
+
+#test_calc_vm()
 
 
-idx = 4
-i = phaser.InputCCA()
-i.setCELL6([float(x) for x in CELL.split()])
-i.setRESO_HIGH(RESO)  # 'setRESO', 'setRESO_AUTO_HIGH', 'setRESO_AUTO_OFF', 'setRESO_HIGH', 'setRESO_LOW'
-i.setSPAC_NAME(SYMM)  # setSPAC_HALL'
-# Add fixed
-i.addCOMP_PROT_MW_NUM(MW, 1)
-i.setMUTE(True)
-#
-#i.addCOMP_PROT_MW_NUM(13600, idx + 1)
-r = phaser.runCCA(i)
+cell = "72.8400   73.3500   74.2600  103.4000  109.2000  107.4000"
+symmetry = "P1"
+resolution = 1.962
+fixed_MW = 6130*4
+target_MW = 13600
 
-print "Cell Content Analysis"
-print "Molecular weight of assembly = ", r.getAssemblyMW()
-print "Best Z value = ", r.getBestZ()
-print "Best VM value = ", r.getBestVM()
-print "Probability of Best VM = ", r.getBestProb()
+best_prob = 0.0
+for i in range(20):
+    j = i + 1
+    print "I ",j
+    molecular_weight = (target_MW * j) + fixed_MW
+    vm, prob, z = calc_vm(cell, symmetry, resolution, molecular_weight)
+    print "Z ",z
+
+    if prob > best_prob:
+        best_prob = prob
+        best_nmol = j
+
+print "GOT ",best_prob, best_nmol
+
 
 if False:
     i = phaser.InputMR_DAT()
