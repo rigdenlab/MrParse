@@ -3,18 +3,18 @@
 import os
 import phaser
 import sys
+sys.path.insert(0, '/opt/mrbump-trunk/include/building') # for phase_improve
+sys.path.insert(0, '/opt/mrbump-trunk/include/cluster') # for phaserEXE
+sys.path.insert(0, '/opt/mrbump-trunk/include/ccp4') # for MRBUMP_pdbmerge
+sys.path.insert(0, '/opt/mrbump-trunk/include/output') # for WriteLogfile
+sys.path.insert(0, '/opt/mrbump-trunk/include/initialisation')
 sys.path.insert(0, '/opt/mrbump-trunk/include/file_info')
 sys.path.insert(0, '/opt/mrbump-trunk/include/tools')
 
 import MRBUMP_target_info
-
-class Keywords(object):
-    """Dummy class fof keywords"""
-    def __init__(self):
-        self.col_labels = {'F': None, 'SIGF' : None, 'FREER_FLAG' : None}
-        self.JOBID = None
-        self.AMORE = False
-        self.FIXED = False
+# from mrbump-trunk/include/initialisation
+import MRBUMP_keywords
+import MRBUMP_initialise
 
 class Init(object):
     """Dummy init object for testing"""
@@ -26,15 +26,27 @@ class Init(object):
         self.search_dict = {}
         self.seqin = None
 
-keywords = Keywords()
+keywords = MRBUMP_keywords.Keywords()
 keywords.JOBID = 'jmht'
 keywords.col_labels['F'] =  'FTOXD3'
 keywords.col_labels['SIGF'] = 'SIGFTOXD3'
 keywords.col_labels['FREER_FLAG'] = 'FreeR_flag'
 
-init = Init(keywords)
+if False:
+    # Use dummy object
+    init = Init(keywords)
+else:
+    os.environ['CCP4_BIN'] = os.path.join(os.path.expandvars("$CCP4"),'bin')
+    init = MRBUMP_initialise.Initialise()
+    init.search_dict = {}
+
 init.seqin = 'toxd.fasta'
 init.hklin = 'toxd.mtz'
+init.keywords.JOBID = 'jmht'
+init.keywords.col_labels['F'] =  'FTOXD3'
+init.keywords.col_labels['SIGF'] = 'SIGFTOXD3'
+init.keywords.col_labels['FREER_FLAG'] = 'FreeR_flag'
+
 mr_search_dir = "."
 
 # Need to create logs dir for setTargetMTZinfo
