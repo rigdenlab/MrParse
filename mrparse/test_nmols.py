@@ -18,7 +18,7 @@ target_info.setTargetSeq_Res(seqFile=seqin)
 target_info.setTargetWeight()
 molecular_weight = target_info.mol_weight
 
-print("TI MOL WEIGHT ",molecular_weight)
+print("TI MOL WEIGHT ", molecular_weight)
 
 Nmol = Nmol_calc.Nmol_calc()
 Nmol.calculate_nmol(molecular_weight, mtzin, seqin, logfile)

@@ -55,10 +55,16 @@ def calc_vm(cell, symmetry, resolution, molecular_weight):
     i.setSPAC_NAME(symmetry)  # setSPAC_HALL'
     # Add fixed
     i.addCOMP_PROT_MW_NUM(molecular_weight, 1)
-    i.setMUTE(False)
+    i.setMUTE(True)
     #
     #i.addCOMP_PROT_MW_NUM(13600, idx + 1)
     r = phaser.runCCA(i)
+
+    vm = None
+    prob = None
+    z = None
+    if not r.Success():
+        raise RuntimeError(r.ErrorName() + " ERROR :" + r.ErrorMessage())
 
     vm = r.getBestVM()
     prob = r.getBestProb()
@@ -90,6 +96,31 @@ resolution = 1.962
 fixed_MW = 6130*4
 target_MW = 13600
 
+i = phaser.InputCCA()
+i.setCELL6([float(x) for x in cell.split()])
+i.setRESO_HIGH(resolution)  # 'setRESO', 'setRESO_AUTO_HIGH', 'setRESO_AUTO_OFF', 'setRESO_HIGH', 'setRESO_LOW'
+i.setSPAC_NAME(symmetry)  # setSPAC_HALL'
+# Add fixed
+i.addCOMP_PROT_MW_NUM(fixed_MW, 1)
+i.addCOMP_PROT_MW_NUM(target_MW, 6)
+i.setMUTE(False)
+#
+#i.addCOMP_PROT_MW_NUM(13600, idx + 1)
+r = phaser.runCCA(i)
+
+vm = r.getBestVM()
+prob = r.getBestProb()
+z = r.getBestZ()
+print "Cell Content Analysis"
+print "Molecular weight of assembly = ", r.getAssemblyMW()
+print "Best Z value = ", z
+print "Best VM value = ", vm
+print "Probability of Best VM = ", prob
+print "Solvent ", percent_solvent_from_vm(vm)
+
+
+
+sys.exit()
 best_prob = 0.0
 for i in range(20):
     j = i + 1

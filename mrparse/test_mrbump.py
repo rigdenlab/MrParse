@@ -22,6 +22,9 @@ import MRBUMP_initialise
 import Matches
 import MRBUMP_phmmer
 
+
+FASTA_DB = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "pdb70.txt")
+
 class Init(object):
     """Dummy init object for testing"""
     def __init__(self, keywords):
@@ -66,7 +69,7 @@ target_info.setMattCoefLogfile(os.path.join(mr_search_dir, logdir, "matt_coef.lo
 def test_PHMMER():
     """"see structures/Matches.py"""
     mstat = Matches.Match_struct()
-    mstat.FastaDB = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "pdb70.txt")
+    mstat.FastaDB = FASTA_DB
 
     retcode = target_info.setTargetInfo(init, mr_search_dir)
 
@@ -105,5 +108,27 @@ def test_PHMMER():
 def test_TargetInfo():
     retcode = target_info.setTargetInfo(init, mr_search_dir)
 
+def test_PHMMER2():
+   targetSequence="QPRRKLCILHRNPGRCYDKIPAFYYNQKKKQCERFDWSGCGGNSNRFKTIEECRRTCIG"
+   seqin     = os.path.join(os.environ["CCP4"], "examples", "toxd", "toxd.seq")
+   seqdb     = FASTA_DB
+   phmmerTblout    = os.path.join(os.environ["CCP4_SCR"], "phmmerTblout.txt")
+   phmmerDomTblout = os.path.join(os.environ["CCP4_SCR"], "phmmerDomTblout.txt")
+   phmmerTblout    = "phmmerTblout.txt"
+   phmmerDomTblout = "phmmerDomTblout.txt"
 
-test_TargetInfo()
+   ph = MRBUMP_phmmer.Phmmer()
+   ph.runPhmmer(seqin=seqin,
+                seqdb=seqdb,
+                phmmerTblout=phmmerTblout,
+                phmmerDomTblout=phmmerDomTblout,
+                targetSequence=targetSequence)
+
+   print ph.resultsList
+   print ph.resultsDict["4bd9_B1"].ndomains
+
+   print ph.targetDomainDict[1]
+
+
+#test_TargetInfo()
+test_PHMMER2()
