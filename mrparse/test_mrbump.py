@@ -1,5 +1,16 @@
 #!/usr/bin/env ccp4-python
+"""
 
+Generic str representation of a class:
+   def __str__(self):
+       attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
+       INDENT = "  "
+       out_str = "Class: {}\nData:\n".format(self.__class__)
+       for a in sorted(attrs):
+            out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
+       return out_str
+
+"""
 import os
 import phaser
 import sys
