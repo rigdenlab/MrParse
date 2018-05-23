@@ -77,6 +77,11 @@ mr_search_dir = "."
 target_info = MRBUMP_target_info.TargetInfo()
 target_info.setMattCoefLogfile(os.path.join(mr_search_dir, logdir, "matt_coef.log"))
 
+def fasta_sequence(fastafile):
+    with open(fastafile) as fh:
+        lines = fh.readlines()
+    return "".join([l.strip() for l in lines[1:]])
+
 def test_PHMMER():
     """"see structures/Matches.py"""
     mstat = Matches.Match_struct()
@@ -120,25 +125,35 @@ def test_TargetInfo():
     retcode = target_info.setTargetInfo(init, mr_search_dir)
 
 def test_PHMMER2():
-   targetSequence="QPRRKLCILHRNPGRCYDKIPAFYYNQKKKQCERFDWSGCGGNSNRFKTIEECRRTCIG"
-   seqin     = os.path.join(os.environ["CCP4"], "examples", "toxd", "toxd.seq")
-   seqdb     = FASTA_DB
-   phmmerTblout    = os.path.join(os.environ["CCP4_SCR"], "phmmerTblout.txt")
-   phmmerDomTblout = os.path.join(os.environ["CCP4_SCR"], "phmmerDomTblout.txt")
-   phmmerTblout    = "phmmerTblout.txt"
-   phmmerDomTblout = "phmmerDomTblout.txt"
+    seqin     = os.path.join(os.environ["CCP4"], "examples", "toxd", "toxd.seq")
+    targetSequence = fasta_sequence(seqin)
+    
+    
+    #seqin = os.path.join("..", "2cwg_A.fasta") # 2cwg v old and at 2A
+    seqin = os.path.join("..", "2uvo_A.fasta")
 
-   ph = MRBUMP_phmmer.Phmmer()
-   ph.runPhmmer(seqin=seqin,
-                seqdb=seqdb,
-                phmmerTblout=phmmerTblout,
-                phmmerDomTblout=phmmerDomTblout,
-                targetSequence=targetSequence)
-
-   print ph.resultsList
-   print ph.resultsDict["4bd9_B1"].ndomains
-
-   print ph.targetDomainDict[1]
+    targetSequence = fasta_sequence(seqin)
+    
+    print targetSequence
+    
+    
+    seqdb     = FASTA_DB
+    phmmerTblout    = os.path.join(os.environ["CCP4_SCR"], "phmmerTblout.txt")
+    phmmerDomTblout = os.path.join(os.environ["CCP4_SCR"], "phmmerDomTblout.txt")
+    phmmerTblout    = "phmmerTblout.txt"
+    phmmerDomTblout = "phmmerDomTblout.txt"
+    
+    ph = MRBUMP_phmmer.Phmmer()
+    ph.runPhmmer(seqin=seqin,
+                 seqdb=seqdb,
+                 phmmerTblout=phmmerTblout,
+                 phmmerDomTblout=phmmerDomTblout,
+                 targetSequence=targetSequence)
+    
+    print ph.resultsList
+    #print ph.resultsDict["4bd9_B1"].ndomains
+    
+    print ph.targetDomainDict
 
 
 #test_TargetInfo()
