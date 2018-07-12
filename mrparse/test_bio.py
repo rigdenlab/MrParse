@@ -21,28 +21,31 @@ included = io.hit_filter(lambda x: x.is_included)
 assert len(included) == 30
 
 resultsDict = {}
-targetSequence = 'FOO' # This needs to be passed in
+targetSequence = 'AVLPQEEEGSGGGQLVTEVTKKEDSCQLGYSAGPCMGMTSRYFYNGTSMACETFQYGGCMGNGNNFVTEKECLQTCRTVAACNLPIVRGPCRAFIQLWAFDAVKGKCVLFPYGGCQGNGNKFYSEKECREYCGVPGDGDEELLRFSN'
 
 rank = 0
 for i, hit in enumerate(included):
+    rank = i + 1
     for j, hsp in enumerate(hit.hsps):
-        rank += 1
         ph = PHHit()
         ph.rank = rank
         ph.chainName = hsp.hit_id
         name, chain = hsp.hit_id.split('_')
         ph.pdbName = name
         ph.chainID = chain
-        ph.score = hsp.bitscore
-        ph.evalue = hsp.evalue
+        #ph.score = hsp.bitscore
+        ph.score = hit.bitscore
+        ph.evalue = hsp.evalue # is i-Evalue - possibly evalue_cond in later BioPython
         ph.ndomains = len(hit)
-        
         
         start, stop = hsp.hit_range
         ph.alnRange = "{}-{}".format(start + 1, stop)
         start, stop = hsp.query_range
-        ph.tarRange = "{}-{}".format(start + 1, stop)
+        start_p1 = start + 1
+        ph.tarRange = "{}-{}".format(start_p1, stop)
         ph.tarExtent = hsp.query_span - 1
+        ph.tarMidpoint = ((float(stop) - float(start_p1)) / 2.0) + float(start_p1)
+        
         targetAlignment = "".join(hsp.aln[0].upper()) # assume the first Sequence is always the target
         ph.targetAlignment = targetAlignment
         alignment = "".join(hsp.aln[1].upper()) # assume the first Sequence is always the target
@@ -56,9 +59,27 @@ for i, hit in enumerate(included):
         resultsDict[key] = ph
 
 
-for k, v in resultsDict.items():
-    print k, v
+# for k in sorted(resultsDict.keys()):
+#     print k, resultsDict[k]
         
+
+k = '3f85_A2'
+assert(k in resultsDict.keys())
+assert(resultsDict[k].ndomains == 3)
+assert(resultsDict[k].rank == 29)
+assert(resultsDict[k].chainID == 'A')
+assert(resultsDict[k].chainName =='3f85_A' )
+#assert(resultsDict[k].evalue == 0.00016)
+assert(resultsDict[k].pdbName == '3f85')
+assert(resultsDict[k].score == 22.7)
+assert(resultsDict[k].alnRange == '221-252')
+assert(resultsDict[k].tarExtent == 31)
+assert(resultsDict[k].tarRange == '10-41')
+assert(abs(resultsDict[k].tarMidpoint - 25.5) <= 0.0001)
+assert(resultsDict[k].alignment == 'SWGGQVLSTTAKEFEAAALGYSASGVNGVSSS')
+assert(resultsDict[k].targetAlignment == 'SGGGQLVTEVTKKEDSCQLGYSAGPCMGMTSR')
+assert(resultsDict[k].localSEQID == 37)
+assert(resultsDict[k].overallSEQID == 8)
 
 
 # Biopython includes 1toc_R1, which is not in mrbump as below threshold
