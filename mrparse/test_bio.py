@@ -1,5 +1,6 @@
 #!/usr/bin/env ccp4-python
 import sys
+from collections import OrderedDict
 from Bio import AlignIO
 from Bio.SeqFeature import SeqFeature, FeatureLocation
 from Bio import SearchIO
@@ -20,7 +21,7 @@ included = io.hit_filter(lambda x: x.is_included)
 
 assert len(included) == 30
 
-resultsDict = {}
+resultsDict = OrderedDict()
 targetSequence = 'AVLPQEEEGSGGGQLVTEVTKKEDSCQLGYSAGPCMGMTSRYFYNGTSMACETFQYGGCMGNGNNFVTEKECLQTCRTVAACNLPIVRGPCRAFIQLWAFDAVKGKCVLFPYGGCQGNGNKFYSEKECREYCGVPGDGDEELLRFSN'
 
 rank = 0
@@ -59,9 +60,47 @@ for i, hit in enumerate(included):
         resultsDict[key] = ph
 
 
+# Figure out the domains for the target that have been matched
+domCount = 1
+targetDomainDict = {}
+hit1_id, hit1 = resultsDict.items()[0]
+targetDomainDict[domCount] = Domains()
+targetDomainDict[domCount].ID = domCount
+targetDomainDict[domCount].midpoint = hit1.tarMidpoint
+targetDomainDict[domCount].extent = hit1.tarExtent
+targetDomainDict[domCount].matches.append(hit1_id)
+targetDomainDict[domCount].ranges.append(hit1.tarRange)
+
+midpointTolerance = 20
+extentTolerance = 50
+for hitname in resultsDict.keys()[1:]:
+    DOMFOUND = False
+    for count in targetDomainDict.keys():
+        # Has this domain been identified already?
+        if resultsDict[hitname].tarExtent >= targetDomainDict[count].extent - extentTolerance and \
+        resultsDict[hitname].tarExtent <= targetDomainDict[count].extent + extentTolerance and \
+        resultsDict[hitname].tarMidpoint >= targetDomainDict[count].midpoint - midpointTolerance and \
+        resultsDict[hitname].tarMidpoint <= targetDomainDict[count].midpoint + midpointTolerance:
+            targetDomainDict[count].matches.append(hitname)
+            targetDomainDict[count].ranges.append(resultsDict[hitname].tarRange)
+            DOMFOUND = True
+            break
+    # If we have a new domain set it up
+    if not DOMFOUND:
+        domCount = domCount + 1
+        targetDomainDict[domCount] = Domains()
+        targetDomainDict[domCount].ID = domCount
+        targetDomainDict[domCount].midpoint = resultsDict[hitname].tarMidpoint
+        targetDomainDict[domCount].extent = resultsDict[hitname].tarExtent
+        targetDomainDict[domCount].matches.append(hitname)
+        targetDomainDict[domCount].ranges.append(resultsDict[hitname].tarRange)
+
 # for k in sorted(resultsDict.keys()):
 #     print k, resultsDict[k]
-        
+for k in sorted(targetDomainDict.keys()):
+    print k, targetDomainDict[k]
+
+sys.exit()
 
 k = '3f85_A2'
 assert(k in resultsDict.keys())
