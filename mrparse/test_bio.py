@@ -21,9 +21,10 @@ included = io.hit_filter(lambda x: x.is_included)
 
 assert len(included) == 30
 
-resultsDict = OrderedDict()
 targetSequence = 'AVLPQEEEGSGGGQLVTEVTKKEDSCQLGYSAGPCMGMTSRYFYNGTSMACETFQYGGCMGNGNNFVTEKECLQTCRTVAACNLPIVRGPCRAFIQLWAFDAVKGKCVLFPYGGCQGNGNKFYSEKECREYCGVPGDGDEELLRFSN'
 
+
+resultsDict = OrderedDict()
 rank = 0
 for i, hit in enumerate(included):
     rank = i + 1
@@ -56,50 +57,62 @@ for i, hit in enumerate(included):
         ph.localSEQID = local
         ph.overallSEQID = overall
         
-        key = hit.id + str(hsp.domain_index)
-        resultsDict[key] = ph
+        name = hit.id + str(hsp.domain_index)
+        # jmht - need to add this
+        ph.name = name
+        resultsDict[name] = ph
 
 
-# Figure out the domains for the target that have been matched
-domCount = 1
-targetDomainDict = {}
-hit1_id, hit1 = resultsDict.items()[0]
-targetDomainDict[domCount] = Domains()
-targetDomainDict[domCount].ID = domCount
-targetDomainDict[domCount].midpoint = hit1.tarMidpoint
-targetDomainDict[domCount].extent = hit1.tarExtent
-targetDomainDict[domCount].matches.append(hit1_id)
-targetDomainDict[domCount].ranges.append(hit1.tarRange)
+def calculate_domains(resultsDict):
+    """Figure out the domains for the target that have been matched"""
+    
+    def update_or_create_domain(hit, targetDomainDict):
+        for domain in targetDomainDict.values():
+            if hit_within_domain(hit, domain):
+                return update_domain(hit, domain)
+        # Domain not found so add new
+        add_new_domain(hit, targetDomainDict)
+        return
 
-midpointTolerance = 20
-extentTolerance = 50
-for hitname in resultsDict.keys()[1:]:
-    DOMFOUND = False
-    for count in targetDomainDict.keys():
-        # Has this domain been identified already?
-        if resultsDict[hitname].tarExtent >= targetDomainDict[count].extent - extentTolerance and \
-        resultsDict[hitname].tarExtent <= targetDomainDict[count].extent + extentTolerance and \
-        resultsDict[hitname].tarMidpoint >= targetDomainDict[count].midpoint - midpointTolerance and \
-        resultsDict[hitname].tarMidpoint <= targetDomainDict[count].midpoint + midpointTolerance:
-            targetDomainDict[count].matches.append(hitname)
-            targetDomainDict[count].ranges.append(resultsDict[hitname].tarRange)
-            DOMFOUND = True
-            break
-    # If we have a new domain set it up
-    if not DOMFOUND:
-        domCount = domCount + 1
+    def hit_within_domain(hit, domain, extentTolerance=50, midpointTolerance=20):
+        if hit.tarExtent >= domain.extent - extentTolerance and \
+            hit.tarExtent <= domain.extent + extentTolerance and \
+            hit.tarMidpoint >= domain.midpoint - midpointTolerance and \
+            hit.tarMidpoint <= domain.midpoint + midpointTolerance:
+            return False
+        return True
+    
+    def add_new_domain(hit, targetDomainDict):
+        if not targetDomainDict:
+            domCount = 1
+        else:
+            domCount = max(targetDomainDict.keys()) + 1
         targetDomainDict[domCount] = Domains()
         targetDomainDict[domCount].ID = domCount
-        targetDomainDict[domCount].midpoint = resultsDict[hitname].tarMidpoint
-        targetDomainDict[domCount].extent = resultsDict[hitname].tarExtent
-        targetDomainDict[domCount].matches.append(hitname)
-        targetDomainDict[domCount].ranges.append(resultsDict[hitname].tarRange)
+        targetDomainDict[domCount].midpoint = hit.tarMidpoint
+        targetDomainDict[domCount].extent = hit.tarExtent
+        targetDomainDict[domCount].matches.append(hit.name)
+        targetDomainDict[domCount].ranges.append(hit.tarRange)
+        return targetDomainDict
+    
+    def update_domain(hit, domain):
+        domain.matches.append(hit.name)
+        domain.ranges.append(hit.tarRange)
+    
+    # Set up first domain
+    targetDomainDict = {}
+    for hit in resultsDict.values():
+        update_or_create_domain(hit, targetDomainDict)
+    return targetDomainDict
 
+
+targetDomainDict = calculate_domains(resultsDict)
+
+print "GOT ",len(targetDomainDict)
 # for k in sorted(resultsDict.keys()):
 #     print k, resultsDict[k]
 for k in sorted(targetDomainDict.keys()):
     print k, targetDomainDict[k]
-
 sys.exit()
 
 k = '3f85_A2'
@@ -121,8 +134,16 @@ assert(resultsDict[k].localSEQID == 37)
 assert(resultsDict[k].overallSEQID == 8)
 
 
-# Biopython includes 1toc_R1, which is not in mrbump as below threshold
-# Filter on is_included
+# Check domains
+assert(len(targetDomainDict) == 4)
+key = 3
+dd = targetDomainDict[key]
+assert(dd.ID == key)
+assert(dd.extent == 52)
+assert(dd.matches == ['4bd9_B2', '2ody_F2', '4isl_B1', '1tfx_D1', '3uir_D1', '4u32_X1', '1bz5_D1', '1zr0_B1', '2m01_A1', '2m99_A1', '4bqd_A1', 
+                      '1jc6_A1', '1irh_A1', '2kcr_A1', '1dtk_A1', '1den_A1', '3wny_I1', '1y62_C1', '4nty_B1'])
+assert(dd.midpoint == 50.0)
+assert(dd.ranges == ['24-76', '24-78', '22-79', '22-77', '23-77', '24-76', '24-76', '25-76', '25-77', '25-76', '26-76', '25-77', '29-77', '24-78', '26-76', '26-76', '31-76', '25-76', '35-76'])
 
 
 sys.exit()
