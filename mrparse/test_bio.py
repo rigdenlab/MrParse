@@ -79,8 +79,8 @@ def calculate_domains(resultsDict):
             hit.tarExtent <= domain.extent + extentTolerance and \
             hit.tarMidpoint >= domain.midpoint - midpointTolerance and \
             hit.tarMidpoint <= domain.midpoint + midpointTolerance:
-            return False
-        return True
+            return True
+        return False
     
     def add_new_domain(hit, targetDomainDict):
         if not targetDomainDict:
@@ -98,6 +98,7 @@ def calculate_domains(resultsDict):
     def update_domain(hit, domain):
         domain.matches.append(hit.name)
         domain.ranges.append(hit.tarRange)
+        return
     
     # Set up first domain
     targetDomainDict = {}
@@ -105,15 +106,12 @@ def calculate_domains(resultsDict):
         update_or_create_domain(hit, targetDomainDict)
     return targetDomainDict
 
-
 targetDomainDict = calculate_domains(resultsDict)
 
-print "GOT ",len(targetDomainDict)
 # for k in sorted(resultsDict.keys()):
 #     print k, resultsDict[k]
 for k in sorted(targetDomainDict.keys()):
     print k, targetDomainDict[k]
-sys.exit()
 
 k = '3f85_A2'
 assert(k in resultsDict.keys())
