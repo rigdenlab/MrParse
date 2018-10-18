@@ -6,7 +6,7 @@ import sys
 
 # http://download.cathdb.info/cath/releases/latest-release/cath-classification-data/README-cath-list-file-format.txt
 
-df = pd.read_csv('tabularResults.csv')
+df = pd.read_csv('data/tabularResults.csv')
 df['PDB ID'] = df['PDB ID'].str.lower()
 pdbs = df['PDB ID'].unique().tolist()
 
@@ -15,7 +15,7 @@ index = pd.MultiIndex.from_tuples(tuples, names=['pdb', 'chain'])
 df.set_index(index, drop=True, inplace=True)
 
 res = {}
-with open('cath-domain-boundaries.txt') as f:
+with open('data/cath-domain-boundaries.txt') as f:
     for line in f:
         if line.startswith('#'):
             continue

@@ -12,17 +12,17 @@ import simpleSeqID
 
 # Compare 1bik
 align_file = "/opt/mrbump/tests/phmmer.log"
+align_file = "phmmer.log"
 io = SearchIO.read(align_file, 'hmmer3-text')
 
 
-assert len(io) == 31
-
 included = io.hit_filter(lambda x: x.is_included)
-
-assert len(included) == 30
-
-targetSequence = 'AVLPQEEEGSGGGQLVTEVTKKEDSCQLGYSAGPCMGMTSRYFYNGTSMACETFQYGGCMGNGNNFVTEKECLQTCRTVAACNLPIVRGPCRAFIQLWAFDAVKGKCVLFPYGGCQGNGNKFYSEKECREYCGVPGDGDEELLRFSN'
-
+if False:
+    assert len(io) == 31
+    assert len(included) == 30
+    targetSequence = 'AVLPQEEEGSGGGQLVTEVTKKEDSCQLGYSAGPCMGMTSRYFYNGTSMACETFQYGGCMGNGNNFVTEKECLQTCRTVAACNLPIVRGPCRAFIQLWAFDAVKGKCVLFPYGGCQGNGNKFYSEKECREYCGVPGDGDEELLRFSN'
+else:
+    targetSequence = 'ERCGEQGSNMECPNNLCCSQYGYCGMGGDYCGKGCQNGACWTSKRCGSQAGGATCTNNQCCSQYGYCGFGAEYCGAGCQGGPCRADIKCGSQAGGKLCPNNLCCSQWGFCGLGSEFCGGGCQSGACSTDKPCGKDAGGRVCTNNYCCSKWGSCGIGPGYCGAGCQSGGCDG'
 
 resultsDict = OrderedDict()
 rank = 0
@@ -106,12 +106,15 @@ def calculate_domains(resultsDict):
         update_or_create_domain(hit, targetDomainDict)
     return targetDomainDict
 
-targetDomainDict = calculate_domains(resultsDict)
 
+targetDomainDict = calculate_domains(resultsDict)
 # for k in sorted(resultsDict.keys()):
 #     print k, resultsDict[k]
 for k in sorted(targetDomainDict.keys()):
     print k, targetDomainDict[k]
+    
+    
+sys.exit()
 
 k = '3f85_A2'
 assert(k in resultsDict.keys())
