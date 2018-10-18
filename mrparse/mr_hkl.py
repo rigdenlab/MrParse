@@ -1,0 +1,102 @@
+'''
+Created on 18 Oct 2018
+
+@author: jmht
+'''
+import os
+
+from mrbump.ccp4.MRBUMP_ctruncate import Ctruncate
+from simbad.util import mtz_util
+from ample.util.ample_util import filename_append
+
+class HklInfo(object):
+    def __init__(self, hklin):
+        self.hklin = hklin
+        
+        self.space_group, self.resolution, self.cell_parameters = mtz_util.crystal_data(self.hklin)
+        
+        self.has_ncs = False
+        self.has_twinning = False
+        self.has_anisotropy = False
+        self.check_pathologies()
+        
+        return
+        
+    def check_pathologies(self):
+        """Function to run Ctruncate on input MTZ to generate any missing columns"""
+        hklin = self.hklin
+        hklout = filename_append(filename=hklin, directory=os.getcwd(), astr='fixcols')
+    
+        ctr_colin = None
+        ctr_colin_sig = None
+        plus_minus = None
+    
+        mtz_obj = mtz_util.GetLabels(hklin)
+    
+        ctr = Ctruncate()
+    
+        log_file = hklout.rsplit(".", 1)[0] + '.log'
+        ctr.setlogfile(log_file)
+    
+        if mtz_obj.f:
+            input_f = True
+        else:
+            input_f = False
+    
+        if mtz_obj.f or mtz_obj.i:
+            plus_minus = False
+            if mtz_obj.i:
+                ctr_colin = mtz_obj.i
+                ctr_colin_sig = mtz_obj.sigi
+            else:
+                ctr_colin = mtz_obj.f
+                ctr_colin_sig = mtz_obj.sigf
+    
+        elif mtz_obj.iplus:
+            plus_minus = True
+            ctr_colin = []
+            ctr_colin_sig = []
+            ctr_colin.append(mtz_obj.fplus)
+            ctr_colin.append(mtz_obj.fminus)
+            ctr_colin_sig.append(mtz_obj.sigfplus)
+            ctr_colin_sig.append(mtz_obj.sigfminus)
+    
+        elif mtz_obj.fplus:
+            plus_minus = True
+            ctr_colin = []
+            ctr_colin_sig = []
+            ctr_colin.append(mtz_obj.fplus)
+            ctr_colin.append(mtz_obj.fminus)
+            ctr_colin_sig.append(mtz_obj.sigfplus)
+            ctr_colin_sig.append(mtz_obj.sigfminus)
+    
+        if mtz_obj.i and mtz_obj.free:
+            ctr.ctruncate(hklin, hklout, ctr_colin, ctr_colin_sig, colout="from_SIMBAD", colinFREE=mtz_obj.free,
+                          USEINTEN=True, INPUTF=input_f, PLUSMINUS=plus_minus)
+        elif mtz_obj.i and not mtz_obj.free:
+            ctr.ctruncate(hklin, hklout, ctr_colin, ctr_colin_sig, colout="from_SIMBAD", USEINTEN=True, INPUTF=input_f,
+                          PLUSMINUS=plus_minus)
+        elif mtz_obj.free:
+            ctr.ctruncate(hklin, hklout, ctr_colin, ctr_colin_sig, colout="from_SIMBAD", colinFREE=mtz_obj.free,
+                          USEINTEN=False, PLUSMINUS=plus_minus)
+        else:
+            ctr.ctruncate(hklin, hklout, ctr_colin, ctr_colin_sig, colout="from_SIMBAD", USEINTEN=False,
+                          PLUSMINUS=plus_minus)
+            
+        self.has_ncs = ctr.NCS
+        self.has_twinning = ctr.TWIN
+        self.has_anisotropy = ctr.ANISO
+        return
+    
+    def to_str(self):
+        ostr = "HKL Info for file %s\n" % self.hklin
+        ostr += "Space Group: %s\n" % self.space_group
+        ostr += "Resolution: %s\n" % self.resolution
+#         ostr += "Cell Parameters: %s\n" % self.cell_parameters
+        ostr += "Has NCS?: %s\n" % self.has_ncs
+        ostr += "Has Twinning?: %s\n" % self.has_twinning
+        ostr += "Has Anisotropy?: %s\n" % self.has_anisotropy
+        return ostr
+    
+    def to_html(self):
+        return "<pre>{}</pre>".format(self.to_str())
