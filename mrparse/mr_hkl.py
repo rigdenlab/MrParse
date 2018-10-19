@@ -14,6 +14,7 @@ class HklInfo(object):
         self.hklin = hklin
         
         self.space_group, self.resolution, self.cell_parameters = mtz_util.crystal_data(self.hklin)
+        self.labels = None
         
         self.has_ncs = False
         self.has_twinning = False
@@ -32,6 +33,7 @@ class HklInfo(object):
         plus_minus = None
     
         mtz_obj = mtz_util.GetLabels(hklin)
+        self.labels = mtz_obj
     
         ctr = Ctruncate()
     
