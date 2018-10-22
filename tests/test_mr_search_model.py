@@ -45,19 +45,28 @@ ellginput.setSPAC_HALL(datrun.getSpaceGroupHall())
 ellginput.setCELL6(datrun.getUnitCell())
 ellginput.setREFL_DATA(datrun.getDATA())
 
-
-# addCOMP_PROT_MW_NUM(28853,1)
-ellginput.addCOMP_PROT_SEQ_NUM('../data/2uvoA.fasta', 4.0)
-
-for hname, hdata in homologs.items(): 
-    ellginput.addENSE_PDB_ID(hname, hdata['pdb'], hdata['seqid'])
-    ncopies = 1 # need to calculate?
-    ellginput.addSEAR_ENSE_NUM(hname, ncopies)
+multi = False
+if multi:
+    ellginput.addCOMP_PROT_SEQ_NUM('../data/2uvoA.fasta', 4.0)
+    for hname, hdata in homologs.items(): 
+        ellginput.addENSE_PDB_ID(hname, hdata['pdb'], hdata['seqid'])
+        ncopies = 1 # need to calculate?
+        ellginput.addSEAR_ENSE_NUM(hname, ncopies)
+else:
+    asu_mw = 72846.44
+    hname = '1iqb_B_1'
+    seqid = 0.45
+    pdb = 'pdb_downloads/1iqb_B.pdb'
+    mw = 9288.35400000003
+    this_mw = asu_mw - mw
+    ellginput.addCOMP_PROT_MW_NUM(this_mw, 1)
+    ellginput.addENSE_PDB_ID(hname, pdb, seqid)
+    ellginput.addSEAR_ENSE_NUM(hname, 1)
 
 runellg = phaser.runMR_ELLG(ellginput)
 
 stroutput = runellg.logfile()
-with open('phaser.log', 'w') as w:
+with open('phaser1.log', 'w') as w:
     w.write(stroutput)
 
 
