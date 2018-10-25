@@ -20,19 +20,11 @@ from mrparse.mr_search_model import DomainFinder, find_hits, get_homologs, calcu
 #     pickle.dump(homologs, w)
     
     
-with open('homologs.pkl') as f:
-    homologs = pickle.load(f)
+# with open('homologs.pkl') as f:
+#     homologs = pickle.load(f)
 # for h, d in homologs.items():
 #     print h, d
-    
-import pandas as pd
- 
-homologs = [h.__dict__ for _, h in homologs.items()]
-df = pd.DataFrame(homologs, columns = ['name', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid', 'frac_scat', 'total_frac_scat', 'total_frac_scat_known', 'pdb'])
-df['eLLG'] = df['eLLG'].astype(float)
-df.sort_values('eLLG', ascending=False, inplace=True)
-with open('foo.html', 'w') as w:
-    w.write(df.to_html())
+
 
 
 # ccp4-src-2016-02-10/checkout/cctbx-phaser-dials-2015-12-22/phaser/phaser/CalcCCFromMRsolutions.py

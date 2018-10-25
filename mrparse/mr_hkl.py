@@ -12,6 +12,7 @@ from ample.util.ample_util import filename_append
 class HklInfo(object):
     def __init__(self, hklin):
         self.hklin = hklin
+        self.name = os.path.splitext(os.path.basename(hklin))[0]
         
         self.space_group, self.resolution, self.cell_parameters = mtz_util.crystal_data(self.hklin)
         self.labels = None
@@ -90,7 +91,35 @@ class HklInfo(object):
         self.has_anisotropy = ctr.ANISO
         return
     
-    def to_str(self):
+    def as_html(self):
+        return """
+<table border="1">
+  <thead>
+    <tr style="text-align: right;">
+      <th>name</th>
+      <th>Resolution</th>
+      <th>Space Group</th>
+      <th>Has NCS?</th>
+      <th>Has Twinning?</th>
+      <th>Has Anisotropy?</th>
+      <th>File Path</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{name}</td>
+      <td>{resolution:5.3F}</td>
+      <td>{space_group}</td>
+      <td>{has_ncs}</td>
+      <td>{has_twinning}</td>
+      <td>{has_anisotropy}</td>
+      <td>{hklin}</td>
+    </tr>
+  </tbody>
+</table>
+""".format(**self.__dict__)
+        
+    def __str__(self):
         ostr = "HKL Info for file %s\n" % self.hklin
         ostr += "Space Group: %s\n" % self.space_group
         ostr += "Resolution: %s\n" % self.resolution
@@ -99,6 +128,3 @@ class HklInfo(object):
         ostr += "Has Twinning?: %s\n" % self.has_twinning
         ostr += "Has Anisotropy?: %s\n" % self.has_anisotropy
         return ostr
-    
-    def to_html(self):
-        return "<pre>{}</pre>".format(self.to_str())

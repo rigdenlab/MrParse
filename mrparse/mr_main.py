@@ -1,4 +1,4 @@
-#!/usr/local/bin/python2.7
+#!/usr/bin/env ccp4-python
 # encoding: utf-8
 '''
 mrparse.main -- shortdesc
@@ -25,14 +25,12 @@ from argparse import RawDescriptionHelpFormatter
 
 import mr_analyse
 
+DEBUG = 1
+
 __all__ = []
 __version__ = 0.1
 __date__ = '2018-10-18'
 __updated__ = '2018-10-18'
-
-DEBUG = 1
-TESTRUN = 0
-PROFILE = 0
 
 class CLIError(Exception):
     '''Generic exception to raise and log different fatal errors.'''
@@ -71,6 +69,7 @@ def main(argv=None): # IGNORE:C0111
 USAGE
 ''' % (program_shortdesc, str(__date__))
 
+
     try:
         # Setup argument parser
         parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
@@ -78,11 +77,10 @@ USAGE
         parser.add_argument('-V', '--version', action='version', version=program_version_message)
         parser.add_argument('hklin', help='MTZ/CIF Crystal Data file' )
         parser.add_argument('seqin', help='Sequence file' )
-        #parser.add_argument(dest="paths", help="paths to folder(s) with source file(s) [default: %(default)s]", metavar="path", nargs='+')
 
         # Process arguments
+        
         args = parser.parse_args()
-
         if args.verbose > 0:
             print("Verbose mode on")
         
@@ -93,7 +91,7 @@ USAGE
         ### handle keyboard interrupt ###
         return 0
     except Exception as e:
-        if DEBUG or TESTRUN:
+        if DEBUG:
             raise(e)
         indent = len(program_name) * " "
         sys.stderr.write(program_name + ": " + repr(e) + "\n")
@@ -101,11 +99,4 @@ USAGE
         return 2
 
 if __name__ == "__main__":
-    if DEBUG:
-        sys.argv.append("-h")
-        sys.argv.append("-v")
-        sys.argv.append("-r")
-    if TESTRUN:
-        import doctest
-        doctest.testmod()
     sys.exit(main())

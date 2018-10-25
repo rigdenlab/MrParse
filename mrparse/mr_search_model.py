@@ -268,27 +268,34 @@ def calculate_ellg(homologs):
 
 
 class SearchModelFinder(object):
-    def __init__(self):
-        pass
-    
-    def find_homologs(self, seqin):
+    def __init__(self, seqin):
         self.seqin = seqin
-        dfinder = DomainFinder()
-        #seqin = '../data/2uvoA.fasta'
-        hits = find_hits(seqin)
-        domains = dfinder.find_domains_from_hits(hits)
+        self.find_homologs()
+    
+    def find_homologs(self, mock=False):
+#         import pickle
+#         with open('../tests/homologs.pkl') as f:
+#             self.homologs = pickle.load(f)
+#             return
+        hits = find_hits(self.seqin)
+        domains = DomainFinder().find_domains_from_hits(hits)
         homologs = get_homologs(hits, domains)
-        calculate_ellg(homologs)
+        if mock:
+            ellg_data_from_phaser_log('phaser1.log', homologs)
+        else:
+            calculate_ellg(homologs)
         self.homologs = homologs
         
     def as_dataframe(self):
-        homologs = [h.__dict__ for _, h in self.homologs.items()]
-        
+        homolog_dict = [h.__dict__ for _, h in self.homologs.items()]
         columns = ['name', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid',
                    'frac_scat', 'total_frac_scat', 'total_frac_scat_known', 'pdb']
-        df = pd.DataFrame(homologs, columns=columns)
+        df = pd.DataFrame(homolog_dict, columns=columns)
         df.sort_values('eLLG', inplace=True, ascending=False)
         return df
+    
+    def as_html(self):
+        return self.as_dataframe().to_html(index=False)
 
 
     
