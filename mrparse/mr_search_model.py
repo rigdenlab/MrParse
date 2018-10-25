@@ -18,7 +18,6 @@ import pandas as pd
 
 from Bio import SearchIO
 
-
 # from Bio import AlignIO
 # from Bio.SeqFeature import SeqFeature, FeatureLocation
 def find_hits(seqin):
@@ -151,6 +150,8 @@ class HomologData(object):
         self.molecular_weight = None
         self.seqid = None
         self.pdb = None
+        self.domain = None
+        self.range = None
 
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
@@ -181,6 +182,8 @@ def get_homologs(hits, domains):
             homologs[hit.name].pdb = fpath
             homologs[hit.name].molecular_weight = float(pdb_struct.molecular_weight)
             homologs[hit.name].seqid = hits[hit.name].localSEQID / 100.0
+            homologs[hit.name].domain = domain.ID
+            homologs[hit.name].range = hits[hit.name].tarRange
             pdb_struct.save(fpath)
     return homologs
 
@@ -272,7 +275,7 @@ class SearchModelFinder(object):
         self.seqin = seqin
         self.find_homologs()
     
-    def find_homologs(self, mock=False):
+    def find_homologs(self, mock=True):
 #         import pickle
 #         with open('../tests/homologs.pkl') as f:
 #             self.homologs = pickle.load(f)
@@ -288,7 +291,7 @@ class SearchModelFinder(object):
         
     def as_dataframe(self):
         homolog_dict = [h.__dict__ for _, h in self.homologs.items()]
-        columns = ['name', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid',
+        columns = ['name', 'domain', 'range', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid',
                    'frac_scat', 'total_frac_scat', 'total_frac_scat_known', 'pdb']
         df = pd.DataFrame(homolog_dict, columns=columns)
         df.sort_values('eLLG', inplace=True, ascending=False)
