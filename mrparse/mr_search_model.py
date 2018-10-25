@@ -3,25 +3,24 @@ Created on 18 Oct 2018
 
 @author: jmht
 '''
-import os
+from ample.util.sequence_util import Sequence
 from collections import OrderedDict
+from mrbump.seq_align.MRBUMP_phmmer import PHHit, Domains
+from mrbump.seq_align.simpleSeqID import simpleSeqID
+import os
+from pyjob import cexec
+from pyjob.script import EXE_EXT
+from simbad.util.pdb_util import PdbStructure
+
+import phaser
+
+import pandas as pd
+
+from Bio import SearchIO
 
 
 # from Bio import AlignIO
 # from Bio.SeqFeature import SeqFeature, FeatureLocation
-from Bio import SearchIO
-
-from ample.util.sequence_util import Sequence
-
-from pyjob import cexec
-from pyjob.script import EXE_EXT
-
-from simbad.util.pdb_util import PdbStructure
-
-from mrbump.seq_align.simpleSeqID import simpleSeqID
-from mrbump.seq_align.MRBUMP_phmmer import PHHit, Domains
-
-
 def find_hits(seqin):
     phmmer_logfile = run_phmmer(seqin)
     targetSequence = Sequence(fasta=seqin).sequence()
@@ -138,7 +137,29 @@ class DomainFinder(object):
         domain.matches.append(hit.name)
         domain.ranges.append(hit.tarRange)
         return
-    
+
+
+class HomologData(object):
+    def __init__(self):
+        self.name = None
+        self.eLLG = None
+        self.frac_scat = None
+        self.total_frac_scat = None
+        self.total_frac_scat_known = None
+        self.rmsd = None
+        self.ncopies = None
+        self.molecular_weight = None
+        self.seqid = None
+        self.pdb = None
+
+    def __str__(self):
+        attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
+        INDENT = "  "
+        out_str = "Class: {}\nData:\n".format(self.__class__)
+        for a in sorted(attrs):
+            out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
+        return out_str
+
 
 def get_homologs(hits, domains):
     pdb_dir = 'pdb_downloads'
@@ -155,16 +176,120 @@ def get_homologs(hits, domains):
             pdb_struct.standardize()
             pdb_name = hit.pdbName + '_' + hit.chainID + '.pdb'
             fpath = os.path.join(pdb_dir, pdb_name)
-            homologs[hit.name] = {}
-            homologs[hit.name]['pdb'] = fpath
-            homologs[hit.name]['mw'] = pdb_struct.molecular_weight
-            homologs[hit.name]['seqid'] = hits[hit.name].localSEQID / 100.0
+            homologs[hit.name] = HomologData()
+            homologs[hit.name].name = hit.name
+            homologs[hit.name].pdb = fpath
+            homologs[hit.name].molecular_weight = float(pdb_struct.molecular_weight)
+            homologs[hit.name].seqid = hits[hit.name].localSEQID / 100.0
             pdb_struct.save(fpath)
     return homologs
 
+
+def ellg_data_from_phaser_log(fpath, homologs):
+    with open(fpath) as fh:
+        line = fh.readline()
+        while line:
+            # Get base homolog data
+            if line.strip().startswith('eLLG: eLLG of ensemble alone'):
+                fh.readline()
+                while True:
+                    line = fh.readline()
+                    if not line.strip():
+                        break
+                    eLLG, rmsd, frac_scat, name = line.strip().split()
+                    h = homologs[name]
+                    h.eLLG = float(eLLG)
+                    h.rmsd = float(rmsd)
+                    h.frac_scat = float(frac_scat)
+            # Get ncoopies
+            if line.strip().startswith('Number of copies for eLLG target'):
+                fh.readline()
+                fh.readline()
+                while True:
+                    line = fh.readline()
+                    if not line.strip():
+                        break
+                    _, _, total_frac_scat_known, total_frac_scat, ncopies, homolog = line.strip().split()
+                    h = homologs[homolog]
+                    h.total_frac_scat_known = float(total_frac_scat_known)
+                    h.total_frac_scat = float(total_frac_scat)
+                    h.ncopies = int(ncopies)
+            line = fh.readline()
+    return homologs
+
+
+def calculate_ellg(homologs):
+    """Stuff from : ccp4-src-2016-02-10/checkout/cctbx-phaser-dials-2015-12-22/phaser/phaser/CalcCCFromMRsolutions.py"""
+    mrinput = phaser.InputMR_DAT()
+    HKLIN = '../data/2uvo_pdbredo.mtz'
+    mrinput.setHKLI(HKLIN)
+    F = 'FP'
+    SIGF = 'SIGFP'
+    mrinput.setLABI_F_SIGF(F, SIGF)
     
+    datrun = phaser.runMR_DAT(mrinput)
+    
+    if not datrun.Success():
+        raise RuntimeError("NO SUCCESS")
+    
+    ellginput = phaser.InputMR_ELLG()
+    ellginput.setSPAC_HALL(datrun.getSpaceGroupHall())
+    ellginput.setCELL6(datrun.getUnitCell())
+    ellginput.setREFL_DATA(datrun.getDATA())
+    # Can't mute or no logfile!
+    #ellginput.setMUTE(True)
+    
+    asu_mw = 72846.44
+
+    # Should calculate MW without the search model so that the total MW will be correct when we add the search model
+    ellginput.addCOMP_PROT_MW_NUM(asu_mw, 1)
+    search_models = []
+    for hname, d in homologs.items():
+        ellginput.addENSE_PDB_ID(hname, d.pdb, d.seqid)
+        search_models.append(hname)
+    ellginput.addSEAR_ENSE_OR_ENSE_NUM(search_models, 1)
+    
+    runellg = phaser.runMR_ELLG(ellginput)
+    
+    """
+    DIR runellg ['ErrorMessage', 'ErrorName', 'Failed', 'Failure', 'Success',  'concise', 'cpu_time', 
+    'get_ellg_full_resolution', 'get_ellg_target_nres', 'get_map_chain_ellg', 'get_map_ellg_full_resolution', 
+    'get_perfect_data_resolution', 'get_target_resolution', 'get_useful_resolution', 'git_branchname', 'git_commitdatetime', 
+    'git_hash', 'git_rev', 'git_shorthash', 'git_tagname', 'git_totalcommits', 'logfile', 'loggraph', 'output_strings', 'process', 
+    'run_time', 'setLevel', 'setPackageCCP4', 'setPackagePhenix', 'setPhenixCallback', 'setPhenixPackageCallback', 'set_callback', 
+    'set_file_object', 'set_sys_stdout', 'summary', 'svn_revision', 'verbose', 'version_number', 'warnings']
+    """
+    
+    stroutput = runellg.logfile()
+    phaser_log = 'phaser1.log'
+    with open(phaser_log, 'w') as w:
+        w.write(stroutput)
+    ellg_data_from_phaser_log(phaser_log, homologs)
+
 
 class SearchModelFinder(object):
-    def __init__(self, seqin):
+    def __init__(self):
+        pass
+    
+    def find_homologs(self, seqin):
         self.seqin = seqin
+        dfinder = DomainFinder()
+        #seqin = '../data/2uvoA.fasta'
+        hits = find_hits(seqin)
+        domains = dfinder.find_domains_from_hits(hits)
+        homologs = get_homologs(hits, domains)
+        calculate_ellg(homologs)
+        self.homologs = homologs
+        
+    def as_dataframe(self):
+        homologs = [h.__dict__ for _, h in self.homologs.items()]
+        
+        columns = ['name', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid',
+                   'frac_scat', 'total_frac_scat', 'total_frac_scat_known', 'pdb']
+        df = pd.DataFrame(homologs, columns=columns)
+        df.sort_values('eLLG', inplace=True, ascending=False)
+        return df
+
+
+    
 
