@@ -3,11 +3,11 @@ Created on 18 Oct 2018
 
 @author: jmht
 '''
-from ample.util.sequence_util import Sequence
 from collections import OrderedDict
-from mrbump.seq_align.MRBUMP_phmmer import PHHit, Domains
-from mrbump.seq_align.simpleSeqID import simpleSeqID
 import os
+
+from ample.util.sequence_util import Sequence
+from mrbump.seq_align.simpleSeqID import simpleSeqID
 from pyjob import cexec
 from pyjob.script import EXE_EXT
 from simbad.util.pdb_util import PdbStructure
@@ -33,7 +33,7 @@ def find_hits(seqin):
         rank = i + 1
         for hsp in hit.hsps:
 #             sequence_identity = float(sum([a==b for a, b in zip(*[str(s.upper().seq) for s in hsp.aln.get_all_seqs()])])) / float(hsp.aln_span) 
-            ph = PHHit()
+            ph = SequenceHit()
             ph.rank = rank
             ph.chainName = hsp.hit_id
             name, chain = hsp.hit_id.split('_')
@@ -88,7 +88,38 @@ def run_phmmer(seqin):
     return logfile 
 
 
-class DomainFinder(object):
+class SequenceHit:
+    def __init__(self):
+        self.chainName = ""
+        self.pdbName = ""
+        self.chainID = ""
+        self.domainID = ""
+        self.rank = ""
+        self.prob = 0.0
+        self.evalue = 0.0
+        self.pvalue = 0.0
+        self.score = 0.0
+        self.ndomains = 0
+        self.alignment = ""
+        self.alnRange = ""
+        self.tarRange = ""
+        self.tarExtent = 0
+        self.tarMidpoint = 0.0
+        self.cols = 0
+        self.localSEQID = 0.0
+        self.overallSEQID = 0.0
+        self.alignments = dict([])
+
+    def __str__(self):
+        attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
+        INDENT = "  "
+        out_str = "Class: {}\nData:\n".format(self.__class__)
+        for a in sorted(attrs):
+            out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
+        return out_str
+
+
+class RegionFinder(object):
     def __init__(self):
         pass
      
@@ -102,14 +133,13 @@ class DomainFinder(object):
         # Set up first domain
         targetDomains = []
         for hit in hits.values():
-            self.update_or_create_domain(hit, targetDomains)
+            self.create_or_update_domain(hit, targetDomains)
         return targetDomains
     
-    def update_or_create_domain(self, hit, targetDomains):
+    def create_or_update_domain(self, hit, targetDomains):
         for domain in targetDomains:
             if self.hit_within_domain(hit, domain):
                 return self.update_domain(hit, domain)
-        # Domain not found so add new
         self.add_new_domain(hit, targetDomains)
         return
 
@@ -120,9 +150,15 @@ class DomainFinder(object):
             hit.tarMidpoint <= domain.midpoint + midpointTolerance:
             return True
         return False
+
+    def update_domain(self, hit, domain):
+        # Should we update the midpoint and extent of the domain?
+        domain.matches.append(hit.name)
+        domain.ranges.append(hit.tarRange)
+        return
     
     def add_new_domain(self, hit, targetDomains):
-        domain = Domains()
+        domain = RegionData()
         domain.ID = len(targetDomains) + 1
         domain.midpoint = hit.tarMidpoint
         domain.extent = hit.tarExtent
@@ -131,12 +167,6 @@ class DomainFinder(object):
         targetDomains.append(domain)
         return targetDomains
     
-    def update_domain(self, hit, domain):
-        # Should we update the midpoint and extent of the domain?
-        domain.matches.append(hit.name)
-        domain.ranges.append(hit.tarRange)
-        return
-
 
 class HomologData(object):
     def __init__(self):
@@ -161,6 +191,31 @@ class HomologData(object):
             out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
         return out_str
 
+class RegionData:
+    def __init__(self):
+        self.targetName = ""
+        self.ID = 0
+        self.midpoint = 0
+        self.extent = 0
+        self.matches = []
+        self.ranges = []
+    
+    @property
+    def start_stop(self):
+        assert self.midpoint >= 0 or self.extent >= 0, "Need non-zero midpoint and extent!"
+        half_len = int(self.extent / 2)
+        start = self.midpoint - half_len
+        stop = self.midpoint + half_len
+        return start, stop
+        
+    def __str__(self):
+        attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
+        INDENT = "  "
+        out_str = "Class: {}\nData:\n".format(self.__class__)
+        for a in sorted(attrs):
+            out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
+        return out_str
+
 
 def get_homologs(hits, domains):
     pdb_dir = 'pdb_downloads'
@@ -177,14 +232,15 @@ def get_homologs(hits, domains):
             pdb_struct.standardize()
             pdb_name = hit.pdbName + '_' + hit.chainID + '.pdb'
             fpath = os.path.join(pdb_dir, pdb_name)
-            homologs[hit.name] = HomologData()
-            homologs[hit.name].name = hit.name
-            homologs[hit.name].pdb = fpath
-            homologs[hit.name].molecular_weight = float(pdb_struct.molecular_weight)
-            homologs[hit.name].seqid = hits[hit.name].localSEQID / 100.0
-            homologs[hit.name].domain = domain.ID
-            homologs[hit.name].range = hits[hit.name].tarRange
             pdb_struct.save(fpath)
+            hlog = HomologData()
+            hlog.name = hit.name
+            hlog.pdb = fpath
+            hlog.molecular_weight = float(pdb_struct.molecular_weight)
+            hlog.seqid = hits[hit.name].localSEQID / 100.0
+            hlog.domain = domain.ID
+            hlog.range = hits[hit.name].tarRange
+            homologs[hit.name] = hlog
     return homologs
 
 
@@ -281,7 +337,7 @@ class SearchModelFinder(object):
 #             self.homologs = pickle.load(f)
 #             return
         hits = find_hits(self.seqin)
-        domains = DomainFinder().find_domains_from_hits(hits)
+        domains = RegionFinder().find_domains_from_hits(hits)
         homologs = get_homologs(hits, domains)
         if mock:
             ellg_data_from_phaser_log('phaser1.log', homologs)

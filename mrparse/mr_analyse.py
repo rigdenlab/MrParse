@@ -7,6 +7,42 @@ Created on 18 Oct 2018
 from mr_hkl import HklInfo
 from mr_search_model import SearchModelFinder
 
+import json
+import colorsys
+def get_N_HexCol(N=5):
+    HSV_tuples = [(x*1.0/N, 0.5, 0.5) for x in xrange(N)]
+    hex_out = []
+    for rgb in HSV_tuples:
+        rgb = map(lambda x: int(x*255),colorsys.hsv_to_rgb(*rgb))
+        hex_out.append("".join(map(lambda x: chr(x).encode('hex'), rgb)))
+    hex_out = ['#' + h for h in hex_out]
+    return hex_out
+
+class RegionsDisplay():
+    def __init__(self, seqlen, regions):
+        self.seqlen = seqlen
+        self.regions = regions
+        self.region_colors = get_N_HexCol(len(regions))
+        return
+    
+    def generate_pfam_json(self):
+        region_data = [self.region_pfam_dict(i, region) for i, region in enumerate(self.regions)]
+        return json.dumps(region_data)
+    
+    def region_pfam_dict(self, idx, region):
+        start, stop = region.start_stop
+        d = { 'startStyle': "curved",
+              'endStyle':   "curved",
+              'start':      start,
+              'end':        stop,
+              'aliStart':   start,
+              'aliEnd':     stop,
+              'colour':     self.region_colors[idx],
+              'text':       str(region.ID) }
+        jdict = {'length' : self.seqlen,
+                 'regions' : [d]}
+        return jdict
+
 class DataDisplay():
     def __init__(self, hkl_info=None, search_model_finder=None):
         self.hkl_info = hkl_info
