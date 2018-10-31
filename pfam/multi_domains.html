@@ -107,7 +107,7 @@
         clear();
         var root_div = document.getElementById('dg');
         // Add canvases for graphics
-        for (let i = 1; i < JSON.length; i++) {
+        for (let i = 0; i < JSON.length; i++) {
           let region = JSON[i];
           let gdiv_id = 'pfam_dg_' + i;
           let gdiv = document.createElement('div');
@@ -115,6 +115,11 @@
           gdiv.setAttribute('class', 'pfam_dg');
           root_div.appendChild(gdiv);
           let pg = new PfamGraphic();
+          pg.setImageParams( {
+            residueWidth: 7.0,
+            xscale: 1.0,
+            yscale: 1.0
+          } );
           try {
             pg.setParent(gdiv_id)
             pg.setSequence(region);

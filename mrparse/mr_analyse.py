@@ -26,22 +26,25 @@ class RegionsDisplay():
         return
     
     def generate_pfam_json(self):
-        region_data = [self.region_pfam_dict(i, region) for i, region in enumerate(self.regions)]
+        region_data = []
+        for idx_region, region in enumerate(self.regions):
+            for idx_range, rrange in enumerate(region.ranges):
+                start, stop = map(int, rrange.split('-'))
+                name = region.matches[idx_range]
+                d = { 'startStyle': "curved",
+                      'endStyle': "curved",
+                      'start': start,
+                      'end': stop,
+                      'aliStart': start,
+                      'aliEnd': stop,
+                      'colour': self.region_colors[idx_region],
+#                       'text': str(region.ID)}
+                      'text': name}
+                jdict = {'length' : self.seqlen,
+                         'regions' : [d]}
+                region_data.append(jdict)
         return json.dumps(region_data)
     
-    def region_pfam_dict(self, idx, region):
-        start, stop = region.start_stop
-        d = { 'startStyle': "curved",
-              'endStyle':   "curved",
-              'start':      start,
-              'end':        stop,
-              'aliStart':   start,
-              'aliEnd':     stop,
-              'colour':     self.region_colors[idx],
-              'text':       str(region.ID) }
-        jdict = {'length' : self.seqlen,
-                 'regions' : [d]}
-        return jdict
 
 class DataDisplay():
     def __init__(self, hkl_info=None, search_model_finder=None):
