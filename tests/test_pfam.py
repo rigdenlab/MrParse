@@ -7,13 +7,10 @@ import sys
 import pickle
 import set_mrparse_path
 
-from mrparse.mr_analyse import RegionsDisplay, get_N_HexCol
+from mrparse.mr_analyse import RegionsDisplay
 
-
-with open('hits.pkl') as hits_fh, open('domains.pkl') as regions_fh, open('homologs.pkl') as homologs_fh:
-    hits = pickle.load(hits_fh)
+with open('regions.pkl') as regions_fh:
     regions = pickle.load(regions_fh)
-    #homologs = pickle.load(homologs_fh)
        
 seqlen = 172
 rg = RegionsDisplay(seqlen, regions)

@@ -12,9 +12,10 @@ hits = find_hits(seqin)
 with open('hits.pkl', 'w') as w:
     pickle.dump(hits, w)
 regions = rfinder.find_regions_from_hits(hits)
-with open('domains.pkl', 'w') as w:
+with open('regions.pkl', 'w') as w:
     pickle.dump(regions, w)
-homologs = get_homologs(hits, regions)
+    
+# homologs = get_homologs(hits, regions)
 # with open('homologs.pkl', 'w') as w:
 #     pickle.dump(homologs, w)
  
@@ -22,9 +23,9 @@ homologs = get_homologs(hits, regions)
 #     homologs = pickle.load(f) 
 # ellg_data_from_phaser_log('phaser1.log', homologs)
  
-calculate_ellg(homologs)
-with open('homologs.pkl', 'w') as w:
-    pickle.dump(homologs, w)
+# calculate_ellg(homologs)
+# with open('homologs.pkl', 'w') as w:
+#     pickle.dump(homologs, w)
         
 # with open('homologs.pkl') as f:
 #     homologs = pickle.load(f)

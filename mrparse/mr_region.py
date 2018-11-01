@@ -3,6 +3,8 @@ Created on 18 Oct 2018
 
 @author: jmht
 '''
+from operator import attrgetter
+from mrparse.mr_hit import sort_hits_by_size
 
 class RegionData:
     def __init__(self):
@@ -33,18 +35,15 @@ class RegionData:
 class RegionFinder(object):
     def __init__(self):
         pass
-     
-    def find_regions(self, hits):
-        targetRegions = self.find_regions_from_hits(hits)
-        return targetRegions
 
     def find_regions_from_hits(self, hits):
         """Figure out the regions for the target that have been matched"""
-        # Set up first region
+        # Hits need to be sorted from smallest to largest or the domain finding won't work
+        hits = sort_hits_by_size(hits, ascending=True)
         targetRegions = []
         for hit in hits.values():
             self.create_or_update_region(hit, targetRegions)
-        return targetRegions
+        return self.sort_regions(targetRegions)
     
     def create_or_update_region(self, hit, targetRegions):
         for region in targetRegions:
@@ -76,3 +75,13 @@ class RegionFinder(object):
         region.ranges.append(hit.tarRange)
         targetRegions.append(region)
         return targetRegions
+    
+    def sort_regions(self, regions, ascending=False):
+        reverse = not(ascending)
+        # Need to think about better ways of sorting - probably store reference to hit in region?
+        regions = sorted(regions, key=attrgetter('extent'), reverse=reverse)
+        # The matches and ranges also need to be sorted
+        for r in regions:
+            r.matches.reverse()
+            r.ranges.reverse()
+        return regions

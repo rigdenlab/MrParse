@@ -39,7 +39,13 @@ class RegionsDisplay():
                       'aliEnd': stop,
                       'colour': self.region_colors[idx_region],
 #                       'text': str(region.ID)}
-                      'text': name}
+                      'text': name,
+                      'metadata' : { "description" : "Domain #%s" % region.ID,
+                                     "database" : "PHMMER search",
+                                     "start" : start,
+                                     "end" : stop,
+                                      }
+                      }            
                 jdict = {'length' : self.seqlen,
                          'regions' : [d]}
                 region_data.append(jdict)

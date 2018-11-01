@@ -71,13 +71,15 @@ def find_hits(seqin):
             ph.evalue = hsp.evalue # is i-Evalue - possibly evalue_cond in later BioPython
             ph.ndomains = len(hit)
             
-            start, stop = hsp.hit_range
-            ph.alnRange = "{}-{}".format(start + 1, stop)
-            start, stop = hsp.query_range
-            start_p1 = start + 1
-            ph.tarRange = "{}-{}".format(start_p1, stop)
+#             hstart, hstop = hsp.hit_range
+            hstart = hsp.hit_start
+            hstop = hsp.hit_end
+            ph.alnRange = "{}-{}".format(hstart + 1, hstop)
+            qstart, qstop = hsp.query_range
+            qstart_p1 = qstart + 1
+            ph.tarRange = "{}-{}".format(qstart_p1, qstop)
             ph.tarExtent = hsp.query_span - 1
-            ph.tarMidpoint = ((float(stop) - float(start_p1)) / 2.0) + float(start_p1)
+            ph.tarMidpoint = ((float(qstop) - float(qstart_p1)) / 2.0) + float(qstart_p1)
             
             targetAlignment = "".join(hsp.aln[0].upper()) # assume the first Sequence is always the target
             ph.targetAlignment = targetAlignment
@@ -94,6 +96,10 @@ def find_hits(seqin):
             hitDict[name] = ph
 
     return hitDict
+
+def sort_hits_by_size(hits, ascending=False):
+    reverse = not(ascending)
+    return OrderedDict(sorted(hits.items(), key=lambda x: x[1].tarExtent, reverse=reverse))
 
 def run_phmmer(seqin):
     logfile = "phmmer.log"
