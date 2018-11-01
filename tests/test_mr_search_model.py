@@ -1,17 +1,20 @@
 import pickle
 import set_mrparse_path
 
-from mrparse.mr_search_model import RegionFinder, find_hits, get_homologs, calculate_ellg, ellg_data_from_phaser_log
+from mrparse.mr_search_model import RegionFinder
+from mrparse.mr_homolog import get_homologs, calculate_ellg
+from mrparse.mr_hit import find_hits
 
-dfinder = RegionFinder()
+
+rfinder = RegionFinder()
 seqin = '../data/2uvoA.fasta'
 hits = find_hits(seqin)
 with open('hits.pkl', 'w') as w:
     pickle.dump(hits, w)
-domains = dfinder.find_domains_from_hits(hits)
+regions = rfinder.find_regions_from_hits(hits)
 with open('domains.pkl', 'w') as w:
-    pickle.dump(domains, w)
-homologs = get_homologs(hits, domains)
+    pickle.dump(regions, w)
+homologs = get_homologs(hits, regions)
 # with open('homologs.pkl', 'w') as w:
 #     pickle.dump(homologs, w)
  
