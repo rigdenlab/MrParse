@@ -68,26 +68,216 @@
         margin: 1em 0;
         padding: 0.4em;
       }
+      .hidden { display: none;}
     </style>
 
   </head>
 
   <body>
 
-    <h3>Domain graphics test page</h3>
+    <div class="hidden">
+    <h2>HKLIN info</h2>
+    <table border="1">
+      <thead>
+        <tr style="text-align: right;">
+          <th>name</th>
+          <th>Resolution</th>
+          <th>Space Group</th>
+          <th>Has NCS?</th>
+          <th>Has Twinning?</th>
+          <th>Has Anisotropy?</th>
+          <th>File Path</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2uvo_pdbredo</td>
+          <td>1.400</td>
+          <td>P1211</td>
+          <td>True</td>
+          <td>False</td>
+          <td>True</td>
+          <td>../data/2uvo_pdbredo.mtz</td>
+        </tr>
+      </tbody>
+    </table>
 
-    <p>
-      This page allows you to test the domain graphics library with different
-      domain graphics descriptions. You can edit the string in the text area
-      below and press &quot;submit&quot; to see the resulting graphic. If
-      there are problems with the description, you should see an explanatory
-      error message...
-    </p>
-    <p>
-      Read the source code of the page for an explanation of how to use
-      the library. We also recommend taking a look at the source code of the
-      javascript library itself.
-    </p>
+    <h2>Search Model info</h2>
+    <table border="1" class="dataframe">
+      <thead>
+        <tr style="text-align: right;">
+          <th>name</th>
+          <th>domain</th>
+          <th>range</th>
+          <th>eLLG</th>
+          <th>ncopies</th>
+          <th>molecular_weight</th>
+          <th>rmsd</th>
+          <th>seqid</th>
+          <th>frac_scat</th>
+          <th>total_frac_scat</th>
+          <th>total_frac_scat_known</th>
+          <th>pdb</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2x3t_C_1</td>
+          <td>1</td>
+          <td>2-170</td>
+          <td>1251.9</td>
+          <td>1</td>
+          <td>16895.8708</td>
+          <td>0.398</td>
+          <td>1.00</td>
+          <td>0.24508</td>
+          <td>0.24508</td>
+          <td>0.00000</td>
+          <td>pdb_downloads/2x3t_C.pdb</td>
+        </tr>
+        <tr>
+          <td>1ulk_B_1</td>
+          <td>1</td>
+          <td>46-166</td>
+          <td>132.6</td>
+          <td>2</td>
+          <td>13739.1970</td>
+          <td>0.777</td>
+          <td>0.53</td>
+          <td>0.19799</td>
+          <td>0.39598</td>
+          <td>0.19799</td>
+          <td>pdb_downloads/1ulk_B.pdb</td>
+        </tr>
+        <tr>
+          <td>1ulm_B_1</td>
+          <td>2</td>
+          <td>88-169</td>
+          <td>61.8</td>
+          <td>2</td>
+          <td>9096.9760</td>
+          <td>0.765</td>
+          <td>0.54</td>
+          <td>0.13167</td>
+          <td>0.26335</td>
+          <td>0.13167</td>
+          <td>pdb_downloads/1ulm_B.pdb</td>
+        </tr>
+        <tr>
+          <td>1iqb_B_1</td>
+          <td>4</td>
+          <td>2-79</td>
+          <td>40.5</td>
+          <td>3</td>
+          <td>9288.3540</td>
+          <td>0.877</td>
+          <td>0.45</td>
+          <td>0.13298</td>
+          <td>0.39893</td>
+          <td>0.26596</td>
+          <td>pdb_downloads/1iqb_B.pdb</td>
+        </tr>
+        <tr>
+          <td>4wp4_A_1</td>
+          <td>3</td>
+          <td>88-124</td>
+          <td>29.0</td>
+          <td>3</td>
+          <td>4724.1800</td>
+          <td>0.637</td>
+          <td>0.66</td>
+          <td>0.06781</td>
+          <td>0.20344</td>
+          <td>0.13563</td>
+          <td>pdb_downloads/4wp4_A.pdb</td>
+        </tr>
+        <tr>
+          <td>5xdi_A_1</td>
+          <td>5</td>
+          <td>45-79</td>
+          <td>22.0</td>
+          <td>4</td>
+          <td>4085.6130</td>
+          <td>0.637</td>
+          <td>0.66</td>
+          <td>0.05908</td>
+          <td>0.23631</td>
+          <td>0.17723</td>
+          <td>pdb_downloads/5xdi_A.pdb</td>
+        </tr>
+        <tr>
+          <td>5wuz_A_1</td>
+          <td>3</td>
+          <td>88-124</td>
+          <td>18.6</td>
+          <td>4</td>
+          <td>4559.0410</td>
+          <td>0.720</td>
+          <td>0.58</td>
+          <td>0.06564</td>
+          <td>0.26258</td>
+          <td>0.19693</td>
+          <td>pdb_downloads/5wuz_A.pdb</td>
+        </tr>
+        <tr>
+          <td>2lb7_A_1</td>
+          <td>5</td>
+          <td>44-84</td>
+          <td>16.5</td>
+          <td>4</td>
+          <td>4430.0980</td>
+          <td>0.742</td>
+          <td>0.56</td>
+          <td>0.06485</td>
+          <td>0.25940</td>
+          <td>0.19455</td>
+          <td>pdb_downloads/2lb7_A.pdb</td>
+        </tr>
+        <tr>
+          <td>2kus_A_1</td>
+          <td>4</td>
+          <td>45-75</td>
+          <td>10.5</td>
+          <td>5</td>
+          <td>3453.9040</td>
+          <td>0.720</td>
+          <td>0.58</td>
+          <td>0.04928</td>
+          <td>0.24638</td>
+          <td>0.19711</td>
+          <td>pdb_downloads/2kus_A.pdb</td>
+        </tr>
+        <tr>
+          <td>2n1s_A_1</td>
+          <td>6</td>
+          <td>11-32</td>
+          <td>10.1</td>
+          <td>5</td>
+          <td>2984.4460</td>
+          <td>0.667</td>
+          <td>0.63</td>
+          <td>0.04303</td>
+          <td>0.21517</td>
+          <td>0.17213</td>
+          <td>pdb_downloads/2n1s_A.pdb</td>
+        </tr>
+        <tr>
+          <td>1mmc_A_1</td>
+          <td>6</td>
+          <td>11-33</td>
+          <td>10.1</td>
+          <td>5</td>
+          <td>3191.8120</td>
+          <td>0.698</td>
+          <td>0.60</td>
+          <td>0.04615</td>
+          <td>0.23074</td>
+          <td>0.18459</td>
+          <td>pdb_downloads/1mmc_A.pdb</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
     <!-- this will hold the canvas element -->
     <div id="dg"></div>
@@ -116,7 +306,7 @@
           root_div.appendChild(gdiv);
           let pg = new PfamGraphic();
           pg.setImageParams( {
-            residueWidth: 7.0,
+            residueWidth: 5.0,
             xscale: 1.0,
             yscale: 1.0
           } );

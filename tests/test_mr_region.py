@@ -7,17 +7,12 @@ from mrparse.mr_region import RegionFinder
 
 def test_region_2uvoA(test_data):
     rfinder = RegionFinder()
-    if False:
-        seqin = test_data.x2uvoA_fasta
-        hits = find_hits(seqin)
-        with open('hits.pkl', 'w') as w:
-            pickle.dump(hits, w)
-    else:
-        with open('hits.pkl') as f:
-            hits = pickle.load(f)
+    seqin = test_data.x2uvoA_fasta
+    hits = find_hits(seqin)
     regions = rfinder.find_regions_from_hits(hits)
-    for r in regions:
-        print("GOT REGION %s" % r)
+    assert len(regions) == 5
+    assert regions[2].ID == 3
+    assert regions[2].matches == ['5wuz_A_1', '4wp4_A_1']
 
 if __name__ == '__main__':
     import sys

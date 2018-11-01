@@ -2,6 +2,20 @@
 Created on 18 Oct 2018
 
 @author: jmht
+name extent midpoint # range extent midpoint
+
+1qib 77 40 -> #4 27-127, 20.5-60.5
+
+
+5xdi 34 62 -> #5 -16-84, 42-82 
+
+
+2lb7 40 64 # Within 5
+
+
+2kus 40 64 # Within 4 and 5
+
+
 '''
 from operator import attrgetter
 from mrparse.mr_hit import sort_hits_by_size
@@ -36,23 +50,33 @@ class RegionFinder(object):
     def __init__(self):
         pass
 
-    def find_regions_from_hits(self, hits):
+    def find_regions_from_hits(self, hits, sort=True):
         """Figure out the regions for the target that have been matched"""
         # Hits need to be sorted from smallest to largest or the domain finding won't work
-        hits = sort_hits_by_size(hits, ascending=True)
+        if sort:
+            hits = sort_hits_by_size(hits, ascending=True)
         targetRegions = []
         for hit in hits.values():
+#             print "CHECKING HIT %s %s %s" % (hit.name, hit.tarExtent, hit.tarMidpoint)
             self.create_or_update_region(hit, targetRegions)
-        return self.sort_regions(targetRegions)
+        if sort:
+            targetRegions = self.sort_regions(targetRegions)
+        return targetRegions
     
     def create_or_update_region(self, hit, targetRegions):
         for region in targetRegions:
+#             print "Checking region %s %s %s" % (region.ID, region.extent, region.midpoint)
             if self.hit_within_region(hit, region):
+#                 print "WITHIN"
                 return self.update_region(hit, region)
         self.add_new_region(hit, targetRegions)
         return
 
     def hit_within_region(self, hit, region, extentTolerance=50, midpointTolerance=20):
+#         print "e- %s e+ %s m- %s m+ %s" % (region.extent - extentTolerance,
+#                                            region.extent + extentTolerance,
+#                                            region.midpoint - midpointTolerance,
+#                                            region.midpoint + midpointTolerance)
         if hit.tarExtent >= region.extent - extentTolerance and \
             hit.tarExtent <= region.extent + extentTolerance and \
             hit.tarMidpoint >= region.midpoint - midpointTolerance and \
@@ -74,6 +98,7 @@ class RegionFinder(object):
         region.matches.append(hit.name)
         region.ranges.append(hit.tarRange)
         targetRegions.append(region)
+#         print "NEW", hit.name, region.ID
         return targetRegions
     
     def sort_regions(self, regions, ascending=False):
@@ -81,7 +106,8 @@ class RegionFinder(object):
         # Need to think about better ways of sorting - probably store reference to hit in region?
         regions = sorted(regions, key=attrgetter('extent'), reverse=reverse)
         # The matches and ranges also need to be sorted
-        for r in regions:
+        for i, r in enumerate(regions):
+            r.ID = i + 1
             r.matches.reverse()
             r.ranges.reverse()
         return regions
