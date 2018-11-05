@@ -2,14 +2,22 @@
 Created on 26 Oct 2018
 
 @author: jmht
+
+https://omictools.com/protein-coiled-coil-domain-prediction-category
+
+paircoil2 MIT
+deepcoil **
+
+
 '''
 import pickle
 import set_mrparse_path
 from mrparse.mr_analyse import RegionsDisplay
 
-seqin = '../data/2uvoA.fasta'
 seqin = '../data/5u4pA.fasta'
 seqin = '../data/5u4pB.fasta'
+seqin = '../data/O75410.fasta'
+seqin = '../data/2uvoA.fasta'
 if True:
     from mrparse.mr_region import RegionFinder
     from mrparse.mr_hit import find_hits
