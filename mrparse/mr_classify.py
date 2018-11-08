@@ -50,10 +50,10 @@ def run_deepcoil(fasta_in):
             fasta_in]
     try:
         # Need to sent env so that we don't inherit python2 environment
-        cexec(cmd, env={})
-    #except (OSError, PyJobExecutionError) as e:
-    except OSError as e:
-        print("Error running command:{}\n{}".format(cmd, e))
+        stdout = cexec(cmd, env={})
+    except (OSError, PyJobExecutionError) as e:
+        print("Error running command:{}\n\n{}".format(cmd, e))
+        raise(e)
     out_file = '{}.out'.format(name)
     if not os.path.isfile(out_file):
         raise RuntimeError("Deepcoil did not produce output file: %s" % out_file)
@@ -90,11 +90,11 @@ def join_probability_chunks(probabilities_list, aa_list, overlap):
         cc_prob += p[start:end]
         aa_check += a[start:end]
         start = inset
-        
     # add last
     cc_prob += list(probabilities_list[-1])[start:]
     aa_check += list(aa_list[-1])[start:]
     return cc_prob
+
 
 def run_deepcoil_on_chunks(chunks):
     deepcoil_outputs = []
@@ -104,6 +104,7 @@ def run_deepcoil_on_chunks(chunks):
         dout = run_deepcoil(fasta_in)
         deepcoil_outputs.append(dout)
     return deepcoil_outputs
+
 
 def parse_chunk_probabilites(deepcoil_outputs):
     aa_list = []
@@ -116,17 +117,79 @@ def parse_chunk_probabilites(deepcoil_outputs):
 
 
 def coiled_coil_probabilities(seqin, chunk_size = 500, overlap = 100):
-    seq_aa = Sequence(fasta=seqin).sequences[0]
-    chunks = split_sequence(seq_aa, chunk_size=chunk_size, overlap=overlap)
-    deepcoil_outputs = run_deepcoil_on_chunks(chunks)
+#     seq_aa = Sequence(fasta=seqin).sequences[0]
+#     chunks = split_sequence(seq_aa, chunk_size=chunk_size, overlap=overlap)
+#     deepcoil_outputs = run_deepcoil_on_chunks(chunks)
+    deepcoil_outputs = ['foo0.out', 'foo1.out']
     probabilities_list, aa_list = parse_chunk_probabilites(deepcoil_outputs)
     return join_probability_chunks(probabilities_list, aa_list, overlap)
 
 
-seqin = '../data/O75410.fasta'
-probs = coiled_coil_probabilities(seqin)
-print("GOT PROBS ",len(probs), probs)
-# aa = list(range(7))
-# aa = '1234567'
-# print(split_sequence(aa, chunk_size=4, overlap=2))
+def coiled_coil_predicition(seqin):
+    probabilities = coiled_coil_probabilities(seqin)
+    prediction = [True if p > 0.6 else False for p in probabilities ]
+    chunk_indices = minimal_chunks(prediction, min_chunk=6)
+    print("GOT INDICES", chunk_indices)
+    # Overwrite probabilties array
+    return fill_chunks(probabilities, chunk_indices)
+    
 
+def minimal_chunks(prediction, min_chunk=6):
+    """Chunk a boolean list, so runs of Trues are at least min_chunk long"""
+    p = prediction
+    outcount = 0
+    inchunk = False
+    chunks = []
+    start = None
+    end = None
+    for i in range(len(p)):
+        chunk = p[i:i+min_chunk]
+        if all(chunk):
+            if not inchunk:
+                inchunk = True
+                start = i
+        else:
+            if inchunk:
+                outcount += 1
+                if outcount >= min_chunk:
+                    end = i
+                    chunks.append((start, end))
+                    inchunk = False
+                    outcount = 0
+    return chunks
+
+def fill_chunks(chunks, chunk_indices):
+    chunk_indices = iter(chunk_indices)
+    inchunk = False
+    start, stop = next(chunk_indices)
+    for i in range(len(chunks)):
+        if inchunk:
+            if i == stop:
+                inchunk = False
+                chunks[i] = False
+                try:
+                    start, stop = next(chunk_indices)
+                except StopIteration:
+                    start = stop = -1
+                    inchunk = False
+            else:
+                chunks[i] = True
+        else:
+            if i == start:
+                inchunk = True
+                chunks[i] = True
+            else:
+                chunks[i] = False
+    return chunks
+
+
+# chunks = [0,0,0,1,1,1,1,0,1,1,0,0,0,1,0,0,1,1,1,1,1,0,0,0]
+# min_chunks = minimal_chunks(chunks, min_chunk=3)
+# print chunks
+# print [1 if x else 0 for x in fill_chunks(chunks, min_chunks)]
+
+
+
+seqin = '../data/O75410.fasta'
+probs = coiled_coil_predicition(seqin)
+print("GOT PROBS ",len(probs), probs)
