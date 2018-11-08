@@ -25,7 +25,7 @@ class RegionsDisplay():
         self.region_colors = get_N_HexCol(len(regions))
         return
     
-    def generate_pfam_json(self):
+    def generate_pfam_data(self):
         region_data = []
         for idx_region, region in enumerate(self.regions):
             for idx_range, rrange in enumerate(region.ranges):
@@ -49,7 +49,7 @@ class RegionsDisplay():
                 jdict = {'length' : self.seqlen,
                          'regions' : [d]}
                 region_data.append(jdict)
-        return json.dumps(region_data)
+        return region_data
     
 
 class DataDisplay():

@@ -5,6 +5,11 @@ Created on 18 Oct 2018
 '''
 import os
 import math
+import warnings
+
+warnings.warn("numpify sequence code")
+warnings.warn("map sequence object onto biopython sequence")
+
 
 import numpy as np
 from ample.util.sequence_util import Sequence
@@ -116,22 +121,20 @@ def parse_chunk_probabilites(deepcoil_outputs):
     return probabilities_list, aa_list
 
 
-def coiled_coil_probabilities(seqin, chunk_size = 500, overlap = 100):
-#     seq_aa = Sequence(fasta=seqin).sequences[0]
-#     chunks = split_sequence(seq_aa, chunk_size=chunk_size, overlap=overlap)
-#     deepcoil_outputs = run_deepcoil_on_chunks(chunks)
+def coiled_coil_probabilities(seq_aa, chunk_size = 500, overlap = 100):
+    chunks = split_sequence(seq_aa, chunk_size=chunk_size, overlap=overlap)
+    deepcoil_outputs = run_deepcoil_on_chunks(chunks)
     deepcoil_outputs = ['foo0.out', 'foo1.out']
     probabilities_list, aa_list = parse_chunk_probabilites(deepcoil_outputs)
     return join_probability_chunks(probabilities_list, aa_list, overlap)
 
 
-def coiled_coil_predicition(seqin):
-    probabilities = coiled_coil_probabilities(seqin)
+def coiled_coil_predicition(seq_aa, min_chunk=6):
+    probabilities = coiled_coil_probabilities(seq_aa)
     prediction = [True if p > 0.6 else False for p in probabilities ]
-    chunk_indices = minimal_chunks(prediction, min_chunk=6)
+    chunk_indices = minimal_chunks(prediction, min_chunk=min_chunk)
     print("GOT INDICES", chunk_indices)
-    # Overwrite probabilties array
-    return fill_chunks(probabilities, chunk_indices)
+    return chunk_indices
     
 
 def minimal_chunks(prediction, min_chunk=6):
@@ -182,14 +185,43 @@ def fill_chunks(chunks, chunk_indices):
                 chunks[i] = False
     return chunks
 
+def coiled_coil_pfam_dict(seqin):
+    seq_aa = Sequence(fasta=seqin).sequences[0]
+    chunk_indices = coiled_coil_predicition(seq_aa)
+    return pfam_dict(chunk_indices, len(seq_aa))
+
+def pfam_dict(chunk_indices, seqlen):
+    regions = []
+    for i, (start, stop) in enumerate(chunk_indices):
+        idx = i + 1
+        d = { 'startStyle': "straight",
+              'endStyle': "straight",
+              'start': start,
+              'end': stop,
+              'aliStart': start,
+              'aliEnd': stop,
+              'colour': "#00ff00",
+              'text': 'CC',
+              'metadata' : { "description" : "Coiled-coil region #%d" % idx,
+                             "database" : "From DeepCoil",
+                             "start" : start,
+                             "end" : stop,
+                              }
+              }
+        regions.append(d)       
+    cc_data = {'length' : seqlen,
+                'regions' :regions}
+    return cc_data
 
 # chunks = [0,0,0,1,1,1,1,0,1,1,0,0,0,1,0,0,1,1,1,1,1,0,0,0]
 # min_chunks = minimal_chunks(chunks, min_chunk=3)
 # print chunks
 # print [1 if x else 0 for x in fill_chunks(chunks, min_chunks)]
 
-
+# seqin = '../data/O75410.fasta'
+# probs = coiled_coil_predicition(seqin)
+# print("GOT PROBS ",len(probs), probs)
 
 seqin = '../data/O75410.fasta'
-probs = coiled_coil_predicition(seqin)
-print("GOT PROBS ",len(probs), probs)
+probs = coiled_coil_pfam_dict(seqin)
+print("GOT PROBS ",probs)

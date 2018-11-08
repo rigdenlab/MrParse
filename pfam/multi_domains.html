@@ -69,6 +69,10 @@
         padding: 0.4em;
       }
       .hidden { display: none;}
+      /* .pfam_dg {
+        border: 1px solid red;
+        display: inline-block;
+      } */
     </style>
 
   </head>
@@ -292,32 +296,49 @@
          based on the content of the form field above. -->
     <script type="text/javascript">
       // <![CDATA[
+      function add_graphic(region, parent, div_id, div_class) {
+        let gdiv = document.createElement('div');
+        gdiv.setAttribute('id', div_id);
+        gdiv.setAttribute('class', div_class);
+        parent.appendChild(gdiv);
+        let pg = new PfamGraphic();
+        pg.setImageParams( {
+          residueWidth: 1.0,
+          xscale: 1.0,
+          yscale: 1.0
+          } );
+        try {
+          pg.setParent(div_id)
+          pg.setSequence(region);
+          pg.render();
+        } catch (e) {
+          $("errors").update(e).show();
+          return;
+        }
+      }
+
+      // a function to blank everything and start again
+      var clear = function() {
+        $("errors").hide();
+        var root_div = document.getElementById('dg');
+        while (root_div.firstChild) {
+                root_div.removeChild(root_div.firstChild);
+         }
+      }
 
       var generate = function() {
+        // console.log(JSON.stringify(pfam_json))
         clear();
         var root_div = document.getElementById('dg');
         // Add canvases for graphics
-        for (let i = 0; i < JSON.length; i++) {
-          let region = JSON[i];
+        var classification = pfam_json.classification;
+        add_graphic(classification, root_div, 'class_id', 'foo');
+        var regions = pfam_json.regions;
+        for (let i = 0; i < regions.length; i++) {
+          let region = regions[i];
           let gdiv_id = 'pfam_dg_' + i;
-          let gdiv = document.createElement('div');
-          gdiv.setAttribute('id', gdiv_id);
-          gdiv.setAttribute('class', 'pfam_dg');
-          root_div.appendChild(gdiv);
-          let pg = new PfamGraphic();
-          pg.setImageParams( {
-            residueWidth: 5.0,
-            xscale: 1.0,
-            yscale: 1.0
-          } );
-          try {
-            pg.setParent(gdiv_id)
-            pg.setSequence(region);
-            pg.render();
-          } catch (e) {
-            $("errors").update(e).show();
-            return;
-          }
+          let gdiv_class = 'pfam_dg';
+          add_graphic(region, root_div, gdiv_id, gdiv_class);
         }
       } // generate
 
