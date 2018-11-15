@@ -60,8 +60,8 @@
     <![endif]-->
 
     <style type="text/css">
-      #dg canvas {
-        margin: 2em;
+      #pfam_graphic canvas {
+        margin: 1em;
       }
       #errors {
         border: 1px solid red;
@@ -73,13 +73,21 @@
         border: 1px solid red;
         display: inline-block;
       } */
+      .pfam_class {
+        /* border: 1px solid blue; */
+        display: inline-block;
+      }
+      .pfam_region {
+        /* border: 1px solid green; */
+        display: inline-block;
+      }
     </style>
 
   </head>
 
   <body>
 
-    <div class="hidden">
+    <div class="xhidden">
     <h2>HKLIN info</h2>
     <table border="1">
       <thead>
@@ -284,7 +292,9 @@
   </div>
 
     <!-- this will hold the canvas element -->
-    <div id="dg"></div>
+    <br/>
+    <h2>Classification</h2>
+    <div id="pfam_graphic"></div>
 
     <button id="submit">Submit</button>
     <button id="clear">Clear</button>
@@ -329,23 +339,28 @@
       var generate = function() {
         // console.log(JSON.stringify(pfam_json))
         clear();
-        var root_div = document.getElementById('dg');
+        var root_div = document.getElementById('pfam_graphic');
         // Add canvases for graphics
+        var ss_pred = pfam_json.ss_pred;
+        add_graphic(ss_pred, root_div, 'pfam_sspred', 'pfam_class');
         var classification = pfam_json.classification;
-        add_graphic(classification, root_div, 'class_id', 'foo');
+        add_graphic(classification, root_div, 'pfam_type', 'pfam_class');
+        let gdiv = document.createElement('div');
+        gdiv.setAttribute('id', 'pfam_region');
+        root_div.appendChild(gdiv);
         var regions = pfam_json.regions;
         for (let i = 0; i < regions.length; i++) {
           let region = regions[i];
-          let gdiv_id = 'pfam_dg_' + i;
-          let gdiv_class = 'pfam_dg';
-          add_graphic(region, root_div, gdiv_id, gdiv_class);
+          let gdiv_id = 'pfam_region_' + i;
+          let gdiv_class = 'pfam_region';
+          add_graphic(region, gdiv, gdiv_id, gdiv_class);
         }
       } // generate
 
       // a function to blank everything and start again
       var clear = function() {
         $("errors").hide();
-        var root_div = document.getElementById('dg');
+        var root_div = document.getElementById('pfam_graphic');
         while (root_div.firstChild) {
                 root_div.removeChild(root_div.firstChild);
          }
@@ -359,7 +374,7 @@
         // assuming the textarea contains a real domain graphics description
         // generate();
       } );
-
+      generate();
       // ]]>
     </script>
 
