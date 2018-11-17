@@ -6,18 +6,19 @@ Created on 16 Nov 2018
 
 from mrparse.mr_sequence import CC_SYMBOL, TM_SYMBOL, HELIX_SYMBOL, BSHEET_SYMBOL
 
-
 import colorsys
+
 def get_N_HexCol(N=5):
     HSV_tuples = [(x*1.0/N, 0.5, 0.5) for x in xrange(N)]
     hex_out = []
     for rgb in HSV_tuples:
         rgb = map(lambda x: int(x*255),colorsys.hsv_to_rgb(*rgb))
         hex_out.append("".join(map(lambda x: chr(x).encode('hex'), rgb)))
-    hex_out = ['#' + h for h in hex_out]
+    return ['#' + h for h in hex_out]
 
     
-def generate_region_pfam_data(regions, seqlen):
+def pfam_region_dict(regions, seqlen):
+    assert len(regions)
     region_colors = get_N_HexCol(len(regions))
     region_data = []
     for idx_region, region in enumerate(regions):
@@ -48,53 +49,34 @@ def pfam_classification_dict(chunk_data, seqlen):
     regions = []
     for i, chunk in enumerate(chunk_data):
         idx = i + 1
-        if chunk.stype == 'CC':
+        if chunk.stype == CC_SYMBOL:
             colour = "#00ff00"
             text = 'CC'
             meta_desc = "Coiled-coil region #%d" % idx
-        elif chunk.stype == 'TM':
+        elif chunk.stype == TM_SYMBOL:
             colour = "#0000ff"
             text = 'TM'
             meta_desc = "Transmembrane region #%d" % idx
-            
-        d = { 'startStyle': "straight",
-              'endStyle': "straight",
-              'start': start,
-              'end': stop,
-              'aliStart': start,
-              'aliEnd': stop,
-              'colour': colour,
-              'text': text,
-              'metadata' : { "description" : meta_desc,
-                             "database" : database,
-                             "start" : start,
-                             "end" : stop,
-                              }
-              }
-        regions.append(d)       
-    vis_data = {'length' : seqlen,
-                'regions' :regions}
-    return vis_data
-
-def pfam_secondary_structure_dict(chunk_data, seqlen):
-    regions = []
-    for i, chunk in enumerate(chunk_data):
-        if chunk.stype == 'helix':
+        elif chunk.stype ==  HELIX_SYMBOL:
             colour = "#ff0000"
             text = 'helix'
             meta_desc = "Helix region #%d" % idx
+        elif chunk.stype == BSHEET_SYMBOL:
+            colour = "#ff0000"
+            text = 'bsheet'
+            meta_desc = "Beta sheet region #%d" % idx
         d = { 'startStyle': "straight",
               'endStyle': "straight",
-              'start': start,
-              'end': stop,
-              'aliStart': start,
-              'aliEnd': stop,
+              'start': chunk.start,
+              'end': chunk.end,
+              'aliStart': chunk.start,
+              'aliEnd': chunk.end,
               'colour': colour,
               'text': text,
               'metadata' : { "description" : meta_desc,
-                             "database" : database,
-                             "start" : start,
-                             "end" : stop,
+                             "database" : chunk.source,
+                             "start" : chunk.start,
+                             "end" : chunk.end,
                               }
               }
         regions.append(d)       

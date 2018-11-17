@@ -14,20 +14,20 @@ import json
 import pickle
 import sys
 import set_mrparse_path
-from ample.util.sequence_util import Sequence
+from mrparse.mr_sequence import read_fasta
 from mrparse.mr_classify import MrClassifier
-from mrparse.mr_pfam import generate_region_pfam_data
-from mrparse.mr_jpred import get_jpred_prediction_data, MrSSPred
+from mrparse.mr_pfam import pfam_region_dict
 
 
-seqin = '../data/5u4pA.fasta'
-seqin = '../data/5u4pB.fasta'
-seqin = '../data/O75410.fasta'
-seqin = '../data/2uvoA.fasta'
-seqin = '../data/O75410.fasta'
-seqin = '../O75410_800/O75410_800.fasta'
+# seqin = '../data/5u4pA.fasta'
+# seqin = '../data/5u4pB.fasta'
+# seqin = '../data/O75410.fasta'
+# seqin = '../data/2uvoA.fasta'
+# seqin = '../data/O75410.fasta'
+# seqin = '../O75410_800/O75410_800.fasta'
+seqin = '/opt/MrParse/data/Q13586.fasta'
 if True:
-    from mrparse.mr_region import RegionFinder, region_pfam_data
+    from mrparse.mr_region import RegionFinder
     from mrparse.mr_hit import find_hits
     rfinder = RegionFinder()
     hits = find_hits(seqin)
@@ -40,8 +40,8 @@ else:
     with open('regions.pkl') as regions_fh:
         regions = pickle.load(regions_fh)
  
-seqlen = len(Sequence(fasta=seqin).sequence())
-region_data = generate_region_pfam_data(regions, seqlen)
+seqlen = len(read_fasta(seqin))
+region_data = pfam_region_dict(regions, seqlen)
 
 # class_data = coiled_coil_pfam_dict(seqin)
 # start = 50
@@ -62,17 +62,12 @@ region_data = generate_region_pfam_data(regions, seqlen)
 #               }
 # class_data['regions'].append(disordered_region)
 
+
 classifier = MrClassifier()
-classifier.get_predictions(seqin)
-class_data = classifier.pfam_data()
-sspredictor = MrSSPred()
-sspredictor.get_predictions()
-sspred_data = sspredictor.pfam_data()
+classifier.get_predictions(seqin, topcons_dir="/opt/MrParse/data/Q13586/topcons", jpred_dir="/opt/MrParse/data/Q13586/jpred")
+pfam_data = classifier.pfam_data()
+pfam_data['regions'] = region_data
 
-gdata = {'classification' : class_data,
-         'ss_pred' : sspred_data,
-         'regions' : region_data }
-
-rdata = 'console.log("LOADED DATA");\nvar pfam_json = %s;\n' % json.dumps(gdata)
+rdata = 'console.log("LOADED DATA");\nvar pfam_json = %s;\n' % json.dumps(pfam_data)
 with open('data.js', 'w') as w:
     w.write(rdata)

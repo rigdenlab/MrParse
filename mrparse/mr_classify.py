@@ -19,7 +19,7 @@ from mrparse import mr_deepcoil
 from mrparse import mr_topcons
 from mrparse import mr_jpred
 from mrparse import mr_pfam
-from mrparse.mr_sequence import read_fasta, SequenceChunk, \
+from mrparse.mr_sequence import read_fasta, SequenceChunk, get_sequence_chunks, \
      UNKNOWN_SYMBOL, TM_SYMBOL, CC_SYMBOL, HELIX_SYMBOL, BSHEET_SYMBOL
 
     
@@ -34,9 +34,11 @@ class MrClassifier(object):
     def __init__(self):
         self.classification = None
         self.sspred = None
+        self.seqlen = None
         
     def get_predictions(self, seqin, topcons_dir=None, jpred_dir=None):
         assert topcons_dir and jpred_dir
+        self.seqlen =len(read_fasta(seqin))
         cc_pred = mr_deepcoil.coiled_coil_prediction(seqin)
         tm_pred = mr_topcons.transmembrane_prediction(topcons_dir)
         self.classification = self.generate_consensus_classification(cc_pred, tm_pred)
@@ -67,10 +69,12 @@ class MrClassifier(object):
     
     def pfam_data(self):
         assert self.classification and self.sspred
-        classification_chunks = get_chunks(self.classification, markers=[CC_SYMBOL, TM_SYMBOL], source='Deepcoil')
-        sspred_chunks = get_chunks(self.sspred, markers=[HELIX_SYMBOL, BSHEET_SYMBOL], source='Jpred')
-        classification_json = mr_pfam.pfam_classification_dict(classification_chunks)
-        sspred_json = mr_pfam.pfam_classification_dict(sspred_chunks)
+        classification_chunks = get_sequence_chunks(self.classification, markers=[CC_SYMBOL, TM_SYMBOL], source='Deepcoil')
+        sspred_chunks = get_sequence_chunks(self.sspred, markers=[HELIX_SYMBOL, BSHEET_SYMBOL], source='Jpred')
+        classification_dict = mr_pfam.pfam_classification_dict(classification_chunks, self.seqlen)
+        sspred_dict = mr_pfam.pfam_classification_dict(sspred_chunks, self.seqlen)
+        return {'classification' : classification_dict,
+                'ss_pred' : sspred_dict} 
         
 
 # seqin = 'foo'
