@@ -17,6 +17,7 @@ Consolidate results and generate prediction:
 '''
 from mrparse import mr_deepcoil
 from mrparse import mr_topcons
+from mrparse import mr_jpred
 from mrparse import mr_pfam
 from mrparse.mr_sequence import read_fasta, SequenceChunk, \
      UNKNOWN_SYMBOL, TM_SYMBOL, CC_SYMBOL, HELIX_SYMBOL, BSHEET_SYMBOL
@@ -45,22 +46,22 @@ class MrClassifier(object):
     @staticmethod
     def generate_consensus_classification(cc_pred, tm_pred):
         assert len(cc_pred) == len(tm_pred)
-        classification = []
+        classification = ''
         THRESHOLD = 0.6
         for i, (cc, tm) in enumerate(zip(cc_pred, tm_pred)):
             if cc <= THRESHOLD and tm <= THRESHOLD:
-                classification.append(UNKNOWN_SYMBOL)
+                classification += UNKNOWN_SYMBOL
             else:
                 if cc > tm:
-                    classification.append(CC_SYMBOL)
+                    classification += CC_SYMBOL
                 elif tm > cc:
-                    classification.append(TM_SYMBOL)
+                    classification += TM_SYMBOL
                 else:
                     # If they're the same, use whatever came last
                     if i > 0:
-                        classification.append(classification[i-1])
+                        classification += classification[i-1]
                     else:
-                        classification.append(UNKNOWN_SYMBOL)
+                        classification += UNKNOWN_SYMBOL
         return classification
                 
     
