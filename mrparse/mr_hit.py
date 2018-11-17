@@ -6,10 +6,10 @@ Created on 18 Oct 2018
 from collections import OrderedDict
 import os
 
-from ample.util.sequence_util import Sequence
 from mrbump.seq_align.simpleSeqID import simpleSeqID
 from pyjob import cexec
 from pyjob.script import EXE_EXT
+from mr_sequence import read_fasta
 
 from Bio import SearchIO
 
@@ -48,7 +48,7 @@ class SequenceHit:
 
 def find_hits(seqin):
     phmmer_logfile = run_phmmer(seqin)
-    targetSequence = Sequence(fasta=seqin).sequence()
+    targetSequence = read_fasta(seqin)
     
     io = SearchIO.read(phmmer_logfile, 'hmmer3-text')
     included = io.hit_filter(lambda x: x.is_included)

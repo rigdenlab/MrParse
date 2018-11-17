@@ -15,11 +15,9 @@ import pickle
 import sys
 import set_mrparse_path
 from ample.util.sequence_util import Sequence
-from mrparse.mr_analyse import RegionsDisplay
-from mrparse.mr_classify import coiled_coil_pfam_dict
-from mrparse.mr_jpred import get_jpred_prediction_data
-
-
+from mrparse.mr_classify import MrClassifier
+from mrparse.mr_pfam import generate_region_pfam_data
+from mrparse.mr_jpred import get_jpred_prediction_data, MrSSPred
 
 
 seqin = '../data/5u4pA.fasta'
@@ -29,12 +27,12 @@ seqin = '../data/2uvoA.fasta'
 seqin = '../data/O75410.fasta'
 seqin = '../O75410_800/O75410_800.fasta'
 if True:
-    from mrparse.mr_region import RegionFinder
+    from mrparse.mr_region import RegionFinder, region_pfam_data
     from mrparse.mr_hit import find_hits
     rfinder = RegionFinder()
     hits = find_hits(seqin)
-    with open('hits.pkl', 'w') as w:
-        pickle.dump(hits, w)
+#     with open('hits.pkl', 'w') as w:
+#         pickle.dump(hits, w)
     regions = rfinder.find_regions_from_hits(hits)
     with open('regions.pkl', 'w') as w:
         pickle.dump(regions, w)
@@ -43,11 +41,9 @@ else:
         regions = pickle.load(regions_fh)
  
 seqlen = len(Sequence(fasta=seqin).sequence())
-rg = RegionsDisplay(seqlen, regions)
-region_data = rg.generate_pfam_data()
+region_data = generate_region_pfam_data(regions, seqlen)
 
 # class_data = coiled_coil_pfam_dict(seqin)
-
 # start = 50
 # stop = 500
 # disordered_region = { 'startStyle': "straight",
@@ -66,7 +62,12 @@ region_data = rg.generate_pfam_data()
 #               }
 # class_data['regions'].append(disordered_region)
 
-class_data, sspred_data = get_jpred_prediction_data()
+classifier = MrClassifier()
+classifier.get_predictions(seqin)
+class_data = classifier.pfam_data()
+sspredictor = MrSSPred()
+sspredictor.get_predictions()
+sspred_data = sspredictor.pfam_data()
 
 gdata = {'classification' : class_data,
          'ss_pred' : sspred_data,
