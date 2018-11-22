@@ -54,7 +54,7 @@ def pfam_classification_dict(chunk_data, seqlen):
             text = 'CC'
             meta_desc = "Coiled-coil region #%d" % idx
         elif chunk.stype == TM_SYMBOL:
-            colour = "#0000ff"
+            colour = "#aaaaaa"
             text = 'TM'
             meta_desc = "Transmembrane region #%d" % idx
         elif chunk.stype ==  HELIX_SYMBOL:

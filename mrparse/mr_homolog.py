@@ -92,7 +92,7 @@ def ellg_data_from_phaser_log(fpath, homologs):
     return homologs
 
 
-def calculate_ellg(homologs):
+def calculate_ellg(homologs, mtz):
     """Stuff from : ccp4-src-2016-02-10/checkout/cctbx-phaser-dials-2015-12-22/phaser/phaser/CalcCCFromMRsolutions.py"""
     mrinput = phaser.InputMR_DAT()
     HKLIN = '../data/2uvo_pdbredo.mtz'

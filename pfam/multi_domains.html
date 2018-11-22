@@ -44,7 +44,8 @@
     <script type="text/javascript" src="shared/javascripts/styles.js"></script>
 
     <!-- jmht -->
-    <script src="data.js" ></script>
+    <script type="text/javascript" src="data.js" ></script>
+    <script type="text/javascript" src="homologs.html.js"></script>
 
     <!-- stylesheets. We only really need the rules that are specific to the tooltips -->
     <link rel="stylesheet" href="static/css/pfam.css" type="text/css" />
@@ -60,7 +61,10 @@
     <![endif]-->
 
     <style type="text/css">
-      #pfam_graphic canvas {
+      #classification canvas {
+        margin: 1em;
+      }
+      #regions canvas {
         margin: 1em;
       }
       #errors {
@@ -69,10 +73,10 @@
         padding: 0.4em;
       }
       .hidden { display: none;}
-      /* .pfam_dg {
-        border: 1px solid red;
-        display: inline-block;
-      } */
+      #classification, #regions {
+        border: 1px solid black;
+        display: table-caption; /* so wrong but works for now */
+      }
       .pfam_class {
         /* border: 1px solid blue; */
         display: inline-block;
@@ -87,214 +91,18 @@
 
   <body>
 
-    <div class="xhidden">
-    <h2>HKLIN info</h2>
-    <table border="1">
-      <thead>
-        <tr style="text-align: right;">
-          <th>name</th>
-          <th>Resolution</th>
-          <th>Space Group</th>
-          <th>Has NCS?</th>
-          <th>Has Twinning?</th>
-          <th>Has Anisotropy?</th>
-          <th>File Path</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>2uvo_pdbredo</td>
-          <td>1.400</td>
-          <td>P1211</td>
-          <td>True</td>
-          <td>False</td>
-          <td>True</td>
-          <td>../data/2uvo_pdbredo.mtz</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h2>Search Model info</h2>
-    <table border="1" class="dataframe">
-      <thead>
-        <tr style="text-align: right;">
-          <th>name</th>
-          <th>domain</th>
-          <th>range</th>
-          <th>eLLG</th>
-          <th>ncopies</th>
-          <th>molecular_weight</th>
-          <th>rmsd</th>
-          <th>seqid</th>
-          <th>frac_scat</th>
-          <th>total_frac_scat</th>
-          <th>total_frac_scat_known</th>
-          <th>pdb</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>2x3t_C_1</td>
-          <td>1</td>
-          <td>2-170</td>
-          <td>1251.9</td>
-          <td>1</td>
-          <td>16895.8708</td>
-          <td>0.398</td>
-          <td>1.00</td>
-          <td>0.24508</td>
-          <td>0.24508</td>
-          <td>0.00000</td>
-          <td>pdb_downloads/2x3t_C.pdb</td>
-        </tr>
-        <tr>
-          <td>1ulk_B_1</td>
-          <td>1</td>
-          <td>46-166</td>
-          <td>132.6</td>
-          <td>2</td>
-          <td>13739.1970</td>
-          <td>0.777</td>
-          <td>0.53</td>
-          <td>0.19799</td>
-          <td>0.39598</td>
-          <td>0.19799</td>
-          <td>pdb_downloads/1ulk_B.pdb</td>
-        </tr>
-        <tr>
-          <td>1ulm_B_1</td>
-          <td>2</td>
-          <td>88-169</td>
-          <td>61.8</td>
-          <td>2</td>
-          <td>9096.9760</td>
-          <td>0.765</td>
-          <td>0.54</td>
-          <td>0.13167</td>
-          <td>0.26335</td>
-          <td>0.13167</td>
-          <td>pdb_downloads/1ulm_B.pdb</td>
-        </tr>
-        <tr>
-          <td>1iqb_B_1</td>
-          <td>4</td>
-          <td>2-79</td>
-          <td>40.5</td>
-          <td>3</td>
-          <td>9288.3540</td>
-          <td>0.877</td>
-          <td>0.45</td>
-          <td>0.13298</td>
-          <td>0.39893</td>
-          <td>0.26596</td>
-          <td>pdb_downloads/1iqb_B.pdb</td>
-        </tr>
-        <tr>
-          <td>4wp4_A_1</td>
-          <td>3</td>
-          <td>88-124</td>
-          <td>29.0</td>
-          <td>3</td>
-          <td>4724.1800</td>
-          <td>0.637</td>
-          <td>0.66</td>
-          <td>0.06781</td>
-          <td>0.20344</td>
-          <td>0.13563</td>
-          <td>pdb_downloads/4wp4_A.pdb</td>
-        </tr>
-        <tr>
-          <td>5xdi_A_1</td>
-          <td>5</td>
-          <td>45-79</td>
-          <td>22.0</td>
-          <td>4</td>
-          <td>4085.6130</td>
-          <td>0.637</td>
-          <td>0.66</td>
-          <td>0.05908</td>
-          <td>0.23631</td>
-          <td>0.17723</td>
-          <td>pdb_downloads/5xdi_A.pdb</td>
-        </tr>
-        <tr>
-          <td>5wuz_A_1</td>
-          <td>3</td>
-          <td>88-124</td>
-          <td>18.6</td>
-          <td>4</td>
-          <td>4559.0410</td>
-          <td>0.720</td>
-          <td>0.58</td>
-          <td>0.06564</td>
-          <td>0.26258</td>
-          <td>0.19693</td>
-          <td>pdb_downloads/5wuz_A.pdb</td>
-        </tr>
-        <tr>
-          <td>2lb7_A_1</td>
-          <td>5</td>
-          <td>44-84</td>
-          <td>16.5</td>
-          <td>4</td>
-          <td>4430.0980</td>
-          <td>0.742</td>
-          <td>0.56</td>
-          <td>0.06485</td>
-          <td>0.25940</td>
-          <td>0.19455</td>
-          <td>pdb_downloads/2lb7_A.pdb</td>
-        </tr>
-        <tr>
-          <td>2kus_A_1</td>
-          <td>4</td>
-          <td>45-75</td>
-          <td>10.5</td>
-          <td>5</td>
-          <td>3453.9040</td>
-          <td>0.720</td>
-          <td>0.58</td>
-          <td>0.04928</td>
-          <td>0.24638</td>
-          <td>0.19711</td>
-          <td>pdb_downloads/2kus_A.pdb</td>
-        </tr>
-        <tr>
-          <td>2n1s_A_1</td>
-          <td>6</td>
-          <td>11-32</td>
-          <td>10.1</td>
-          <td>5</td>
-          <td>2984.4460</td>
-          <td>0.667</td>
-          <td>0.63</td>
-          <td>0.04303</td>
-          <td>0.21517</td>
-          <td>0.17213</td>
-          <td>pdb_downloads/2n1s_A.pdb</td>
-        </tr>
-        <tr>
-          <td>1mmc_A_1</td>
-          <td>6</td>
-          <td>11-33</td>
-          <td>10.1</td>
-          <td>5</td>
-          <td>3191.8120</td>
-          <td>0.698</td>
-          <td>0.60</td>
-          <td>0.04615</td>
-          <td>0.23074</td>
-          <td>0.18459</td>
-          <td>pdb_downloads/1mmc_A.pdb</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    <h2>Homologs</h2>
+    <script type="text/javascript">
+        homologs();
+    </script>
 
     <!-- this will hold the canvas element -->
     <br/>
+
     <h2>Classification</h2>
-    <div id="pfam_graphic"></div>
+    <div id='classification'></div>
+    <h2>Regions</h2>
+    <div id="regions"></div>
 
     <button id="submit">Submit</button>
     <button id="clear">Clear</button>
@@ -330,7 +138,11 @@
       // a function to blank everything and start again
       var clear = function() {
         $("errors").hide();
-        var root_div = document.getElementById('dg');
+        var root_div = document.getElementById('classification');
+        while (root_div.firstChild) {
+                root_div.removeChild(root_div.firstChild);
+         }
+        var root_div = document.getElementById('regions');
         while (root_div.firstChild) {
                 root_div.removeChild(root_div.firstChild);
          }
@@ -339,32 +151,25 @@
       var generate = function() {
         // console.log(JSON.stringify(pfam_json))
         clear();
-        var root_div = document.getElementById('pfam_graphic');
+        var class_div = document.getElementById('classification');
         // Add canvases for graphics
         var ss_pred = pfam_json.ss_pred;
-        add_graphic(ss_pred, root_div, 'pfam_sspred', 'pfam_class');
+        add_graphic(ss_pred, class_div, 'pfam_sspred', 'pfam_class');
         var classification = pfam_json.classification;
-        add_graphic(classification, root_div, 'pfam_type', 'pfam_class');
-        let gdiv = document.createElement('div');
-        gdiv.setAttribute('id', 'pfam_region');
-        root_div.appendChild(gdiv);
+        add_graphic(classification, class_div, 'pfam_type', 'pfam_class');
+        var regions_div = document.getElementById('regions');
+        // let gdiv = document.createElement('div');
+        // gdiv.setAttribute('id', 'pfam_region');
+        // root_div.appendChild(gdiv);
         var regions = pfam_json.regions;
         for (let i = 0; i < regions.length; i++) {
           let region = regions[i];
           let gdiv_id = 'pfam_region_' + i;
           let gdiv_class = 'pfam_region';
-          add_graphic(region, gdiv, gdiv_id, gdiv_class);
+          // add_graphic(region, gdiv, gdiv_id, gdiv_class);
+          add_graphic(region, regions_div, gdiv_id, gdiv_class);
         }
       } // generate
-
-      // a function to blank everything and start again
-      var clear = function() {
-        $("errors").hide();
-        var root_div = document.getElementById('pfam_graphic');
-        while (root_div.firstChild) {
-                root_div.removeChild(root_div.firstChild);
-         }
-      };
 
       // when the DOM is loaded, add listeners to the two buttons
       document.observe( "dom:loaded", function() {
