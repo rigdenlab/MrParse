@@ -17,3 +17,5 @@ predicition = secondary_structure_prediction(jpred_dir)
 assert len(predicition) == 685
 assert predicition[212] == 'H', predicition[212] 
 assert predicition[232] == 'H', predicition[232] 
+assert predicition[390:397] == 'EEEEEEE', predicition[390:397]
+

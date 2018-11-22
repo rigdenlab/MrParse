@@ -42,7 +42,7 @@ if find_homologs:
         s = """
         function homologs()
 {{
-        document.write("{}");
+        document.write({});
 }}
 """.format(html)
         w.write(s)

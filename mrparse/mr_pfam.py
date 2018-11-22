@@ -62,7 +62,8 @@ def pfam_classification_dict(chunk_data, seqlen):
             text = 'helix'
             meta_desc = "Helix region #%d" % idx
         elif chunk.stype == BSHEET_SYMBOL:
-            colour = "#ff0000"
+            print("GOT BSNEET")
+            colour = "#0000ff"
             text = 'bsheet'
             meta_desc = "Beta sheet region #%d" % idx
         d = { 'startStyle': "straight",
