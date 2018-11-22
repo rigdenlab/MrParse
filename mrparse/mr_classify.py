@@ -40,7 +40,7 @@ class MrClassifier(object):
         assert topcons_dir and jpred_dir
         self.seqlen =len(read_fasta(seqin))
         cc_pred = mr_deepcoil.coiled_coil_prediction(seqin)
-        tm_pred = mr_topcons.transmembrane_prediction(topcons_dir)
+        tm_pred = mr_topcons.Topcons().transmembrane_prediction(seqin)
         self.classification = self.generate_consensus_classification(cc_pred, tm_pred)
         self.sspred = mr_jpred.secondary_structure_prediction(jpred_dir)
         return
