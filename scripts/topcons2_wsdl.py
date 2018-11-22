@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env ccp4-python
 
 # Description: access topcons.net via WSDL service
 # Copyright Nanjiang Shu (nanjiang.shu@scilifelab.se)
