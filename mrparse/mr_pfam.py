@@ -84,3 +84,14 @@ def pfam_classification_dict(chunk_data, seqlen):
     vis_data = {'length' : seqlen,
                 'regions' :regions}
     return vis_data
+
+def pfam_data(self):
+    assert self.classification and self.sspred
+    classification_chunks = get_sequence_chunks(self.classification, markers=[CC_SYMBOL, TM_SYMBOL], source='Deepcoil')
+    sspred_chunks = get_sequence_chunks(self.sspred, markers=[HELIX_SYMBOL, BSHEET_SYMBOL], source='Jpred')
+    classification_dict = mr_pfam.pfam_classification_dict(classification_chunks, self.seqlen)
+    sspred_dict = mr_pfam.pfam_classification_dict(sspred_chunks, self.seqlen)
+    return {'classification' : classification_dict,
+            'ss_pred' : sspred_dict} 
+
+

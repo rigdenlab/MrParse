@@ -5,6 +5,19 @@ Created on 14 Nov 2018
 '''
 import os
 
+from mr_annotation import AnnotationSymbol, SequenceAnnotation
+
+HELIX = AnnotationSymbol()
+HELIX.symbol = 'H'
+HELIX.colour = '#ff0000'
+HELIX.name = 'helix'
+
+SHEET = AnnotationSymbol()
+SHEET.symbol = 'E'
+SHEET.colour = '#0000ff'
+SHEET.name = 'b-sheet'
+
+
 def parse_jpred_output(jpred_rundir):
     if not os.path.isdir(jpred_rundir):
         raise RuntimeError("Cannot find directory:%s" % jpred_rundir)
@@ -28,25 +41,18 @@ def parse_jpred_output(jpred_rundir):
     return ss_pred, cc_28
 
 
+def create_annotation(prediction):
+    ann = SequenceAnnotation()
+    ann.source = 'Jpred server'
+    ann.annotation = prediction
+    ann.length = len(prediction)
+    ann.probabilties = [1.0] * ann.length
+    ann.annotation_symbols = [HELIX, SHEET]
+    return ann
+
+
 def secondary_structure_prediction(jpred_rundir):
-    jpred_rundir = "/opt/MrParse/data/Q13586/jpred"
-    
     ss_pred, cc_28 = parse_jpred_output(jpred_rundir)
-    seqlen = len(ss_pred)
-    
-#     print(ss_pred)
-#     print(cc_28)
-    
-#     cc_28 = get_start_stop(cc_28.lower(), 'c')
-#     cc_28 = annotate_chunks(cc_28, 'CC')
-#     cc_28_d = pfam_dict(cc_28, seqlen)
-#     
-#     ss_pred = get_start_stop(ss_pred.lower(), 'h')
-#     ss_pred = annotate_chunks(ss_pred, 'helix')
-#     ss_pred_d = pfam_dict(ss_pred, seqlen)
-    # print(cc_28_d)
-    # print(ss_pred_d)
-    
-    return ss_pred
+    return create_annotation(ss_pred)
 
 

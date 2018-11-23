@@ -10,12 +10,17 @@ import time
 import zipfile
 
 
-from mrparse.mr_sequence import TM_SYMBOL
+from mr_annotation import AnnotationSymbol, SequenceAnnotation
 
 
 class OutOfTimeException(Exception):
     pass
 
+
+TM = AnnotationSymbol()
+TM.symbol = 'M'
+TM.colour = '#aaaaaa'
+TM.name = 'TM'
 
 class Topcons(object):
     
@@ -37,37 +42,48 @@ class Topcons(object):
                 if line.startswith('Predicted TOPCONS reliability'):
                     fh.readline()
                     line = fh.readline().strip()
-                    scores = []
+                    probabilties = []
                     while line:
                         try:
-                            seqid, score = line.split()
+                            seqid, prob = line.split()
                         except ValueError:
                             break
-                        scores.append((int(seqid), float(score)))
+                        probabilties.append((int(seqid), float(prob)))
                         line = fh.readline().strip()
                 line = fh.readline()
-        return prediction, scores
+        probabilties = Topcons.fix_probabilties(prediction, probabilties)
+        return prediction, probabilties
+    
+    def create_annotation(self, prediction, probabilties):
+        ann = SequenceAnnotation()
+        ann.source = 'TopCons server'
+        ann.probabilties = probabilties
+        ann.annotation = prediction
+        ann.annotation_symbols = [TM]
+        return ann
     
     @staticmethod
-    def XXcalculate_probabilities(prediction, scores):
+    def fix_probabilties(prediction, probabilties):
         DEFAULT_PROBABILITY = 50.0
-        seqid, score = scores.pop(0)
-        probabilities = []
+        seqid, prob = probabilties.pop(0)
+        _probabilities = []
         for i, pred in enumerate(prediction):
-            if pred == TM_SYMBOL:
+            if pred == TM.symbol:
                 if seqid == i + 1:  # Assum seqids start from 1
-                    prob = score
+                    new_prob = prob
                 else:
-                    prob = DEFAULT_PROBABILITY
+                    new_prob = DEFAULT_PROBABILITY
             else:
-                prob = 0.0
-            probabilities.append(prob)
+                new_prob = 0.0
+            _probabilities.append(new_prob)
             if seqid == i + 1:
                 try:
-                    seqid, score = scores.pop(0)
+                    seqid, prob = probabilties.pop(0)
                 except IndexError:
                     # End of list
                     pass
+        # normalise to between 0.0 and 1.0
+        probabilities = [p / 100.0 if p > 0.0 else 0.0 for p in _probabilities]
         return probabilities
     
     def run_topcons(self, seqin):
@@ -132,12 +148,10 @@ class Topcons(object):
         if os.path.isdir(results_dir):
             shutil.rmtree(results_dir)
     
-    def transmembrane_prediction(self, seqin):
-#         try:
-        results_dir = self.run_topcons(seqin)
-#         except Exception as e:
-#             print("Error running topons: %s" % e)
-#             return None
-        prediction, scores = self.parse_topcons_output(results_dir)
-        self.cleanup()
-        return [1.0 if p == TM_SYMBOL else 0.0 for p in prediction]
+    def transmembrane_prediction(self, seqin, topcons_dir=None):
+        if not topcons_dir:
+            topcons_dir = self.run_topcons(seqin)
+        prediction, scores = self.parse_topcons_output(topcons_dir)
+        annotation = self.create_annotation(prediction, scores)
+        #self.cleanup()
+        return annotation

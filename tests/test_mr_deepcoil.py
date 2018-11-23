@@ -11,7 +11,7 @@ from mrparse.mr_deepcoil import coiled_coil_prediction
 
 seqin = '/opt/MrParse/data/Q13586.fasta'
 
-predicition = coiled_coil_prediction(seqin)
+annotation = coiled_coil_prediction(seqin)
 
-assert predicition[24] == 0.019
-assert len(predicition) == 685
+assert annotation.probabilties[24] == 0.019
+assert len(annotation.annotation) == 685

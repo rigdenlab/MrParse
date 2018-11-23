@@ -11,6 +11,7 @@ import warnings
 import numpy as np
 
 from mrparse.mr_sequence import read_fasta, write_fasta
+from mr_annotation import AnnotationSymbol, SequenceAnnotation, NULL_SYMBOL
 from pyjob import cexec
 from pyjob.exception import PyJobExecutionError
 
@@ -18,6 +19,11 @@ warnings.warn("numpify sequence code")
 warnings.warn("map sequence object onto biopython sequence")
 
 THRESHOLD_PROBABILITY = 0.6
+
+CC = AnnotationSymbol()
+CC.symbol = 'C'
+CC.colour = '#00ff00'
+CC.name = 'CC'
 
 
 def split_sequence(sequence, chunk_size=500, overlap=100):
@@ -186,18 +192,11 @@ def fill_chunks(chunks, chunk_indices):
 
 def coiled_coil_prediction(seqin):
     seq_aa = read_fasta(seqin)
-    return probabilites_from_sequence(seq_aa)
+    probabilties = probabilites_from_sequence(seq_aa)
+    ann = SequenceAnnotation()
+    ann.source = 'Deepcoil localhost'
+    ann.probabilties = probabilties
+    ann.annotation = "".join([CC.symbol if p > THRESHOLD_PROBABILITY else NULL_SYMBOL for p in probabilties])
+    ann.annotation_symbols = [CC]
+    return ann
 
-
-# chunks = [0,0,0,1,1,1,1,0,1,1,0,0,0,1,0,0,1,1,1,1,1,0,0,0]
-# min_chunks = minimal_chunks(chunks, min_chunk=3)
-# print chunks
-# print [1 if x else 0 for x in fill_chunks(chunks, min_chunks)]
-
-# seqin = '../data/O75410.fasta'
-# probs = prediction_as_chunks(seqin)
-# print("GOT PROBS ",len(probs), probs)
-
-# seqin = '../data/O75410.fasta'
-# probs = coiled_coil_pfam_dict(seqin)
-# print("GOT PROBS ",probs)

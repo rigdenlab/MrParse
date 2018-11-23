@@ -9,13 +9,11 @@ import conftest
 from mrparse.mr_jpred import secondary_structure_prediction
 
 
-jpred_dir = '/opt/MrParse/data/Q13586/jpred'
-
-predicition = secondary_structure_prediction(jpred_dir)
-
-
-assert len(predicition) == 685
-assert predicition[212] == 'H', predicition[212] 
-assert predicition[232] == 'H', predicition[232] 
-assert predicition[390:397] == 'EEEEEEE', predicition[390:397]
+def test_parse():
+    jpred_dir = '/opt/MrParse/data/Q13586/jpred'
+    p = secondary_structure_prediction(jpred_dir)
+    assert p.length == 685
+    assert p.annotation[212] == 'H', p.annotation[212] 
+    assert p.annotation[232] == 'H', p.annotation[232] 
+    assert p.annotation[390:397] == 'EEEEEEE', p.annotation[390:397]
 
