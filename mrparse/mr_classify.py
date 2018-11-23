@@ -12,11 +12,13 @@ class MrClassifier(object):
     """Generate a consensus Transmembrane / Coiled-Coil protein classification"""
     
     def __init__(self):
+        self.annotations = []
         pass
         
     def get_predictions(self, seqin, topcons_dir=None):
         cc_pred = mr_deepcoil.coiled_coil_prediction(seqin)
         tm_pred = mr_topcons.Topcons().transmembrane_prediction(seqin, topcons_dir=topcons_dir)
+        self.annotations = [cc_pred, tm_pred]
         return self.generate_consensus_classification(cc_pred, tm_pred)
     
     @staticmethod

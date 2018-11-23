@@ -59,7 +59,7 @@ class Topcons(object):
         ann.source = 'TopCons server'
         ann.probabilties = probabilties
         ann.annotation = prediction
-        ann.annotation_symbols = [TM]
+        ann.add_symbol(TM)
         return ann
     
     @staticmethod

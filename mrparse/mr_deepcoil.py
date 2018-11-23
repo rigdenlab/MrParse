@@ -197,6 +197,6 @@ def coiled_coil_prediction(seqin):
     ann.source = 'Deepcoil localhost'
     ann.probabilties = probabilties
     ann.annotation = "".join([CC.symbol if p > THRESHOLD_PROBABILITY else NULL_SYMBOL for p in probabilties])
-    ann.annotation_symbols = [CC]
+    ann.add_symbol(CC)
     return ann
 
