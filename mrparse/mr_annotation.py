@@ -3,32 +3,59 @@ Created on 23 Nov 2018
 
 @author: jmht
 '''
+import copy
 
-
-NULL_SYMBOL = '-'
 
 class AnnotationSymbol(object):
-    def __init__(self):
-        self.symbol = None
-        self.name = None
-        self.colour = None
-        self.parent = None
+    def __init__(self, name=None, symbol=None, stype=None):
+        __slots__ = ('name', 'symbol', 'stype', 'score')
+        self.name = name
+        self.symbol = symbol
+        self.stype = stype
+        self.score = None
 
-    
+
+NULL_ANNOTATION = AnnotationSymbol()
+NULL_ANNOTATION.name ='null'
+NULL_ANNOTATION.symbol ='-'
+NULL_ANNOTATION.stype ='null'
+
+
 class SequenceAnnotation(object):
     def __init__(self):
+        __slots__ = ('source', 'scores', 'annotations', 'annotation_library')
         self.source = None
-        self.probabilties = None
-        self.annotation = None
-        self.symbols = dict()
-        
-    def add_symbol(self, sobj):
-        self.symbols[sobj.symbol] = sobj
-        sobj.parent = self
+        self.scores = None
+        self.annotations = None
+        self.annotation_library = dict()
     
-    @property
-    def length(self):
-        return len(self.annotation)
+    def library_add_annotation(self, annotation):
+        assert isinstance(annotation, AnnotationSymbol)
+        self.annotation_library[annotation.symbol] = annotation
+        
+    def __getitem__(self, idx):
+#         if not isinstance(idx, int) :
+#             raise TypeError(idx)
+#         if self.annotations is not None and 0 < idx < len(self.annotations):
+#             raise IndexError(idx)
+#         assert len(self.annotations) == len(self.probabilties)
+        symbol = self.annotations[idx]
+        a = copy.copy(self.annotation_library[symbol])
+        a.score = self.scores[idx]
+        return a
+
+    def __len__(self):
+        return len(self.annotations)
+    
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+#             return self.__dict__ == other.__dict__
+            return other.stype == self.stype
+        else:
+            return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]

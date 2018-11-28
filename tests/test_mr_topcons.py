@@ -17,13 +17,14 @@ def test_parse():
     prediction, scores = tc.parse_topcons_output(results_dir)
     annotation = tc.create_annotation(prediction, scores)
 
-    assert len(annotation.annotation) == 685
-    assert annotation.annotation[212] == TM.symbol, annotation.annotation[212] 
-    assert annotation.annotation[232] == TM.symbol, annotation.annotation[232] 
+    assert len(annotation) == 685
+    assert annotation.annotations[212] == TM.symbol, annotation.annotations[212] 
+    assert annotation.annotations[232] == TM.symbol, annotation.annotations[232] 
+    assert annotation[212].score == annotation.scores[212]
 
-    assert len(annotation.probabilties) == 685
-    assert annotation.probabilties[212] > 0.6, annotation.probabilties[212] 
-    assert annotation.probabilties[232] > 0.6, annotation.probabilties[232] 
+    assert len(annotation.scores) == 685
+    assert annotation.scores[212] > 0.6, annotation.scores[212] 
+    assert annotation.scores[232] > 0.6, annotation.scores[232] 
 
 
 def test_run():

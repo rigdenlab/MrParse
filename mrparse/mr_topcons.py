@@ -10,7 +10,7 @@ import time
 import zipfile
 
 
-from mr_annotation import AnnotationSymbol, SequenceAnnotation
+from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation
 
 
 class OutOfTimeException(Exception):
@@ -19,8 +19,9 @@ class OutOfTimeException(Exception):
 
 TM = AnnotationSymbol()
 TM.symbol = 'M'
-TM.colour = '#aaaaaa'
 TM.name = 'TM'
+TM.stype = 'Transmembrane Helix'
+
 
 class Topcons(object):
     
@@ -57,9 +58,9 @@ class Topcons(object):
     def create_annotation(self, prediction, probabilties):
         ann = SequenceAnnotation()
         ann.source = 'TopCons server'
-        ann.probabilties = probabilties
-        ann.annotation = prediction
-        ann.add_symbol(TM)
+        ann.library_add_annotation(TM)
+        ann.scores = probabilties
+        ann.annotations = prediction
         return ann
     
     @staticmethod

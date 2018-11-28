@@ -11,7 +11,7 @@ import warnings
 import numpy as np
 
 from mrparse.mr_sequence import read_fasta, write_fasta
-from mr_annotation import AnnotationSymbol, SequenceAnnotation, NULL_SYMBOL
+from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation, NULL_ANNOTATION
 from pyjob import cexec
 from pyjob.exception import PyJobExecutionError
 
@@ -22,7 +22,7 @@ THRESHOLD_PROBABILITY = 0.6
 
 CC = AnnotationSymbol()
 CC.symbol = 'C'
-CC.colour = '#00ff00'
+CC.stype = 'Coiled-coil Helix'
 CC.name = 'CC'
 
 
@@ -195,8 +195,8 @@ def coiled_coil_prediction(seqin):
     probabilties = probabilites_from_sequence(seq_aa)
     ann = SequenceAnnotation()
     ann.source = 'Deepcoil localhost'
-    ann.probabilties = probabilties
-    ann.annotation = "".join([CC.symbol if p > THRESHOLD_PROBABILITY else NULL_SYMBOL for p in probabilties])
-    ann.add_symbol(CC)
+    ann.library_add_annotation(CC)
+    ann.scores = probabilties
+    ann.annotations = "".join([CC.symbol if p > THRESHOLD_PROBABILITY else NULL_ANNOTATION.symbol for p in probabilties])
     return ann
 
