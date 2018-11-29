@@ -11,6 +11,7 @@ deepcoil **
 
 '''
 import json
+import logging
 import os
 import pickle
 import sys
@@ -24,14 +25,16 @@ from mrparse.mr_jpred import JPred
 from mrparse.mr_search_model import SearchModelFinder
 
 
+logging.basicConfig(level=logging.DEBUG)
+
+
 html_dir = '/opt/MrParse/pfam'
 # seqin = '../data/5u4pA.fasta'
 # seqin = '../data/5u4pB.fasta'
 # seqin = '../data/O75410.fasta'
-# seqin = '../data/2uvoA.fasta'
-# seqin = '../data/O75410.fasta'
+seqin = '../data/2uvoA.fasta'
 # seqin = '../O75410_800/O75410_800.fasta'
-seqin = '/opt/MrParse/data/Q13586.fasta'
+# seqin = '/opt/MrParse/data/Q13586.fasta'
 
 find_homologs = True
 if find_homologs:

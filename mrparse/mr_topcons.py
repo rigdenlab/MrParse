@@ -33,7 +33,7 @@ TM.stype = 'Transmembrane Helix'
 class Topcons(object):
     
     def __init__(self):
-        self.poll_time = 1
+        self.poll_time = 2
         self.max_poll_time = 120
         script_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'../scripts')
         self.topcons_script = os.path.join(script_dir, 'topcons2_wsdl.py')

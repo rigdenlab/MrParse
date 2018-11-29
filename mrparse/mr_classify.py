@@ -3,12 +3,18 @@ Created on 18 Oct 2018
 
 @author: jmht
 '''
+import logging
 from mrparse.mr_deepcoil import coiled_coil_prediction
 from mrparse.mr_topcons import Topcons
 
 
+logger = logging.getLogger(__name__)
+
+
 def get_annotation(seqin, topcons_dir=None):
+    logger.info("Running Coiled-Coil predictor")
     cc_pred = coiled_coil_prediction(seqin)
+    logger.info("Running Transmembrane predictor")
     tm_pred = Topcons().transmembrane_prediction(seqin, topcons_dir=topcons_dir)
     return generate_consensus_classification([cc_pred, tm_pred])
 
