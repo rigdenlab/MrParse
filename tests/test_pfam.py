@@ -10,24 +10,23 @@ deepcoil **
 
 
 '''
-import json
-import os
 import set_mrparse_path
-from mrparse.mr_classify import MrClassifier
+from mrparse.mr_classify import get_annotation
 from mrparse.mr_annotation import get_annotation_chunks
 from mrparse.mr_pfam import pfam_classification_dict
 
 
-seqin = "/opt/MrParse/data/Q13586.fasta"
-topcons_dir = "/opt/MrParse/data/Q13586/topcons"
-classifier = MrClassifier()
-class_data = classifier.get_predictions(seqin, topcons_dir=topcons_dir)
-annotations = classifier.annotations
 
-# jpred_dir = "/opt/MrParse/data/Q13586/jpred"
-# pfam_data = secondary_structure_prediction(jpred_dir)
-
-chunks = get_annotation_chunks(class_data, annotations)
-
-print(pfam_classification_dict(chunks))
+def test_basic():
+    seqin = "/opt/MrParse/data/Q13586.fasta"
+    topcons_dir = "/opt/MrParse/data/Q13586/topcons"
+    annotation = get_annotation(seqin, topcons_dir=topcons_dir)
+    
+    # jpred_dir = "/opt/MrParse/data/Q13586/jpred"
+    # pfam_data = secondary_structure_prediction(jpred_dir)
+    
+    chunks = get_annotation_chunks(annotation)
+    print("CHUNKS ",chunks)
+    
+    print(pfam_classification_dict(chunks, len(annotation)))
 

@@ -8,11 +8,12 @@ import copy
 
 class AnnotationSymbol(object):
     def __init__(self, name=None, symbol=None, stype=None):
-        __slots__ = ('name', 'symbol', 'stype', 'score')
+        __slots__ = ('name', 'symbol', 'stype', 'score', 'source')
         self.name = name
         self.symbol = symbol
         self.stype = stype
         self.score = None
+        self.source = None
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -38,6 +39,8 @@ NULL_ANNOTATION.name ='null'
 NULL_ANNOTATION.symbol ='-'
 NULL_ANNOTATION.stype = 'null'
 NULL_ANNOTATION.score = 0.0
+NULL_ANNOTATION.source = 'null'
+
 
 
 class SequenceAnnotation(object):
@@ -63,6 +66,7 @@ class SequenceAnnotation(object):
     
     def library_add_annotation(self, annotation):
         assert isinstance(annotation, AnnotationSymbol)
+        annotation.source = self.source
         self.annotation_library[annotation.symbol] = annotation
         
     def __getitem__(self, idx):
@@ -129,20 +133,17 @@ class AnnotationChunk(object):
         return out_str
     
     
-def get_annotation_chunks(annotation, annotation_data):
+def get_annotation_chunks(annotation):
     chunks = []
     chunk = None
-    symbol_map = {}
-    for a in annotation_data:
-        symbol_map.update(a.symbols)
-    for i, s in enumerate(annotation):
-        if s in symbol_map.keys():
+    for i, a in enumerate(annotation):
+        if a != NULL_ANNOTATION:
             if not chunk:
-                chunk = AnnotationChunk(start=i, annotation=symbol_map[s])
-            elif chunk.stype != s:
+                chunk = AnnotationChunk(start=i, annotation=a)
+            elif chunk.annotation != a:
                 chunk.end = i
                 chunks.append(chunk)
-                chunk = AnnotationChunk(start=i, annotation=symbol_map[s])
+                chunk = AnnotationChunk(start=i, annotation=a)
         else:
             if chunk:
                 chunk.end = i

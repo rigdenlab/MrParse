@@ -4,7 +4,9 @@ Created on 16 Nov 2018
 @author: jmht
 '''
 
-from mrparse.mr_sequence import CC_SYMBOL, TM_SYMBOL, HELIX_SYMBOL, BSHEET_SYMBOL
+from mrparse.mr_topcons import TM
+from mrparse.mr_deepcoil import CC
+from mrparse.mr_jpred import HELIX, SHEET
 
 import colorsys
 
@@ -49,21 +51,21 @@ def pfam_classification_dict(chunk_data, seqlen):
     regions = []
     for i, chunk in enumerate(chunk_data):
         idx = i + 1
-        if chunk.stype == CC_SYMBOL:
+        if chunk.annotation == CC:
             colour = "#00ff00"
-            text = 'CC'
+            text = CC.name
             meta_desc = "Coiled-coil region #%d" % idx
-        elif chunk.stype == TM_SYMBOL:
+        elif chunk.annotation == TM:
             colour = "#aaaaaa"
-            text = 'TM'
+            text = TM.name
             meta_desc = "Transmembrane region #%d" % idx
-        elif chunk.stype ==  HELIX_SYMBOL:
+        elif chunk.annotation ==  HELIX:
             colour = "#ff0000"
-            text = 'helix'
+            text = HELIX.name
             meta_desc = "Helix region #%d" % idx
-        elif chunk.stype == BSHEET_SYMBOL:
+        elif chunk.annotation == SHEET:
             colour = "#0000ff"
-            text = 'bsheet'
+            text = SHEET.name
             meta_desc = "Beta sheet region #%d" % idx
         d = { 'startStyle': "straight",
               'endStyle': "straight",
@@ -74,7 +76,7 @@ def pfam_classification_dict(chunk_data, seqlen):
               'colour': colour,
               'text': text,
               'metadata' : { "description" : meta_desc,
-                             "database" : chunk.source,
+                             "database" : chunk.annotation.source,
                              "start" : chunk.start,
                              "end" : chunk.end,
                               }

@@ -3,9 +3,8 @@ Created on 18 Oct 2018
 
 @author: jmht
 '''
-from mrparse.mr_deepcoil import coiled_coil_prediction, CC
-from mrparse.mr_topcons import Topcons, TM
-from mrparse.mr_annotation import SequenceAnnotation, NULL_ANNOTATION
+from mrparse.mr_deepcoil import coiled_coil_prediction
+from mrparse.mr_topcons import Topcons
 
 
 def get_annotation(seqin, topcons_dir=None):

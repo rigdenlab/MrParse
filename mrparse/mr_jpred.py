@@ -5,7 +5,7 @@ Created on 14 Nov 2018
 '''
 import os
 
-from mr_annotation import AnnotationSymbol, SequenceAnnotation
+from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation
 
 HELIX = AnnotationSymbol()
 HELIX.symbol = 'H'
