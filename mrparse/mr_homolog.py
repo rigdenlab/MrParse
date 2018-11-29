@@ -5,7 +5,6 @@ Created on 18 Oct 2018
 '''
 import os
 
-import phaser
 from simbad.util.pdb_util import PdbStructure
 
 class HomologData(object):
@@ -94,6 +93,7 @@ def ellg_data_from_phaser_log(fpath, homologs):
 
 def calculate_ellg(homologs, mtz):
     """Stuff from : ccp4-src-2016-02-10/checkout/cctbx-phaser-dials-2015-12-22/phaser/phaser/CalcCCFromMRsolutions.py"""
+    import phaser
     mrinput = phaser.InputMR_DAT()
     HKLIN = '../data/2uvo_pdbredo.mtz'
     mrinput.setHKLI(HKLIN)

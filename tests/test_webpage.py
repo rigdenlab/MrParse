@@ -15,11 +15,12 @@ import os
 import pickle
 import sys
 import set_mrparse_path
-from mrparse.mr_sequence import read_fasta
-from mrparse.mr_classify import MrClassifier
-from mrparse.mr_jpred import secondary_structure_prediction
-from mrparse.mr_pfam import pfam_region_dict
 
+from mrparse.mr_sequence import read_fasta
+from mrparse.mr_pfam import pfam_region_dict, pfam_classification_dict
+from mrparse.mr_classify import get_annotation
+from mrparse.mr_annotation import get_annotation_chunks
+from mrparse.mr_jpred import JPred
 from mrparse.mr_search_model import SearchModelFinder
 
 
@@ -62,16 +63,20 @@ else:
 #         regions = pickle.load(regions_fh)
  
 seqlen = len(read_fasta(seqin))
-region_data = pfam_region_dict(regions, seqlen)
+region_d = pfam_region_dict(regions, seqlen)
 
+annotation = get_annotation(seqin)
+annotation_chunks = get_annotation_chunks(annotation)
+class_d = pfam_classification_dict(annotation_chunks, len(annotation))
+ 
+sspred = JPred().secondary_structure_prediction(seqin=seqin)
+sspred_chunks = get_annotation_chunks(sspred)
+sspred_d = pfam_classification_dict(sspred_chunks, len(sspred))
 
-classifier = MrClassifier()
-class_data = classifier.get_prediction(seqin, topcons_dir="/opt/MrParse/data/Q13586/topcons")
-jpred_dir = "/opt/MrParse/data/Q13586/jpred"
-pfam_data = secondary_structure_prediction(jpred_dir)
-
-
-pfam_data['regions'] = region_data
+pfam_data = {}
+pfam_data['ss_pred'] = sspred_d
+pfam_data['classification'] = class_d
+pfam_data['regions'] = region_d
 
 rdata = 'console.log("LOADED DATA");\nvar pfam_json = %s;\n' % json.dumps(pfam_data)
 with open(os.path.join(html_dir, 'data.js'), 'w') as w:

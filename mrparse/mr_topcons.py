@@ -7,11 +7,14 @@ import logging
 import os
 import shutil
 import subprocess
+import sys
 import time
 import zipfile
 
-
 from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation
+
+
+PYTHONVERSION = sys.version_info[0]
 
 
 class OutOfTimeException(Exception):
@@ -107,7 +110,10 @@ class Topcons(object):
     def submit_job(self, seqin):
         cmd = [self.topcons_script, '-m', 'submit', '-seq', seqin]
         logger.debug("Running cmd: %s", " ".join(cmd))
-        out = subprocess.check_output(cmd, encoding='utf-8')
+        optd = {}
+        if PYTHONVERSION > 2:
+            optd['encoding'] = 'utf-8'
+        out = subprocess.check_output(cmd, **optd)
         logger.debug("Got output: %s", out)
         jobid = None
         for line in out.split(os.linesep):
@@ -125,7 +131,10 @@ class Topcons(object):
         """
         cmd = [self.topcons_script, '-m', 'get', '-jobid', jobid]
         logger.debug("Running cmd: %s", " ".join(cmd))
-        out = subprocess.check_output(cmd, encoding='utf-8')
+        optd = {}
+        if PYTHONVERSION > 2:
+            optd['encoding'] = 'utf-8'
+        out = subprocess.check_output(cmd, **optd)
         logger.debug("Got output: %s", out)
         _jobid = None
         for line in out.split(os.linesep):

@@ -7,8 +7,11 @@ import logging
 import os
 import shutil
 import subprocess
+import sys
 import tarfile
 import time
+
+PYTHONVERSION = sys.version_info[0]
 
 from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation
 
@@ -118,7 +121,10 @@ You can check the status of the job using the following URL: http://www.compbio.
                'name=jens_test_job',
                'skipPDB=on']
         logger.debug("Running cmd: %s", " ".join(cmd))
-        out = subprocess.check_output(cmd, encoding='utf-8')
+        optd = {}
+        if PYTHONVERSION > 2:
+            optd['encoding'] = 'utf-8'
+        out = subprocess.check_output(cmd, **optd)
         logger.debug("Got output: %s", out)
         jobid = None
         for line in out.split(os.linesep):
@@ -149,7 +155,10 @@ Job results archive is now available at: jp_H_5vG49/jp_H_5vG49.tar.gz
                'getResults=yes',
                'checkEvery=10']
         logger.debug("Running cmd: %s", " ".join(cmd))
-        out = subprocess.check_output(cmd, encoding='utf-8')
+        optd = {}
+        if PYTHONVERSION > 2:
+            optd['encoding'] = 'utf-8'
+        out = subprocess.check_output(cmd, **optd)
         logger.debug("Got output: %s", out)
         _jobid = None
         for line in out.split(os.linesep):
