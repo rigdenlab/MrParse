@@ -54,11 +54,11 @@ class SequenceAnnotation(object):
     
     def add_annotation(self, annotation):
         if annotation != NULL_ANNOTATION:
-            assert self.has_annotation(annotation), "Cannot find: %s" % annotation
+            assert self.annotation_is_significant(annotation), "Cannot find: %s" % annotation
         self.annotation += annotation.symbol
         self.scores.append(annotation.score)
     
-    def has_annotation(self, annotation):
+    def annotation_is_significant(self, annotation):
         return annotation is not NULL_ANNOTATION and annotation in self.annotation_library.values()
     
     def has_annotation_symbol(self, symbol):
@@ -92,11 +92,11 @@ class SequenceAnnotation(object):
         
         # For now just use prediction and leave probabiltiies
         for i in range(len(self)):
-            if self.has_annotation(self[i]) and other.has_annotation(other[i]):
+            if self.annotation_is_significant(self[i]) and other.annotation_is_significant(other[i]):
                 ca.add_annotation(NULL_ANNOTATION)
-            elif self.has_annotation(self[i]):
+            elif self.annotation_is_significant(self[i]):
                 ca.add_annotation(self[i])
-            elif other.has_annotation(other[i]):
+            elif other.annotation_is_significant(other[i]):
                 ca.add_annotation(other[i])
             else:
                 ca.add_annotation(NULL_ANNOTATION)
@@ -119,10 +119,6 @@ class AnnotationChunk(object):
         self.start = start
         self.end = end
         self.annotation = annotation
-    
-    @property
-    def stype(self):
-        return self.annotation.symbol
     
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]

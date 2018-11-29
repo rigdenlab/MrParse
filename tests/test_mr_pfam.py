@@ -27,5 +27,3 @@ def test_basic():
      
     assert sspred_d['length'] == 685    
     assert len(sspred_d['regions']) == 23
-    
-

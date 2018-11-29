@@ -26,10 +26,10 @@ TM.stype = 'Transmembrane Helix'
 class Topcons(object):
     
     def __init__(self):
+        self.poll_time = 1
         self.max_poll_time = 120
         script_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'../scripts')
         self.topcons_script = os.path.join(script_dir, 'topcons2_wsdl.py')
-        pass
 
     @staticmethod
     def parse_topcons_output(results_dir):
@@ -96,7 +96,7 @@ class Topcons(object):
                 raise OutOfTimeException("Exceed maximum runtime of: %d" % self.max_poll_time)
             if self.job_finished(jobid):
                 break
-            time.sleep(1)
+            time.sleep(self.poll_time)
         results_dir = self.get_results(jobid)
         return results_dir
     
