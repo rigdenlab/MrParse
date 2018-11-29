@@ -9,12 +9,12 @@ from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation
 
 HELIX = AnnotationSymbol()
 HELIX.symbol = 'H'
-HELIX.colour = '#ff0000'
+HELIX.stype = 'Alpha Helix'
 HELIX.name = 'helix'
 
 SHEET = AnnotationSymbol()
 SHEET.symbol = 'E'
-SHEET.colour = '#0000ff'
+SHEET.stype = 'B-sheet'
 SHEET.name = 'b-sheet'
 
 
@@ -41,13 +41,13 @@ def parse_jpred_output(jpred_rundir):
     return ss_pred, cc_28
 
 
-def create_annotation(prediction):
+def create_annotation(annotation):
     ann = SequenceAnnotation()
     ann.source = 'Jpred server'
-    ann.annotation = prediction
-    ann.length = len(prediction)
-    ann.probabilties = [1.0] * ann.length
-    ann.annotation_symbols = [HELIX, SHEET]
+    ann.annotation = annotation
+    ann.library_add_annotation(HELIX)
+    ann.library_add_annotation(SHEET)
+    ann.scores = [1.0] * len(annotation)
     return ann
 
 
