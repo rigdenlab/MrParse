@@ -192,11 +192,11 @@ def fill_chunks(chunks, chunk_indices):
 
 def coiled_coil_prediction(seqin):
     seq_aa = read_fasta(seqin)
-    probabilties = probabilites_from_sequence(seq_aa)
+    scores = probabilites_from_sequence(seq_aa)
     ann = SequenceAnnotation()
     ann.source = 'Deepcoil localhost'
     ann.library_add_annotation(CC)
-    ann.scores = probabilties
-    ann.annotations = "".join([CC.symbol if p > THRESHOLD_PROBABILITY else NULL_ANNOTATION.symbol for p in probabilties])
+    ann.scores = scores
+    ann.annotation = "".join([CC.symbol if p > THRESHOLD_PROBABILITY else NULL_ANNOTATION.symbol for p in scores])
     return ann
 

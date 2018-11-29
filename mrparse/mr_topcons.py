@@ -55,12 +55,12 @@ class Topcons(object):
         probabilties = Topcons.fix_probabilties(prediction, probabilties)
         return prediction, probabilties
     
-    def create_annotation(self, prediction, probabilties):
+    def create_annotation(self, annotation, probabilties):
         ann = SequenceAnnotation()
         ann.source = 'TopCons server'
         ann.library_add_annotation(TM)
         ann.scores = probabilties
-        ann.annotations = prediction
+        ann.annotation = annotation
         return ann
     
     @staticmethod

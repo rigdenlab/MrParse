@@ -6,12 +6,11 @@ Created on 17 Nov 2018
 import set_mrparse_path
 import conftest
 
-from mrparse.mr_classify import MrClassifier
+from mrparse.mr_classify import get_annotation
 
 def test_generate_local():
     seqin = '/opt/MrParse/data/Q13586.fasta'
     topcons_dir = "/opt/MrParse/data/Q13586/topcons"
-    classifier = MrClassifier()
-    classification = classifier.get_predictions(seqin, topcons_dir=topcons_dir)
+    classification = get_annotation(seqin, topcons_dir=topcons_dir)
     s = '--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------MMMMMMMMMMMMMMMMMMMMM-------------CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC---------------C-CC--------CC-CC-----------------------------------------CCCCCCCCCCCCCCC----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------'
-    assert classification == s, classification
+    assert classification.annotation == s, classification.annotation

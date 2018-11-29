@@ -14,39 +14,6 @@ class AnnotationSymbol(object):
         self.stype = stype
         self.score = None
 
-
-NULL_ANNOTATION = AnnotationSymbol()
-NULL_ANNOTATION.name ='null'
-NULL_ANNOTATION.symbol ='-'
-NULL_ANNOTATION.stype ='null'
-
-
-class SequenceAnnotation(object):
-    def __init__(self):
-        __slots__ = ('source', 'scores', 'annotations', 'annotation_library')
-        self.source = None
-        self.scores = None
-        self.annotations = None
-        self.annotation_library = dict()
-    
-    def library_add_annotation(self, annotation):
-        assert isinstance(annotation, AnnotationSymbol)
-        self.annotation_library[annotation.symbol] = annotation
-        
-    def __getitem__(self, idx):
-#         if not isinstance(idx, int) :
-#             raise TypeError(idx)
-#         if self.annotations is not None and 0 < idx < len(self.annotations):
-#             raise IndexError(idx)
-#         assert len(self.annotations) == len(self.probabilties)
-        symbol = self.annotations[idx]
-        a = copy.copy(self.annotation_library[symbol])
-        a.score = self.scores[idx]
-        return a
-
-    def __len__(self):
-        return len(self.annotations)
-    
     def __eq__(self, other):
         if isinstance(other, self.__class__):
 #             return self.__dict__ == other.__dict__
@@ -56,6 +23,83 @@ class SequenceAnnotation(object):
 
     def __ne__(self, other):
         return not self.__eq__(other)
+
+    def __str__(self):
+        attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
+        INDENT = "  "
+        out_str = "Class: {}\nData:\n".format(self.__class__)
+        for a in sorted(attrs):
+            out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
+        return out_str
+
+
+NULL_ANNOTATION = AnnotationSymbol()
+NULL_ANNOTATION.name ='null'
+NULL_ANNOTATION.symbol ='-'
+NULL_ANNOTATION.stype = 'null'
+NULL_ANNOTATION.score = 0.0
+
+
+class SequenceAnnotation(object):
+    def __init__(self, null_symbol=NULL_ANNOTATION.symbol):
+        __slots__ = ('source', 'scores', 'annotation', 'annotation_library', 'null_symbol')
+        self.source = None
+        self.scores = []
+        self.annotation = '' # list of annotation symbols
+        self.annotation_library = dict()
+        self.null_symbol = null_symbol
+    
+    def add_annotation(self, annotation):
+        if annotation != NULL_ANNOTATION:
+            assert self.has_annotation(annotation), "Cannot find: %s" % annotation
+        self.annotation += annotation.symbol
+        self.scores.append(annotation.score)
+    
+    def has_annotation(self, annotation):
+        return annotation is not NULL_ANNOTATION and annotation in self.annotation_library.values()
+    
+    def has_annotation_symbol(self, symbol):
+        return symbol in self.annotation_library
+    
+    def library_add_annotation(self, annotation):
+        assert isinstance(annotation, AnnotationSymbol)
+        self.annotation_library[annotation.symbol] = annotation
+        
+    def __getitem__(self, idx):
+        symbol = self.annotation[idx]
+        if self.has_annotation_symbol(symbol):
+            a = copy.copy(self.annotation_library[symbol])
+            a.score = self.scores[idx]
+#         elif symbol == self.null_symbol:
+        else:
+            a = copy.copy(NULL_ANNOTATION)
+            a.symbol = self.null_symbol
+        return a
+
+    def __add__(self, other):
+        if not isinstance(other, self.__class__):
+            raise TypeError(other)
+        assert len(self) == len(other)
+        ca = self.__class__() # Class holding consensus annotation
+        
+        # Combine annotation_libraries - is it worth removing those entries that aren't
+        # included in the consensus?
+        ca.annotation_library = dict(self.annotation_library, **other.annotation_library)
+        
+        # For now just use prediction and leave probabiltiies
+        for i in range(len(self)):
+            if self.has_annotation(self[i]) and other.has_annotation(other[i]):
+                ca.add_annotation(NULL_ANNOTATION)
+            elif self.has_annotation(self[i]):
+                ca.add_annotation(self[i])
+            elif other.has_annotation(other[i]):
+                ca.add_annotation(other[i])
+            else:
+                ca.add_annotation(NULL_ANNOTATION)
+        return ca        
+
+    def __len__(self):
+        return len(self.annotation)
 
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
