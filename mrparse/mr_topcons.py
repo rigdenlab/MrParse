@@ -3,6 +3,7 @@ Created on 16 Nov 2018
 
 @author: jmht
 '''
+import logging
 import os
 import shutil
 import subprocess
@@ -15,6 +16,9 @@ from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation
 
 class OutOfTimeException(Exception):
     pass
+
+
+logger = logging.getLogger(__name__)
 
 
 TM = AnnotationSymbol()
@@ -102,8 +106,9 @@ class Topcons(object):
     
     def submit_job(self, seqin):
         cmd = [self.topcons_script, '-m', 'submit', '-seq', seqin]
-        out = subprocess.check_output(cmd)
-        print("SUBMIT GOT OUT ",out)
+        logger.debug("Running cmd: %s", " ".join(cmd))
+        out = subprocess.check_output(cmd, encoding='utf-8')
+        logger.debug("Got output: %s", out)
         jobid = None
         for line in out.split(os.linesep):
             if line.startswith("You have successfully submitted your job"):
@@ -119,8 +124,9 @@ class Topcons(object):
         The result file ./rst_rUF74H.zip has been retrieved for jobid rst_rUF74H
         """
         cmd = [self.topcons_script, '-m', 'get', '-jobid', jobid]
-        out = subprocess.check_output(cmd)
-        print("CHECK GOT OUT ",out)
+        logger.debug("Running cmd: %s", " ".join(cmd))
+        out = subprocess.check_output(cmd, encoding='utf-8')
+        logger.debug("Got output: %s", out)
         _jobid = None
         for line in out.split(os.linesep):
             if line.endswith("finished!"):
