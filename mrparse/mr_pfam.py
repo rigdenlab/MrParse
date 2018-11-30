@@ -7,6 +7,7 @@ Created on 16 Nov 2018
 from mrparse.mr_topcons import TM
 from mrparse.mr_deepcoil import CC
 from mrparse.mr_jpred import HELIX, SHEET
+from mrparse.mr_annotation import get_annotation_chunks
 
 import colorsys
 
@@ -47,7 +48,13 @@ def pfam_region_dict(regions, seqlen):
             region_data.append(jdict)
     return region_data
 
-def pfam_classification_dict(chunk_data, seqlen):
+
+def pfam_dict_from_annotation(annotation):
+    annotation_chunks = get_annotation_chunks(annotation)
+    return pfam_dict_from_chunks(annotation_chunks, len(annotation))
+
+
+def pfam_dict_from_chunks(chunk_data, seqlen):
     regions = []
     for i, chunk in enumerate(chunk_data):
         idx = i + 1

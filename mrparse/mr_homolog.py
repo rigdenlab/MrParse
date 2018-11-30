@@ -4,6 +4,7 @@ Created on 18 Oct 2018
 @author: jmht
 '''
 import os
+import warnings
 
 from simbad.util.pdb_util import PdbStructure
 
@@ -39,17 +40,19 @@ def get_homologs(hits, domains):
     for domain in domains:
         for match in domain.matches:
             hit = hits[match]
-            #pdb_code, chain_id, _ = match.split("_")
-            pdb_struct = PdbStructure()
-            pdb_struct.from_pdb_code(hit.pdbName)
-            pdb_struct.select_chain_by_id(hit.chainID)
-            pdb_struct.standardize()
             pdb_name = hit.pdbName + '_' + hit.chainID + '.pdb'
-            fpath = os.path.join(pdb_dir, pdb_name)
-            pdb_struct.save(fpath)
+            pdb_file = os.path.join(pdb_dir, pdb_name)
+            pdb_struct = PdbStructure()
+            if os.path.isfile(pdb_file):
+                pdb_struct.from_file(pdb_file)
+            else:
+                pdb_struct.from_pdb_code(hit.pdbName)
+                pdb_struct.select_chain_by_id(hit.chainID)
+                pdb_struct.standardize()
+                pdb_struct.save(pdb_file)
             hlog = HomologData()
             hlog.name = hit.name
-            hlog.pdb = fpath
+            hlog.pdb = pdb_file
             hlog.molecular_weight = float(pdb_struct.molecular_weight)
             hlog.seqid = hits[hit.name].localSEQID / 100.0
             hlog.domain = domain.ID
