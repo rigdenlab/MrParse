@@ -26,6 +26,22 @@ CC.stype = 'Coiled-coil Helix'
 CC.name = 'CC'
 
 
+class CCPred(object):
+    def __init__(self, seqin):
+        self.seqin = seqin
+        self.prediction = None
+        
+    def get_prediction(self):
+        seq_aa = read_fasta(self.seqin)
+        scores = probabilites_from_sequence(seq_aa)
+        ann = SequenceAnnotation()
+        ann.source = 'Deepcoil localhost'
+        ann.library_add_annotation(CC)
+        ann.scores = scores
+        ann.annotation = "".join([CC.symbol if p > THRESHOLD_PROBABILITY else NULL_ANNOTATION.symbol for p in scores])
+        self.prediction = ann
+
+
 def split_sequence(sequence, chunk_size=500, overlap=100):
     """Split a sequence into chunks of chunk_size that overlap by overlap"""
     
@@ -189,14 +205,3 @@ def fill_chunks(chunks, chunk_indices):
             else:
                 chunks[i] = False
     return chunks
-
-def coiled_coil_prediction(seqin):
-    seq_aa = read_fasta(seqin)
-    scores = probabilites_from_sequence(seq_aa)
-    ann = SequenceAnnotation()
-    ann.source = 'Deepcoil localhost'
-    ann.library_add_annotation(CC)
-    ann.scores = scores
-    ann.annotation = "".join([CC.symbol if p > THRESHOLD_PROBABILITY else NULL_ANNOTATION.symbol for p in scores])
-    return ann
-

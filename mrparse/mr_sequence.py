@@ -16,14 +16,15 @@ def write_fasta(aa, name, maxwidth=80):
     return fname
 
 def read_fasta(fasta_file):
+    _, ext = os.path.splitext(fasta_file)
+    seq = ""
     with open(fasta_file) as fh:
-        line = fh.readline()
-        assert line[0] == '>'
-        seq = ""
-        while True:
-            line = fh.readline()
-            if not line:
-                break
+        for i, line in enumerate(fh.readlines()):
+            if i == 0:
+                assert line[0] == '>'
+                continue
+            if i == 1 and ext.lower() == '.seq':
+                continue # seq files have a blank line 
             line = line.strip()
             if not line or line[0] == '>':
                 break

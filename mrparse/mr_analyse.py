@@ -16,7 +16,7 @@ from mrparse.mr_classify import MrClassifier
 logging.basicConfig(level=logging.DEBUG)
 
 
-def write_html(self, html_out, options, template_file='multi_domains_template.html', template_dir='/opt/MrParse/pfam/'):
+def write_html(html_out, options, template_file='multi_domains_template.html', template_dir='/opt/MrParse/pfam/'):
     from jinja2 import Environment, FileSystemLoader
     env = Environment( 
         loader=FileSystemLoader(template_dir), 
@@ -30,7 +30,7 @@ def write_html(self, html_out, options, template_file='multi_domains_template.ht
 def run(hklin, seqin):
     html_dir = '/opt/MrParse/pfam'
     html_out = os.path.join(html_dir, 'mrparse.html')
-    
+
     if hklin:
         hkl_info  = HklInfo(hklin)
     

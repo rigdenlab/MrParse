@@ -91,6 +91,32 @@
 
   <body>
 
+    <h2>HKL Information</h2>
+    <table border="1">
+      <thead>
+        <tr style="text-align: right;">
+          <th>name</th>
+          <th>Resolution</th>
+          <th>Space Group</th>
+          <th>Has NCS?</th>
+          <th>Has Twinning?</th>
+          <th>Has Anisotropy?</th>
+          <th>File Path</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>toxd</td>
+          <td>2.300</td>
+          <td>P212121</td>
+          <td>False</td>
+          <td>False</td>
+          <td>True</td>
+          <td>/opt/ample.git/examples/toxd-example/input/toxd.mtz</td>
+        </tr>
+      </tbody>
+    </table>
+
     <h2>Homologs</h2>
     <script type="text/javascript">
         homologs();
@@ -121,7 +147,7 @@
         parent.appendChild(gdiv);
         let pg = new PfamGraphic();
         pg.setImageParams( {
-          residueWidth: 1.0,
+          residueWidth: 6.0,
           xscale: 1.0,
           yscale: 1.0
           } );

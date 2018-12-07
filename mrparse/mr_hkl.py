@@ -25,7 +25,7 @@ class HklInfo(object):
         return
         
     def check_pathologies(self):
-        """Function to run Ctruncate on input MTZ to generate any missing columns"""
+        """DOC TODO"""
         hklin = self.hklin
         hklout = filename_append(filename=hklin, directory=os.getcwd(), astr='fixcols')
     

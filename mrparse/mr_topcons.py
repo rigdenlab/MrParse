@@ -21,22 +21,27 @@ class OutOfTimeException(Exception):
     pass
 
 
-logger = logging.getLogger(__name__)
-
+POLL_TIME = 2
+MAX_POLL_TIME = 120
 
 TM = AnnotationSymbol()
 TM.symbol = 'M'
 TM.name = 'TM'
 TM.stype = 'Transmembrane Helix'
 
+logger = logging.getLogger(__name__)
 
-class Topcons(object):
+
+class TMPred(object):
     
-    def __init__(self):
-        self.poll_time = 2
-        self.max_poll_time = 120
+    def __init__(self, seqin, topcons_dir=None):
+        self.seqin = seqin
+        self.topcons_dir = topcons_dir
+        self.prediction = None
         script_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'../scripts')
         self.topcons_script = os.path.join(script_dir, 'topcons2_wsdl.py')
+        self.poll_time = POLL_TIME
+        self.max_poll_time = MAX_POLL_TIME
 
     @staticmethod
     def parse_topcons_output(results_dir):
@@ -59,7 +64,7 @@ class Topcons(object):
                         probabilties.append((int(seqid), float(prob)))
                         line = fh.readline().strip()
                 line = fh.readline()
-        probabilties = Topcons.fix_probabilties(prediction, probabilties)
+        probabilties = TMPred.fix_probabilties(prediction, probabilties)
         return prediction, probabilties
     
     def create_annotation(self, annotation, probabilties):
@@ -164,10 +169,9 @@ class Topcons(object):
         if os.path.isdir(results_dir):
             shutil.rmtree(results_dir)
     
-    def transmembrane_prediction(self, seqin, topcons_dir=None):
-        if not topcons_dir:
-            topcons_dir = self.run_topcons(seqin)
-        prediction, scores = self.parse_topcons_output(topcons_dir)
-        annotation = self.create_annotation(prediction, scores)
+    def get_prediction(self):
+        if not self.topcons_dir:
+            self.topcons_dir = self.run_topcons(self.seqin)
+        prediction, scores = self.parse_topcons_output(self.topcons_dir)
+        self.prediction = self.create_annotation(prediction, scores)
         #self.cleanup()
-        return annotation

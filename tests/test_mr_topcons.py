@@ -8,11 +8,11 @@ import set_mrparse_path
 import conftest
 
 
-from mrparse.mr_topcons import Topcons, TM
+from mrparse.mr_topcons import TMPred, TM
 
 
 def test_parse():
-    tc = Topcons()
+    tc = TMPred(None)
     results_dir = '/opt/MrParse/data/Q13586/topcons'
     prediction, scores = tc.parse_topcons_output(results_dir)
     annotation = tc.create_annotation(prediction, scores)
@@ -29,8 +29,8 @@ def test_parse():
 
 def test_run():
     seqin = '/opt/MrParse/data/Q13586.fasta'
-    tc = Topcons()
-    annotation = tc.transmembrane_prediction(seqin)
+    tc = TMPred(seqin)
+    annotation = tc.get_prediction()
     assert len(annotation) == 685
     assert annotation.annotation[212] == TM.symbol, annotation.annotation[212] 
     assert annotation.annotation[232] == TM.symbol, annotation.annotation[232] 

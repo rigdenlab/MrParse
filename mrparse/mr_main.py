@@ -20,6 +20,9 @@ It defines classes_and_methods
 import sys
 import os
 
+sys.path.insert(0,'/opt/MrParse')
+
+
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 
@@ -33,8 +36,8 @@ def main():
     try:
         # Setup argument parser
         parser = ArgumentParser()
-        parser.add_argument('hklin', help='MTZ/CIF Crystal Data file')
-        parser.add_argument('seqin', help='Sequence file')
+        parser.add_argument('-hklin', help='MTZ/CIF Crystal Data file')
+        parser.add_argument('-seqin', help='Sequence file')
 
         # Process arguments
         args = parser.parse_args()

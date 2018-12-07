@@ -4,13 +4,24 @@ Created on 18 Oct 2018
 @author: jmht
 '''
 import logging
-from mrparse.mr_deepcoil import coiled_coil_prediction
-from mrparse.mr_topcons import Topcons
+import threading
+
+
+from mrparse.mr_deepcoil import CCPred
+from mrparse.mr_topcons import TMPred
 from mrparse.mr_jpred import JPred
 from mrparse.mr_pfam import pfam_dict_from_annotation
 
 
 logger = logging.getLogger(__name__)
+
+class PredictorThread(threading.Thread):
+    def __init__(self, classifier):
+        super(PredictorThread, self).__init__()
+        self.classifier = classifier
+    
+    def run(self):
+        self.classifier.get_prediction()
 
 
 class MrClassifier(object):
@@ -20,11 +31,15 @@ class MrClassifier(object):
         self.ss_pred = None
         
     def get_classification(self, seqin, topcons_dir=None):
-        logger.info("Running Coiled-Coil predictor")
-        self.cc_pred = coiled_coil_prediction(seqin)
-        logger.info("Running Transmembrane predictor")
-        self.tm_pred = Topcons().transmembrane_prediction(seqin, topcons_dir=topcons_dir)
-        return self.generate_consensus_classification([self.cc_pred, self.tm_pred])
+        self.cc_pred = CCPred(seqin)
+        self.tm_pred = TMPred(seqin, topcons_dir=topcons_dir)
+        cc_thread = PredictorThread(self.cc_pred)
+        tm_thread = PredictorThread(self.tm_pred)
+        cc_thread.start()
+        tm_thread.start()
+        cc_thread.join()
+        tm_thread.join()
+        return self.generate_consensus_classification([self.cc_pred.prediction, self.tm_pred.prediction])
     
     def generate_consensus_classification(self, annotations):
         lengths = [len(a) for a in annotations]
