@@ -17,3 +17,15 @@ def test_2uvo(test_data):
     assert hkl_info.has_ncs is True
     assert hkl_info.has_twinning is False
     assert hkl_info.has_anisotropy is True
+    
+    
+def test_foo():
+    hklin = '/opt/MrParse/svetlana/AxMncat_P21.mtz'
+    hkl_info  = HklInfo(hklin)
+    print(hkl_info.labels.f)
+    print(hkl_info.labels.fplus)
+    print(hkl_info.labels.fminus)
+    print(hkl_info.labels.dano)
+    print(hkl_info.has_ncs)
+    print(hkl_info.has_twinning)
+    print(hkl_info.has_anisotropy)

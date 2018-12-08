@@ -37,6 +37,7 @@ class HklInfo(object):
         self.labels = mtz_obj
     
         ctr = Ctruncate()
+        ctr.debug = False
     
         log_file = hklout.rsplit(".", 1)[0] + '.log'
         ctr.setlogfile(log_file)
