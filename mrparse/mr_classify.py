@@ -78,4 +78,4 @@ class MrClassifier(object):
         class_d = pfam_dict_from_annotation(self.classification_prediction)
         sspred_d = pfam_dict_from_annotation(self.ss_prediction)
         return { 'ss_pred' : sspred_d,
-               'classification' :class_d}
+                 'classification' :class_d}

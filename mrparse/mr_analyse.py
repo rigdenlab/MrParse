@@ -5,6 +5,7 @@ Created on 18 Oct 2018
 '''
 import logging
 import json
+import multiprocessing
 import os
 import pickle
 import subprocess
@@ -30,19 +31,32 @@ def write_html(html_out, html_data, template_file='multi_domains_template.html',
         w.write(template.render(html_data))
 
 
-def run(hklin, seqin):
+def run(seqin, hklin=None):
     assert os.path.isfile(seqin)
     if hklin:
         assert os.path.isfile(hklin)
         hkl_info  = HklInfo(hklin)
-        hkl_info.execute()
      
     # Find homologs and determine properties
     smf = SearchModelFinder(seqin, hklin=hklin)
-    smf.execute()
-     
     mrc = MrClassifier(seqin=seqin)
+    
+#     p1 = multiprocessing.Process(target=smf.execute)
+#     p2 = multiprocessing.Process(target=mrc.execute)
+#     p1.start()
+#     p2.start()
+#     if hklin:
+#         p3 = multiprocessing.Process(target=hkl_info.execute)
+#         p3.start()
+#     p1.join()
+#     p2.join()
+#     if hklin:
+#         p3.join()
+    
+    smf.execute()
     mrc.execute()
+    if hklin:
+        hkl_info.execute()
     
     pfam_data = mrc.pfam_dict()
     pfam_data['regions'] = smf.pfam_dict()

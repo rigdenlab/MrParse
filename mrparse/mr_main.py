@@ -42,7 +42,7 @@ def main():
 
         # Process arguments
         args = parser.parse_args()
-        mr_analyse.run(args.hklin, args.seqin)
+        mr_analyse.run(args.seqin, hklin=args.hklin)
 
         return 0
     except KeyboardInterrupt:
