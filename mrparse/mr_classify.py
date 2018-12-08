@@ -19,27 +19,39 @@ class PredictorThread(threading.Thread):
     def __init__(self, classifier):
         super(PredictorThread, self).__init__()
         self.classifier = classifier
+        self.exception = None
     
     def run(self):
-        self.classifier.get_prediction()
+        try:
+            self.classifier.get_prediction()
+        except Exception as e:
+            self.exception = e
 
 
 class MrClassifier(object):
     def __init__(self):
-        self.cc_pred = None
-        self.tm_pred = None
-        self.ss_pred = None
+        pass
         
     def get_classification(self, seqin, topcons_dir=None):
-        self.cc_pred = CCPred(seqin)
-        self.tm_pred = TMPred(seqin, topcons_dir=topcons_dir)
-        cc_thread = PredictorThread(self.cc_pred)
-        tm_thread = PredictorThread(self.tm_pred)
+        cc_predictor = CCPred(seqin)
+        tm_predictor = TMPred(seqin, topcons_dir=topcons_dir)
+        cc_thread = PredictorThread(cc_predictor)
+        tm_thread = PredictorThread(tm_predictor)
         cc_thread.start()
         tm_thread.start()
         cc_thread.join()
         tm_thread.join()
-        return self.generate_consensus_classification([self.cc_pred.prediction, self.tm_pred.prediction])
+        
+        if cc_thread.exception and tm_thread.exception:
+            logger.critical("BOTH predictors raised expcetions: %s | %s" % (cc_thread.exception, tm_thread.exception))
+        elif cc_thread.exception:
+            logger.critical("Coiled-Coil predictor raised an exception: %s" % cc_thread.exception)
+            return tm_predictor.prediction
+        elif tm_thread.exception:
+            logger.critical("Transmembrane predictor raised an exception: %s" % tm_thread.exception)
+            return cc_predictor.prediction
+        else:
+            return self.generate_consensus_classification([cc_predictor.prediction, tm_predictor.prediction])
     
     def generate_consensus_classification(self, annotations):
         lengths = [len(a) for a in annotations]

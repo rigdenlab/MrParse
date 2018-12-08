@@ -15,6 +15,8 @@ from mrparse.mr_classify import MrClassifier
 
 logging.basicConfig(level=logging.DEBUG)
 
+HTML_DIR = '/opt/MrParse/pfam'
+
 
 def write_html(html_out, options, template_file='multi_domains_template.html', template_dir='/opt/MrParse/pfam/'):
     from jinja2 import Environment, FileSystemLoader
@@ -28,11 +30,11 @@ def write_html(html_out, options, template_file='multi_domains_template.html', t
 
 
 def run(hklin, seqin):
-    html_dir = '/opt/MrParse/pfam'
-    html_out = os.path.join(html_dir, 'mrparse.html')
-
+    
     if hklin:
+        assert os.path.isfile(hklin)
         hkl_info  = HklInfo(hklin)
+    assert os.path.isfile(seqin)
     
     # Find homologs and determine properties
     smf = SearchModelFinder(seqin)
@@ -44,12 +46,14 @@ def run(hklin, seqin):
     pfam_data['regions'] = smf.get_pfam_dict()
      
     js_data = 'var pfam_json = %s;\n' % json.dumps(pfam_data)
-    with open(os.path.join(html_dir, 'data.js'), 'w') as w:
+    with open(os.path.join(HTML_DIR, 'data.js'), 'w') as w:
         w.write(js_data)
     
     options = {'homolog_table' : smf.as_html()}
     if hklin:
         options['hkl_info'] = hkl_info.as_html()
+    
+    html_out = os.path.join(HTML_DIR, 'mrparse.html')
     write_html(html_out, options)
 
     # only on Mac OSX

@@ -17,8 +17,9 @@ It defines classes_and_methods
 @deffield    updated: Updated
 '''
 
-import sys
 import os
+import sys
+import traceback
 
 sys.path.insert(0,'/opt/MrParse')
 
@@ -49,7 +50,9 @@ def main():
         return 0
     except Exception as e:
         if DEBUG:
-            raise(e)
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            traceback.print_exception(exc_type, exc_value, exc_traceback,
+                                      file=sys.stdout)
         indent = len(program_name) * " "
         sys.stderr.write(program_name + ": " + repr(e) + "\n")
         sys.stderr.write(indent + "  for help use --help")
