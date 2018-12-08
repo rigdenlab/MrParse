@@ -103,11 +103,16 @@
       // <![CDATA[
       var residueWidth = null;
       consoleWidth = 1200;
-      function add_graphic(region, parent, div_id, div_class) {
+      function add_graphic(region, parent, div_id, div_class, title) {
         let gdiv = document.createElement('div');
         gdiv.setAttribute('id', div_id);
         gdiv.setAttribute('class', div_class);
         parent.appendChild(gdiv);
+        if(typeof title != "undefined") {
+          let title_a = document.createElement('h4');
+          title_a.appendChild(document.createTextNode(title));
+          gdiv.appendChild(title_a);
+        }
         let pg = new PfamGraphic();
         pg.setImageParams( {
           residueWidth: residueWidth,
@@ -144,9 +149,9 @@
         // Add canvases for graphics
         var ss_pred = pfam_json.ss_pred;
         residueWidth = Math.max(1.0, consoleWidth / ss_pred.length);
-        add_graphic(ss_pred, class_div, 'pfam_sspred', 'pfam_class');
+        add_graphic(ss_pred, class_div, 'pfam_sspred', 'pfam_class', 'Secondary Structure');
         var classification = pfam_json.classification;
-        add_graphic(classification, class_div, 'pfam_type', 'pfam_class');
+        add_graphic(classification, class_div, 'pfam_type', 'pfam_class', 'TM/CC classification');
         var regions_div = document.getElementById('regions');
         // let gdiv = document.createElement('div');
         // gdiv.setAttribute('id', 'pfam_region');
