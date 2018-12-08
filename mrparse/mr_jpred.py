@@ -34,11 +34,15 @@ class OutOfTimeException(Exception):
 
 
 class JPred(object):
-    def __init__(self):
+    def __init__(self, seqin=None, jpred_rundir=None):
+        self.seqin = seqin
+        self.jpred_rundir= jpred_rundir
         self.poll_time = 1
         self.max_poll_time = 120
         script_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'../scripts')
         self.jpred_script = os.path.join(script_dir, 'jpredapi')
+        self.prediction = None
+        self.exception = None
 
     @staticmethod
     def parse_jpred_output(jpred_rundir):
@@ -74,13 +78,23 @@ class JPred(object):
         ann.scores = [1.0] * len(annotation)
         return ann
 
-    def secondary_structure_prediction(self, seqin=None, jpred_rundir=None):
-        if not jpred_rundir: # for testing
-            assert seqin
-            jpred_rundir = self.run_jpred(seqin)
-        ss_pred, cc_28 = self.parse_jpred_output(jpred_rundir)
-        self.cleanup(jpred_rundir)
-        return self.create_annotation(ss_pred)
+    def get_prediction(self):
+        if not self.jpred_rundir: # for testing
+            if not os.path.isfile(self.seqin):
+                msg = "Cannot find JPRED seqin: %s" % self.seqin
+                self.exception = msg
+                logger.critical(msg)
+                raise RuntimeError(msg)
+            try:
+                self.jpred_rundir = self.run_jpred(self.seqin)
+            except Exception as e:
+                logger.critical(e)
+                self.exception = e
+                raise e
+        ss_pred, cc_28 = self.parse_jpred_output(self.jpred_rundir)
+        self.cleanup(self.jpred_rundir)
+        self.prediction = self.create_annotation(ss_pred)
+        return self.prediction
 
     def run_jpred(self, seqin):
         jobid = self.submit_job(seqin)

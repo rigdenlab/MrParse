@@ -101,6 +101,8 @@
          based on the content of the form field above. -->
     <script type="text/javascript">
       // <![CDATA[
+      var residueWidth = null;
+      consoleWidth = 1200;
       function add_graphic(region, parent, div_id, div_class) {
         let gdiv = document.createElement('div');
         gdiv.setAttribute('id', div_id);
@@ -108,7 +110,7 @@
         parent.appendChild(gdiv);
         let pg = new PfamGraphic();
         pg.setImageParams( {
-          residueWidth: 1.0,
+          residueWidth: residueWidth,
           xscale: 1.0,
           yscale: 1.0
           } );
@@ -141,6 +143,7 @@
         var class_div = document.getElementById('classification');
         // Add canvases for graphics
         var ss_pred = pfam_json.ss_pred;
+        residueWidth = Math.max(1.0, consoleWidth / ss_pred.length);
         add_graphic(ss_pred, class_div, 'pfam_sspred', 'pfam_class');
         var classification = pfam_json.classification;
         add_graphic(classification, class_div, 'pfam_type', 'pfam_class');

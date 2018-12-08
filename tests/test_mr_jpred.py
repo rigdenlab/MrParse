@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 def test_parse():
     jpred_rundir = '/opt/MrParse/data/Q13586/jpred'
-    p = JPred().secondary_structure_prediction(jpred_rundir=jpred_rundir)
+    p = JPred(jpred_rundir=jpred_rundir).get_prediction()
     assert len(p) == 685
     assert p.annotation[212] == 'H', p.annotation[212] 
     assert p.annotation[232] == 'H', p.annotation[232] 
@@ -23,7 +23,7 @@ def test_parse():
 
 def test_submit():
     seqin = '/opt/MrParse/data/Q13586.fasta'
-    p = JPred().secondary_structure_prediction(seqin=seqin)
+    p = JPred(seqin=seqin).get_prediction()
     assert len(p) == 685
     assert p.annotation[212] == 'H', p.annotation[212] 
     assert p.annotation[232] == 'H', p.annotation[232] 

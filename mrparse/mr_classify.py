@@ -35,23 +35,33 @@ class MrClassifier(object):
     def get_classification(self, seqin, topcons_dir=None):
         cc_predictor = CCPred(seqin)
         tm_predictor = TMPred(seqin, topcons_dir=topcons_dir)
+        ss_predictor = JPred(seqin=seqin)
         cc_thread = PredictorThread(cc_predictor)
         tm_thread = PredictorThread(tm_predictor)
+        ss_thread = PredictorThread(ss_predictor)
         cc_thread.start()
         tm_thread.start()
+        ss_thread.start()
         cc_thread.join()
         tm_thread.join()
+        ss_thread.join()
         
+        class_predict = None
         if cc_thread.exception and tm_thread.exception:
-            logger.critical("BOTH predictors raised expcetions: %s | %s" % (cc_thread.exception, tm_thread.exception))
+            logger.critical("BOTH predictors raised expeptions: %s | %s" % (cc_thread.exception, tm_thread.exception))
         elif cc_thread.exception:
             logger.critical("Coiled-Coil predictor raised an exception: %s" % cc_thread.exception)
-            return tm_predictor.prediction
+            class_predict = tm_predictor.prediction
         elif tm_thread.exception:
             logger.critical("Transmembrane predictor raised an exception: %s" % tm_thread.exception)
-            return cc_predictor.prediction
+            class_predict = cc_predictor.prediction
         else:
-            return self.generate_consensus_classification([cc_predictor.prediction, tm_predictor.prediction])
+            class_predict = self.generate_consensus_classification([cc_predictor.prediction, tm_predictor.prediction])
+        
+        if ss_thread.exception:
+            logger.critical("JPred predictor raised error: %s" % ss_thread.exception)
+        
+        return ss_predictor.prediction, class_predict
     
     def generate_consensus_classification(self, annotations):
         lengths = [len(a) for a in annotations]
@@ -64,11 +74,8 @@ class MrClassifier(object):
         return consensus
     
     def get_annotation_pfam_dict(self, seqin):
-        class_a = self.get_classification(seqin)
-        class_d = pfam_dict_from_annotation(class_a)
-          
-        ss_pred = JPred().secondary_structure_prediction(seqin=seqin)
-        sspred_d = pfam_dict_from_annotation(ss_pred)
-    
+        ss_predict, class_predict = self.get_classification(seqin)
+        class_d = pfam_dict_from_annotation(class_predict)
+        sspred_d = pfam_dict_from_annotation(ss_predict)
         return { 'ss_pred' : sspred_d,
                'classification' :class_d}
