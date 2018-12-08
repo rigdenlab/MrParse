@@ -36,27 +36,27 @@ def run(hklin, seqin):
     if hklin:
         assert os.path.isfile(hklin)
         hkl_info  = HklInfo(hklin)
-    
+     
     # Find homologs and determine properties
     smf = SearchModelFinder(seqin)
     smf.find_regions()
     smf.find_homologs(hklin=hklin)
-    
+     
     mrc = MrClassifier()
     pfam_data = mrc.get_annotation_pfam_dict(seqin)
     pfam_data['regions'] = smf.get_pfam_dict()
-     
+      
     js_data = 'var pfam_json = %s;\n' % json.dumps(pfam_data)
     with open(os.path.join(HTML_DIR, 'data.js'), 'w') as w:
         w.write(js_data)
-    
+     
     html_data = {'homolog_table' : smf.as_html()}
     if hklin:
         html_data['hkl_info'] = hkl_info.as_html()
-    
+     
     with open(os.path.join(HTML_DIR, 'html_data.pkl'), 'w') as w:
         pickle.dump(html_data, w)
-    
+
     html_out = os.path.join(HTML_DIR, 'mrparse.html')
     write_html(html_out, html_data)
 
