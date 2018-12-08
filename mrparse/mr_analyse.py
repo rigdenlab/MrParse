@@ -41,22 +41,29 @@ def run(seqin, hklin=None):
     smf = SearchModelFinder(seqin, hklin=hklin)
     mrc = MrClassifier(seqin=seqin)
     
-#     p1 = multiprocessing.Process(target=smf.execute)
-#     p2 = multiprocessing.Process(target=mrc.execute)
-#     p1.start()
-#     p2.start()
-#     if hklin:
-#         p3 = multiprocessing.Process(target=hkl_info.execute)
-#         p3.start()
-#     p1.join()
-#     p2.join()
-#     if hklin:
-#         p3.join()
-    
-    smf.execute()
-    mrc.execute()
-    if hklin:
-        hkl_info.execute()
+    multip = False
+    if multip:
+        queue = multiprocessing.Queue()
+        p1 = multiprocessing.Process(target=smf.execute, args=(queue,))
+        p2 = multiprocessing.Process(target=mrc.execute, args=(queue,))
+        p1.start()
+        p2.start()
+        if hklin:
+            p3 = multiprocessing.Process(target=hkl_info.execute, args=(queue,))
+            p3.start()
+        p1.join()
+        p2.join()
+        if hklin:
+            p3.join()
+        smf = queue.get()
+        mrc = queue.get()
+        if hklin:
+            hkl_info = queue.get()
+    else:
+        smf.execute()
+        mrc.execute()
+        if hklin:
+            hkl_info.execute()
     
     pfam_data = mrc.pfam_dict()
     pfam_data['regions'] = smf.pfam_dict()

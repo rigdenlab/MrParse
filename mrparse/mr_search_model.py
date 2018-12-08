@@ -19,9 +19,11 @@ class SearchModelFinder(object):
         self.hits = None
         self.regions = None
     
-    def execute(self):
+    def execute(self, queue=None):
         self.find_regions()
         self.find_homologs()
+        if queue:
+            queue.put(self)
     
     def find_regions(self):
         self.hits = find_hits(self.seqin)

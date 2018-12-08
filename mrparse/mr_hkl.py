@@ -22,8 +22,10 @@ class HklInfo(object):
         self.has_anisotropy = False
         return
     
-    def execute(self):
+    def execute(self, queue=None):
         self.check_pathologies()
+        if queue:
+            queue.put(self)
         
     def check_pathologies(self):
         """DOC TODO"""

@@ -35,7 +35,7 @@ class MrClassifier(object):
         self.ss_prediction = None
         self.classification_prediction = None
         
-    def execute(self):
+    def execute(self, queue=None):
         cc_predictor = CCPred(self.seqin)
         tm_predictor = TMPred(self.seqin, topcons_dir=self.topcons_dir)
         ss_predictor = JPred(seqin=self.seqin)
@@ -63,6 +63,8 @@ class MrClassifier(object):
         if ss_thread.exception:
             logger.critical("JPred predictor raised error: %s" % ss_thread.exception)
         self.ss_prediction = ss_predictor.prediction
+        if queue:
+            queue.put(self)
     
     def generate_consensus_classification(self, annotations):
         lengths = [len(a) for a in annotations]
