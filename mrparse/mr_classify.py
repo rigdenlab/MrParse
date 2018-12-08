@@ -29,13 +29,16 @@ class PredictorThread(threading.Thread):
 
 
 class MrClassifier(object):
-    def __init__(self):
-        pass
+    def __init__(self, seqin, topcons_dir=None):
+        self.seqin = seqin
+        self.topcons_dir = topcons_dir
+        self.ss_prediction = None
+        self.classification_prediction = None
         
-    def get_classification(self, seqin, topcons_dir=None):
-        cc_predictor = CCPred(seqin)
-        tm_predictor = TMPred(seqin, topcons_dir=topcons_dir)
-        ss_predictor = JPred(seqin=seqin)
+    def execute(self):
+        cc_predictor = CCPred(self.seqin)
+        tm_predictor = TMPred(self.seqin, topcons_dir=self.topcons_dir)
+        ss_predictor = JPred(seqin=self.seqin)
         cc_thread = PredictorThread(cc_predictor)
         tm_thread = PredictorThread(tm_predictor)
         ss_thread = PredictorThread(ss_predictor)
@@ -46,22 +49,20 @@ class MrClassifier(object):
         tm_thread.join()
         ss_thread.join()
         
-        class_predict = None
         if cc_thread.exception and tm_thread.exception:
             logger.critical("BOTH predictors raised expeptions: %s | %s" % (cc_thread.exception, tm_thread.exception))
         elif cc_thread.exception:
             logger.critical("Coiled-Coil predictor raised an exception: %s" % cc_thread.exception)
-            class_predict = tm_predictor.prediction
+            self.classification_prediction = tm_predictor.prediction
         elif tm_thread.exception:
             logger.critical("Transmembrane predictor raised an exception: %s" % tm_thread.exception)
-            class_predict = cc_predictor.prediction
+            self.classification_prediction = cc_predictor.prediction
         else:
-            class_predict = self.generate_consensus_classification([cc_predictor.prediction, tm_predictor.prediction])
+            self.classification_prediction = self.generate_consensus_classification([cc_predictor.prediction, tm_predictor.prediction])
         
         if ss_thread.exception:
             logger.critical("JPred predictor raised error: %s" % ss_thread.exception)
-        
-        return ss_predictor.prediction, class_predict
+        self.ss_prediction = ss_predictor.prediction
     
     def generate_consensus_classification(self, annotations):
         lengths = [len(a) for a in annotations]
@@ -73,9 +74,8 @@ class MrClassifier(object):
             consensus = consensus + a
         return consensus
     
-    def get_annotation_pfam_dict(self, seqin):
-        ss_predict, class_predict = self.get_classification(seqin)
-        class_d = pfam_dict_from_annotation(class_predict)
-        sspred_d = pfam_dict_from_annotation(ss_predict)
+    def pfam_dict(self):
+        class_d = pfam_dict_from_annotation(self.classification_prediction)
+        sspred_d = pfam_dict_from_annotation(self.ss_prediction)
         return { 'ss_pred' : sspred_d,
                'classification' :class_d}

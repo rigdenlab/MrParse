@@ -10,6 +10,7 @@ from mrparse.mr_hkl import HklInfo
 
 def test_2uvo(test_data):
     hkl_info  = HklInfo(test_data.x2uvo_mtz)
+    hkl_info.execute()
     assert hkl_info.labels.f == 'FP'
 #     print(hkl_info.labels.fplus)
 #     print(hkl_info.labels.fminus)
@@ -22,6 +23,7 @@ def test_2uvo(test_data):
 def test_foo():
     hklin = '/opt/MrParse/svetlana/AxMncat_P21.mtz'
     hkl_info  = HklInfo(hklin)
+    hkl_info.execute()
     print(hkl_info.labels.f)
     print(hkl_info.labels.fplus)
     print(hkl_info.labels.fminus)

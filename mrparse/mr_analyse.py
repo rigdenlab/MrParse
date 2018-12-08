@@ -31,20 +31,21 @@ def write_html(html_out, html_data, template_file='multi_domains_template.html',
 
 
 def run(hklin, seqin):
-    
     assert os.path.isfile(seqin)
     if hklin:
         assert os.path.isfile(hklin)
         hkl_info  = HklInfo(hklin)
+        hkl_info.execute()
      
     # Find homologs and determine properties
-    smf = SearchModelFinder(seqin)
-    smf.find_regions()
-    smf.find_homologs(hklin=hklin)
+    smf = SearchModelFinder(seqin, hklin=hklin)
+    smf.execute()
      
-    mrc = MrClassifier()
-    pfam_data = mrc.get_annotation_pfam_dict(seqin)
-    pfam_data['regions'] = smf.get_pfam_dict()
+    mrc = MrClassifier(seqin=seqin)
+    mrc.execute()
+    
+    pfam_data = mrc.pfam_dict()
+    pfam_data['regions'] = smf.pfam_dict()
       
     js_data = 'var pfam_json = %s;\n' % json.dumps(pfam_data)
     with open(os.path.join(HTML_DIR, 'data.js'), 'w') as w:

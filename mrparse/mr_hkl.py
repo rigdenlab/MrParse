@@ -20,9 +20,10 @@ class HklInfo(object):
         self.has_ncs = False
         self.has_twinning = False
         self.has_anisotropy = False
-        self.check_pathologies()
-        
         return
+    
+    def execute(self):
+        self.check_pathologies()
         
     def check_pathologies(self):
         """DOC TODO"""
