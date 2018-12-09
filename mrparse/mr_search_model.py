@@ -39,14 +39,23 @@ class SearchModelFinder(object):
     def as_dataframe(self):
         homolog_dict = [h.__dict__ for _, h in self.homologs.items()]
         columns = ['name', 'domain', 'range', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid',
-                   'frac_scat', 'total_frac_scat', 'total_frac_scat_known', 'pdb']
+                   'frac_scat', 'total_frac_scat', 'total_frac_scat_known', 'pdb_url']
         df = pd.DataFrame(homolog_dict, columns=columns)
         #df.sort_values('eLLG', inplace=True, ascending=False)
         df.sort_values('domain', inplace=True, ascending=True)
         return df
     
     def as_html(self):
-        return self.as_dataframe().to_html(index=False)
+        df = self.as_dataframe()
+        # Convert pdb_urls to html anchors
+        def name_and_url_to_anchor(x):
+            name = x[0]
+            pdb = name.split('_')[0]
+            url = x[1]
+            return  "<a href=\"%s\">%s</a>" % (url, pdb)
+        df['pdb_url'] = df[['name','pdb_url']].apply(name_and_url_to_anchor, axis=1)
+        pd.set_option('display.max_colwidth', -1)
+        return df.to_html(index=False, escape=False)
 
     def pfam_dict(self):
         assert self.regions and self.seqin

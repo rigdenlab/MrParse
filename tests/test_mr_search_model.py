@@ -1,19 +1,27 @@
 import pickle
 import set_mrparse_path
 
-from mrparse.mr_search_model import RegionFinder
+from mrparse.mr_search_model import SearchModelFinder, RegionFinder
 from mrparse.mr_homolog import get_homologs, calculate_ellg
 from mrparse.mr_hit import find_hits
 
 
-rfinder = RegionFinder()
-seqin = '../data/2uvoA.fasta'
-hits = find_hits(seqin)
-with open('hits.pkl', 'w') as w:
-    pickle.dump(hits, w)
-regions = rfinder.find_regions_from_hits(hits)
-with open('regions.pkl', 'w') as w:
-    pickle.dump(regions, w)
+def test_SearchModelFinder(test_data):
+    seqin = test_data.x2uvoA_fasta
+    hklin = test_data.x2uvo_mtz
+    hklin = None
+    smf = SearchModelFinder(seqin, hklin=hklin)
+    smf.execute()
+    print(smf.as_html())
+
+# rfinder = RegionFinder()
+# seqin = '../data/2uvoA.fasta'
+# hits = find_hits(seqin)
+# with open('hits.pkl', 'w') as w:
+#     pickle.dump(hits, w)
+# regions = rfinder.find_regions_from_hits(hits)
+# with open('regions.pkl', 'w') as w:
+#     pickle.dump(regions, w)
     
 # homologs = get_homologs(hits, regions)
 # with open('homologs.pkl', 'w') as w:

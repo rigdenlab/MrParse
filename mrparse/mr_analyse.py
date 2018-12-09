@@ -41,7 +41,7 @@ def run(seqin, hklin=None):
     smf = SearchModelFinder(seqin, hklin=hklin)
     mrc = MrClassifier(seqin=seqin)
     
-    multip = False
+    multip = True
     if multip:
         queue = multiprocessing.Queue()
         p1 = multiprocessing.Process(target=smf.execute, args=(queue,))
@@ -55,10 +55,14 @@ def run(seqin, hklin=None):
         p2.join()
         if hklin:
             p3.join()
-        smf = queue.get()
-        mrc = queue.get()
-        if hklin:
-            hkl_info = queue.get()
+        while not queue.empty():
+            obj = queue.get()
+            if isinstance(obj, SearchModelFinder):
+                smf = obj
+            elif isinstance(obj, MrClassifier):
+                mrc = obj
+            elif isinstance(obj, HklInfo):
+                hkl_info = obj
     else:
         smf.execute()
         mrc.execute()

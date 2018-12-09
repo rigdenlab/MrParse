@@ -8,6 +8,8 @@ import warnings
 
 from simbad.util.pdb_util import PdbStructure
 
+PDB_BASE_URL = 'https://www.rcsb.org/structure/'
+
 class HomologData(object):
     def __init__(self):
         self.name = None
@@ -19,7 +21,8 @@ class HomologData(object):
         self.ncopies = None
         self.molecular_weight = None
         self.seqid = None
-        self.pdb = None
+        self.pdb_url = None
+        self.pdb_file = None
         self.domain = None
         self.range = None
 
@@ -52,7 +55,8 @@ def get_homologs(hits, domains):
                 pdb_struct.save(pdb_file)
             hlog = HomologData()
             hlog.name = hit.name
-            hlog.pdb = pdb_file
+            hlog.pdb_file = pdb_file
+            hlog.pdb_url = PDB_BASE_URL + hit.pdbName
             hlog.molecular_weight = float(pdb_struct.molecular_weight)
             hlog.seqid = hits[hit.name].localSEQID / 100.0
             hlog.domain = domain.ID
@@ -122,7 +126,7 @@ def calculate_ellg(homologs, mtz):
     ellginput.addCOMP_PROT_MW_NUM(asu_mw, 1)
     search_models = []
     for hname, d in homologs.items():
-        ellginput.addENSE_PDB_ID(hname, d.pdb, d.seqid)
+        ellginput.addENSE_PDB_ID(hname, d.pdb_file, d.seqid)
         search_models.append(hname)
     ellginput.addSEAR_ENSE_OR_ENSE_NUM(search_models, 1)
     
