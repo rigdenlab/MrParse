@@ -73,7 +73,7 @@ def pfam_dict_from_chunks(chunk_data, seqlen):
         elif chunk.annotation == SHEET:
             colour = "#0000ff"
             text = SHEET.name
-            meta_desc = "Beta sheet region #%d" % idx
+            meta_desc = "Beta strand region #%d" % idx
         d = { 'startStyle': "straight",
               'endStyle': "straight",
               'start': chunk.start,
