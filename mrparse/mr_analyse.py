@@ -29,12 +29,18 @@ def write_html(html_out, html_data, template_file='multi_domains_template.html',
     template = env.get_template(template_file)
     with open(html_out, 'w') as w:
         w.write(template.render(html_data))
+        
+
+# def create_webpage(search_model_finder, classifier, hklinfo=None, html_dir=None):
+    
 
 
 def run(seqin, hklin=None):
-    assert os.path.isfile(seqin)
+    if not os.path.isfile(seqin):
+        raise RuntimeError("Cannot find seqin file: %s" % seqin)
     if hklin:
-        assert os.path.isfile(hklin)
+        if not os.path.isfile(hklin):
+            raise RuntimeError("Cannot find hklin file: %s" % hklin)
         hkl_info  = HklInfo(hklin)
      
     # Find homologs and determine properties

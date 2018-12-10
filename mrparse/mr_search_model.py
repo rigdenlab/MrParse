@@ -47,6 +47,12 @@ class SearchModelFinder(object):
     
     def as_html(self):
         df = self.as_dataframe()
+        # Sort number of decimal places
+        df = df.round({'molecular_weight': 1,
+                       'rmsd' : 2,
+                       'frac_scat' : 2,
+                       'total_frac_scat' : 2,
+                       'total_frac_scat_known' : 2})
         # Convert pdb_urls to html anchors
         def name_and_url_to_anchor(x):
             name = x[0]

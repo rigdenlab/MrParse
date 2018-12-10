@@ -12,6 +12,8 @@ from ample.util.ample_util import filename_append
 class HklInfo(object):
     def __init__(self, hklin):
         self.hklin = hklin
+        if not os.path.isfile(hklin):
+            raise RuntimeError("Cannot find hklin file: %s" % hklin)
         self.name = os.path.splitext(os.path.basename(hklin))[0]
         
         self.space_group, self.resolution, self.cell_parameters = mtz_util.crystal_data(self.hklin)

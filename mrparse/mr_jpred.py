@@ -25,8 +25,8 @@ HELIX.name = 'helix'
 
 SHEET = AnnotationSymbol()
 SHEET.symbol = 'E'
-SHEET.stype = 'B-sheet'
-SHEET.name = 'b-sheet'
+SHEET.stype = 'B-strand'
+SHEET.name = 'b-strand'
 
 
 class OutOfTimeException(Exception):
