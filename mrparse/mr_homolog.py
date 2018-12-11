@@ -20,6 +20,7 @@ class HomologData(object):
         self.rmsd = None
         self.ncopies = None
         self.molecular_weight = None
+        self.score = None
         self.seqid = None
         self.pdb_url = None
         self.pdb_file = None
@@ -43,6 +44,7 @@ def get_homologs(hits, domains):
     for domain in domains:
         for match in domain.matches:
             hit = hits[match]
+            print("GOT HIT ",hit, dir(hit))
             pdb_name = hit.pdbName + '_' + hit.chainID + '.pdb'
             pdb_file = os.path.join(pdb_dir, pdb_name)
             pdb_struct = PdbStructure()
@@ -58,6 +60,7 @@ def get_homologs(hits, domains):
             hlog.pdb_file = pdb_file
             hlog.pdb_url = PDB_BASE_URL + hit.pdbName
             hlog.molecular_weight = float(pdb_struct.molecular_weight)
+            hlog.score = hits[hit.name].score
             hlog.seqid = hits[hit.name].localSEQID / 100.0
             hlog.domain = domain.ID
             hlog.range = hits[hit.name].tarRange

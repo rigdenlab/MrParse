@@ -39,10 +39,10 @@ class SearchModelFinder(object):
     def as_dataframe(self):
         homolog_dict = [h.__dict__ for _, h in self.homologs.items()]
         columns = ['name', 'domain', 'range', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid',
-                   'frac_scat', 'total_frac_scat', 'total_frac_scat_known', 'pdb_url']
+                   'score', 'frac_scat', 'total_frac_scat', 'total_frac_scat_known', 'pdb_url']
         df = pd.DataFrame(homolog_dict, columns=columns)
         #df.sort_values('eLLG', inplace=True, ascending=False)
-        df.sort_values('domain', inplace=True, ascending=True)
+        df.sort_values(['domain', 'eLLG'], inplace=True, ascending=True)
         return df
     
     def as_html(self):
@@ -50,6 +50,7 @@ class SearchModelFinder(object):
         # Sort number of decimal places
         df = df.round({'molecular_weight': 1,
                        'rmsd' : 2,
+                       'score' : 2,
                        'frac_scat' : 2,
                        'total_frac_scat' : 2,
                        'total_frac_scat_known' : 2})
