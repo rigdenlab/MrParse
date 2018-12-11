@@ -44,7 +44,6 @@ def get_homologs(hits, domains):
     for domain in domains:
         for match in domain.matches:
             hit = hits[match]
-            print("GOT HIT ",hit, dir(hit))
             pdb_name = hit.pdbName + '_' + hit.chainID + '.pdb'
             pdb_file = os.path.join(pdb_dir, pdb_name)
             pdb_struct = PdbStructure()
@@ -52,9 +51,11 @@ def get_homologs(hits, domains):
                 pdb_struct.from_file(pdb_file)
             else:
                 pdb_struct.from_pdb_code(hit.pdbName)
-                pdb_struct.select_chain_by_id(hit.chainID)
                 pdb_struct.standardize()
+                pdb_struct.select_chain_by_id(hit.chainID)
                 pdb_struct.save(pdb_file)
+            if len(pdb_struct.hierarchy.models()) == 0:
+                raise AttributeError("Hierarchy has no models for pdb_name %s" % pdb_name)
             hlog = HomologData()
             hlog.name = hit.name
             hlog.pdb_file = pdb_file

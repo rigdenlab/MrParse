@@ -101,13 +101,17 @@ def sort_hits_by_size(hits, ascending=False):
     reverse = not(ascending)
     return OrderedDict(sorted(hits.items(), key=lambda x: x[1].tarExtent, reverse=reverse))
 
-def run_phmmer(seqin):
+def run_phmmer(seqin, dblvl=100):
     logfile = "phmmer.log"
     alnfile = "phmmerAlignment.log"
     phmmerTblout = "phmmerTblout.log"
     phmmerDomTblout = "phmmerDomTblout.log"
     phmmerEXE = os.path.join(os.environ["CCP4"], "libexec", "phmmer")
-    seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "pdb70.txt")
+    if dblvl == 70:
+        pfile = "pdb70.txt"
+    else:
+        pfile = "pdb100.txt"
+    seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", pfile)
     cmd = [phmmerEXE + EXE_EXT,
            '--notextw',
            '--tblout', phmmerTblout,

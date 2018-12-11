@@ -2,19 +2,6 @@
 Created on 18 Oct 2018
 
 @author: jmht
-name extent midpoint # range extent midpoint
-
-1qib 77 40 -> #4 27-127, 20.5-60.5
-
-
-5xdi 34 62 -> #5 -16-84, 42-82 
-
-
-2lb7 40 64 # Within 5
-
-
-2kus 40 64 # Within 4 and 5
-
 
 '''
 from operator import attrgetter

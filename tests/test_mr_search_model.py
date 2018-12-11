@@ -8,6 +8,7 @@ from mrparse.mr_hit import find_hits
 
 def test_SearchModelFinder(test_data):
     seqin = test_data.x2uvoA_fasta
+#     seqin = '/opt/MrParse/data/5u4pA.fasta'
     hklin = test_data.x2uvo_mtz
     hklin = None
     smf = SearchModelFinder(seqin, hklin=hklin)
