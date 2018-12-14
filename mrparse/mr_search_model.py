@@ -23,16 +23,17 @@ class SearchModelFinder(object):
         self.hits = None
         self.regions = None
     
-    def execute(self, queue=None):
+    def __call__(self):
+        """Required so that we can use multiprocessing pool. We need to be able to pickle the object passed
+        to the pool and instance methods don't work, so we add the object to the pool and define __call__
+        https://stackoverflow.com/questions/1816958/cant-pickle-type-instancemethod-when-using-multiprocessing-pool-map/6975654#6975654
+        """
         logger.debug('SearchModelFinder started at %s' % now())
         self.find_regions()
         logger.debug('SearchModelFinder regions done at %s' % now())
         self.find_homologs()
         logger.debug('SearchModelFinder homologs done at %s' % now())
-        if queue:
-            queue.put(self)
-            queue.close()
-        logger.debug('SearchModelFinder returning %s' % now())
+        return self
     
     def find_regions(self):
         self.hits = find_hits(self.seqin)

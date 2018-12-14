@@ -49,49 +49,30 @@ def run(seqin, hklin=None):
     smf = SearchModelFinder(seqin, hklin=hklin)
     mrc = MrClassifier(seqin=seqin)
     
-    multip = True
+    multip = False
     if multip:
-        logger.info("Running on multiple processors.")
-        tracker = { 'smf' : False,
-                    'mrc' : False }
-        queue = multiprocessing.Queue()
-        p1 = multiprocessing.Process(target=smf.execute, args=(queue,))
-        p2 = multiprocessing.Process(target=mrc.execute, args=(queue,))
-        p1.start()
-        p2.start()
+        nproc = 3 if hklin else 2
+        logger.info("Running on %d processors." % nproc)
+        pool = multiprocessing.Pool(nproc)
+        smf_result = pool.apply_async(smf)
+        mrc_result = pool.apply_async(mrc)
         if hklin:
-            tracker['hklin'] = False
-            p3 = multiprocessing.Process(target=hkl_info.execute, args=(queue,))
-            p3.start()
-        while not all(tracker.values()):
-            if not queue.empty():
-                obj = queue.get()
-                if isinstance(obj, SearchModelFinder):
-                    smf = obj
-                    tracker['smf'] = True
-                    logger.info('SearchModelFinder process finished.')
-                elif isinstance(obj, MrClassifier):
-                    mrc = obj
-                    tracker['mrc'] = True
-                    logger.info('MrClassifier process finished.')
-                elif isinstance(obj, HklInfo):
-                    hkl_info = obj
-                    tracker['hklin'] = True
-                    logger.info('HklInfo process finished.')
-            time.sleep(POLL_TIME)
+            hklin_result = pool.apply_async(hkl_info)    
+        pool.close()
+        logger.debug("Pool waiting")
+        pool.join()
+        logger.debug("Pool finshed")
         
-        # Should all be finished now
-        logger.debug("Final Join")
-        p1.join()
-        p2.join()
+        # Should raise any child process exceptions
+        smf = smf_result.get()
+        mrc = mrc_result.get()
         if hklin:
-            p3.join()
-        logger.debug("Join returned")
+            hkl_info = hklin_result.get()
     else:
-        smf.execute()
-        #mrc.execute()
+        smf()
+        mrc()
         if hklin:
-            hkl_info.execute()
+            hkl_info()
     
     pfam_data = mrc.pfam_dict()
     pfam_data['regions'] = smf.pfam_dict()

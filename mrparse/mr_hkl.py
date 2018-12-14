@@ -24,11 +24,14 @@ class HklInfo(object):
         self.has_anisotropy = False
         return
     
-    def execute(self, queue=None):
+    def __call__(self):
+        """Required so that we can use multiprocessing pool. We need to be able to pickle the object passed
+        to the pool and instance methods don't work, so we add the object to the pool and define __call__
+        https://stackoverflow.com/questions/1816958/cant-pickle-type-instancemethod-when-using-multiprocessing-pool-map/6975654#6975654
+        """
         self.check_pathologies()
-        if queue:
-            queue.put(self)
-        
+        return self
+    
     def check_pathologies(self):
         """DOC TODO"""
         hklin = self.hklin

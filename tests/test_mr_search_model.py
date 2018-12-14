@@ -13,14 +13,14 @@ def test_SearchModelFinder2uvo(test_data):
     seqin = test_data.x2uvoA_fasta
     hklin = test_data.x2uvo_mtz
     smf = SearchModelFinder(seqin, hklin=hklin)
-    smf.execute()
+    smf()
     print(smf.as_html())
     
 def test_SearchModelFinder5u4p(test_data):
     seqin = '/opt/MrParse/data/5u4pA.fasta'
     hklin = None
     smf = SearchModelFinder(seqin, hklin=hklin)
-    smf.execute()
+    smf()
     print(smf.as_html())
 
 # rfinder = RegionFinder()
