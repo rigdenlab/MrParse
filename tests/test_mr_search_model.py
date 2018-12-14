@@ -1,3 +1,4 @@
+import logging
 import pickle
 import set_mrparse_path
 
@@ -5,11 +6,18 @@ from mrparse.mr_search_model import SearchModelFinder, RegionFinder
 from mrparse.mr_homolog import get_homologs, calculate_ellg
 from mrparse.mr_hit import find_hits
 
+logging.basicConfig(level=logging.DEBUG)
 
-def test_SearchModelFinder(test_data):
+
+def test_SearchModelFinder2uvo(test_data):
     seqin = test_data.x2uvoA_fasta
-#     seqin = '/opt/MrParse/data/5u4pA.fasta'
     hklin = test_data.x2uvo_mtz
+    smf = SearchModelFinder(seqin, hklin=hklin)
+    smf.execute()
+    print(smf.as_html())
+    
+def test_SearchModelFinder5u4p(test_data):
+    seqin = '/opt/MrParse/data/5u4pA.fasta'
     hklin = None
     smf = SearchModelFinder(seqin, hklin=hklin)
     smf.execute()

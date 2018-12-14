@@ -4,6 +4,7 @@ Created on 18 Oct 2018
 @author: jmht
 
 '''
+import logging
 import os
 import math
 import warnings
@@ -12,6 +13,7 @@ import numpy as np
 
 from mrparse.mr_sequence import read_fasta, write_fasta
 from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation, NULL_ANNOTATION
+from mrparse.mr_util import now
 from pyjob import cexec
 from pyjob.exception import PyJobExecutionError
 
@@ -25,6 +27,8 @@ CC.symbol = 'C'
 CC.stype = 'Coiled-coil Helix'
 CC.name = 'CC'
 
+logger = logging.getLogger(__name__)
+
 
 class CCPred(object):
     def __init__(self, seqin):
@@ -32,6 +36,7 @@ class CCPred(object):
         self.prediction = None
         
     def get_prediction(self):
+        logger.debug("CCPred starting prediction at: %s" % now())
         seq_aa = read_fasta(self.seqin)
         scores = probabilites_from_sequence(seq_aa)
         ann = SequenceAnnotation()
@@ -39,6 +44,7 @@ class CCPred(object):
         ann.library_add_annotation(CC)
         ann.scores = scores
         ann.annotation = "".join([CC.symbol if p > THRESHOLD_PROBABILITY else NULL_ANNOTATION.symbol for p in scores])
+        logger.debug("CCPred finished prediction at: %s" % now())
         self.prediction = ann
 
 

@@ -3,6 +3,7 @@ Created on 18 Oct 2018
 
 @author: jmht
 '''
+import logging
 import json
 import pandas as pd
 
@@ -11,6 +12,9 @@ from mrparse.mr_hit import find_hits
 from mr_region import RegionFinder
 from mrparse.mr_sequence import read_fasta
 from mrparse.mr_pfam import pfam_region_dict
+from mrparse.mr_util import now
+
+logger = logging.getLogger(__name__)
 
 class SearchModelFinder(object):
     def __init__(self, seqin, hklin=None):
@@ -20,10 +24,15 @@ class SearchModelFinder(object):
         self.regions = None
     
     def execute(self, queue=None):
+        logger.debug('SearchModelFinder started at %s' % now())
         self.find_regions()
+        logger.debug('SearchModelFinder regions done at %s' % now())
         self.find_homologs()
+        logger.debug('SearchModelFinder homologs done at %s' % now())
         if queue:
             queue.put(self)
+            queue.close()
+        logger.debug('SearchModelFinder returning %s' % now())
     
     def find_regions(self):
         self.hits = find_hits(self.seqin)

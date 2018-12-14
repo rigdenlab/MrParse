@@ -14,6 +14,7 @@ import time
 PYTHONVERSION = sys.version_info[0]
 
 from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation
+from mrparse.mr_util import now
 
 logger = logging.getLogger(__name__)
 #logger.addHandler(logging.NullHandler()
@@ -94,9 +95,11 @@ class JPred(object):
         ss_pred, cc_28 = self.parse_jpred_output(self.jpred_rundir)
         self.cleanup(self.jpred_rundir)
         self.prediction = self.create_annotation(ss_pred)
+        logger.debug("JPred finished prediction at: %s" % now())
         return self.prediction
 
     def run_jpred(self, seqin):
+        logger.debug("JPred starting prediction at: %s" % now())
         jobid = self.submit_job(seqin)
         start = time.time()
         while True:

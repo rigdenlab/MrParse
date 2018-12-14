@@ -12,6 +12,7 @@ import time
 import zipfile
 
 from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation
+from mrparse.mr_util import now
 
 
 PYTHONVERSION = sys.version_info[0]
@@ -170,8 +171,10 @@ class TMPred(object):
             shutil.rmtree(results_dir)
     
     def get_prediction(self):
+        logger.debug("TMPred starting prediction at: %s" % now())
         if not self.topcons_dir:
             self.topcons_dir = self.run_topcons(self.seqin)
         prediction, scores = self.parse_topcons_output(self.topcons_dir)
         self.prediction = self.create_annotation(prediction, scores)
+        logger.debug("TMPred finished prediction at: %s" % now())
         #self.cleanup()

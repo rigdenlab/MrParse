@@ -3,12 +3,15 @@ Created on 18 Oct 2018
 
 @author: jmht
 '''
+import logging
 import os
 import warnings
 
 from simbad.util.pdb_util import PdbStructure
 
 PDB_BASE_URL = 'https://www.rcsb.org/structure/'
+
+logger = logging.getLogger(__name__)
 
 class HomologData(object):
     def __init__(self):
@@ -54,18 +57,19 @@ def get_homologs(hits, domains):
                 pdb_struct.standardize()
                 pdb_struct.select_chain_by_id(hit.chainID)
                 pdb_struct.save(pdb_file)
-            if len(pdb_struct.hierarchy.models()) == 0:
-                raise AttributeError("Hierarchy has no models for pdb_name %s" % pdb_name)
             hlog = HomologData()
             hlog.name = hit.name
-            hlog.pdb_file = pdb_file
-            hlog.pdb_url = PDB_BASE_URL + hit.pdbName
-            hlog.molecular_weight = float(pdb_struct.molecular_weight)
             hlog.score = hits[hit.name].score
             hlog.seqid = hits[hit.name].localSEQID / 100.0
             hlog.domain = domain.ID
             hlog.range = hits[hit.name].tarRange
             homologs[hit.name] = hlog
+            hlog.pdb_url = PDB_BASE_URL + hit.pdbName
+            if len(pdb_struct.hierarchy.models()) == 0:
+                logger.critical("Hierarchy has no models for pdb_name %s" % pdb_name)
+            else:
+                hlog.pdb_file = pdb_file
+                hlog.molecular_weight = float(pdb_struct.molecular_weight)
     return homologs
 
 

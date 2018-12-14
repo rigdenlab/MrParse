@@ -51,8 +51,11 @@ class MrClassifier(object):
         tm_thread.start()
         ss_thread.start()
         cc_thread.join()
+        logger.info('Coiled-Coil predictor finished')
         tm_thread.join()
+        logger.info('TM predictor finished')
         ss_thread.join()
+        logger.info('SS predictor finished')
         
         if cc_thread.exception and tm_thread.exception:
             logger.critical("BOTH predictors raised expeptions: %s | %s" % (cc_thread.exception, tm_thread.exception))

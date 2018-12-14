@@ -9,6 +9,7 @@ import multiprocessing
 import os
 import pickle
 import subprocess
+import time
 
 from mr_hkl import HklInfo
 from mr_search_model import SearchModelFinder
@@ -16,9 +17,10 @@ from mrparse.mr_classify import MrClassifier
 
 
 logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 HTML_DIR = '/opt/MrParse/pfam'
-
+POLL_TIME = 1
 
 def write_html(html_out, html_data, template_file='multi_domains_template.html', template_dir='/opt/MrParse/pfam/'):
     from jinja2 import Environment, FileSystemLoader
@@ -49,29 +51,45 @@ def run(seqin, hklin=None):
     
     multip = True
     if multip:
+        logger.info("Running on multiple processors.")
+        tracker = { 'smf' : False,
+                    'mrc' : False }
         queue = multiprocessing.Queue()
         p1 = multiprocessing.Process(target=smf.execute, args=(queue,))
         p2 = multiprocessing.Process(target=mrc.execute, args=(queue,))
         p1.start()
         p2.start()
         if hklin:
+            tracker['hklin'] = False
             p3 = multiprocessing.Process(target=hkl_info.execute, args=(queue,))
             p3.start()
+        while not all(tracker.values()):
+            if not queue.empty():
+                obj = queue.get()
+                if isinstance(obj, SearchModelFinder):
+                    smf = obj
+                    tracker['smf'] = True
+                    logger.info('SearchModelFinder process finished.')
+                elif isinstance(obj, MrClassifier):
+                    mrc = obj
+                    tracker['mrc'] = True
+                    logger.info('MrClassifier process finished.')
+                elif isinstance(obj, HklInfo):
+                    hkl_info = obj
+                    tracker['hklin'] = True
+                    logger.info('HklInfo process finished.')
+            time.sleep(POLL_TIME)
+        
+        # Should all be finished now
+        logger.debug("Final Join")
         p1.join()
         p2.join()
         if hklin:
             p3.join()
-        while not queue.empty():
-            obj = queue.get()
-            if isinstance(obj, SearchModelFinder):
-                smf = obj
-            elif isinstance(obj, MrClassifier):
-                mrc = obj
-            elif isinstance(obj, HklInfo):
-                hkl_info = obj
+        logger.debug("Join returned")
     else:
         smf.execute()
-        mrc.execute()
+        #mrc.execute()
         if hklin:
             hkl_info.execute()
     
