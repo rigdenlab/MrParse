@@ -49,7 +49,7 @@ def run(seqin, hklin=None):
             raise RuntimeError("Cannot find hklin file: %s" % hklin)
         hkl_info  = HklInfo(hklin)
     
-    multip = False
+    multip = True
     if multip:
         nproc = 3 if hklin else 2
         logger.info("Running on %d processors." % nproc)
@@ -61,13 +61,20 @@ def run(seqin, hklin=None):
         pool.close()
         logger.debug("Pool waiting")
         pool.join()
-        logger.debug("Pool finshed")
-        
-        # Should raise any child process exceptions
-        smf = smf_result.get()
-        mrc = mrc_result.get()
+        logger.debug("Pool finished")
+        try:
+            smf = smf_result.get()
+        except Exception as e:
+            logger.critical('SearchModelFinder was unsuccessful: %s' % e)
+        try:
+            mrc = mrc_result.get()
+        except Exception as e:
+            logger.critical('MrClassifier was unsuccessful: %s' % e)
         if hklin:
-            hkl_info = hklin_result.get()
+            try:
+                hkl_info = hklin_result.get()
+            except Exception as e:
+                logger.critical('HklInfo was unsuccessful: %s' % e)
     else:
         smf()
         mrc()
