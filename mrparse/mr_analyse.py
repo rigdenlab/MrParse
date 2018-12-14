@@ -40,14 +40,14 @@ def write_html(html_out, html_data, template_file='multi_domains_template.html',
 def run(seqin, hklin=None):
     if not os.path.isfile(seqin):
         raise RuntimeError("Cannot find seqin file: %s" % seqin)
-    if hklin:
-        if not os.path.isfile(hklin):
-            raise RuntimeError("Cannot find hklin file: %s" % hklin)
-        hkl_info  = HklInfo(hklin)
      
     # Find homologs and determine properties
     smf = SearchModelFinder(seqin, hklin=hklin)
     mrc = MrClassifier(seqin=seqin)
+    if hklin:
+        if not os.path.isfile(hklin):
+            raise RuntimeError("Cannot find hklin file: %s" % hklin)
+        hkl_info  = HklInfo(hklin)
     
     multip = False
     if multip:
