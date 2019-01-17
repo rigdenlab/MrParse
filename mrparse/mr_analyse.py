@@ -9,14 +9,12 @@ import multiprocessing
 import os
 import pickle
 import subprocess
-import time
 
 from mr_hkl import HklInfo
 from mr_search_model import SearchModelFinder
 from mrparse.mr_classify import MrClassifier
 
 
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 HTML_DIR = '/opt/MrParse/pfam'
@@ -24,7 +22,7 @@ POLL_TIME = 1
 
 
 def run(seqin, hklin=None):
-    if not os.path.isfile(seqin):
+    if not (seqin and os.path.isfile(seqin)):
         raise RuntimeError("Cannot find seqin file: %s" % seqin)
      
     # Find homologs and determine properties
@@ -32,7 +30,7 @@ def run(seqin, hklin=None):
     classifier = MrClassifier(seqin=seqin)
     hkl_info = None
     if hklin:
-        if not os.path.isfile(hklin):
+        if not (hklin and os.path.isfile(hklin)):
             raise RuntimeError("Cannot find hklin file: %s" % hklin)
         hkl_info  = HklInfo(hklin)
     
@@ -52,16 +50,16 @@ def run(seqin, hklin=None):
         try:
             search_model_finder = smf_result.get()
         except Exception as e:
-            logger.critical('SearchModelFinder was unsuccessful: %s' % e)
+            logger.critical('SearchModelFinder failed: %s' % e)
         try:
             classifier = mrc_result.get()
         except Exception as e:
-            logger.critical('MrClassifier was unsuccessful: %s' % e)
+            logger.critical('MrClassifier failed: %s' % e)
         if hkl_info:
             try:
                 hkl_info = hklin_result.get()
             except Exception as e:
-                logger.critical('HklInfo was unsuccessful: %s' % e)
+                logger.critical('HklInfo failed: %s' % e)
     else:
         search_model_finder()
         classifier()
@@ -82,6 +80,7 @@ def create_webpage(search_model_finder,
                    hkl_info=None,
                    html_dir=None,
                    html_filename='mrparse.html'):
+    
     pfam_data = classifier.pfam_dict()
     pfam_data['regions'] = search_model_finder.pfam_dict()
       

@@ -41,6 +41,7 @@ class SearchModelFinder(object):
         return self.regions
 
     def find_homologs(self):
+        assert self.hits and self.regions
         self.homologs = get_homologs(self.hits, self.regions)
         if self.hklin:
             calculate_ellg(self.homologs, self.hklin)

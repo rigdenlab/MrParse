@@ -17,23 +17,24 @@ It defines classes_and_methods
 @deffield    updated: Updated
 '''
 
+from argparse import ArgumentParser
+import logging.config
 import os
 import sys
-import traceback
-
-sys.path.insert(0,'/opt/MrParse')
 
 
-from argparse import ArgumentParser
-from argparse import RawDescriptionHelpFormatter
+MRPARSE_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..')
+sys.path.insert(0, MRPARSE_DIR)
+from mrparse import mr_analyse
 
-import mr_analyse
-DEBUG=True
+logging.config.fileConfig('logging.cfg')
+logger = logging.getLogger()
 
 
 def main():
     '''Command line options.'''
     program_name = os.path.basename(sys.argv[0])
+    logger.info("Starting: %s", program_name)
     try:
         # Setup argument parser
         parser = ArgumentParser()
@@ -49,13 +50,9 @@ def main():
         ### handle keyboard interrupt ###
         return 0
     except Exception as e:
-        if DEBUG:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            traceback.print_exception(exc_type, exc_value, exc_traceback,
-                                      file=sys.stdout)
         indent = len(program_name) * " "
-        sys.stderr.write(program_name + ": " + repr(e) + "\n")
-        sys.stderr.write(indent + "  for help use --help")
+        logger.error(program_name + ": " + repr(e) + "\n", exc_info=True)
+        logger.error(indent + "  for help use --help")
         return 2
 
 if __name__ == "__main__":
