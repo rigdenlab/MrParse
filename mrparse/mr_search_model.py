@@ -37,6 +37,9 @@ class SearchModelFinder(object):
     
     def find_regions(self):
         self.hits = find_hits(self.seqin)
+        if not self.hits:
+            logger.critical('SearchModelFinder could not find any hits!')
+            return None
         self.regions = RegionFinder().find_regions_from_hits(self.hits)
         return self.regions
 

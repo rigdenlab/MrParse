@@ -22,8 +22,11 @@ POLL_TIME = 1
 
 
 def run(seqin, hklin=None):
+    raise RuntimeError("FOO")
     if not (seqin and os.path.isfile(seqin)):
         raise RuntimeError("Cannot find seqin file: %s" % seqin)
+    
+    logger.info("mr_analyse running with seqin %s", seqin)
      
     # Find homologs and determine properties
     search_model_finder = SearchModelFinder(seqin, hklin=hklin)
@@ -34,7 +37,7 @@ def run(seqin, hklin=None):
             raise RuntimeError("Cannot find hklin file: %s" % hklin)
         hkl_info  = HklInfo(hklin)
     
-    multip = True
+    multip = False
     if multip:
         nproc = 3 if hklin else 2
         logger.info("Running on %d processors." % nproc)

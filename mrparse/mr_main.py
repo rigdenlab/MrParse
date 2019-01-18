@@ -19,6 +19,7 @@ It defines classes_and_methods
 
 from argparse import ArgumentParser
 import logging.config
+import json
 import os
 import sys
 
@@ -27,7 +28,11 @@ MRPARSE_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..')
 sys.path.insert(0, MRPARSE_DIR)
 from mrparse import mr_analyse
 
-logging.config.fileConfig('logging.cfg')
+logging_json = 'logging.json'
+with open(logging_json, 'rt') as f:
+    config = json.load(f)
+logging.config.dictConfig(config)
+
 logger = logging.getLogger()
 #print("'%s'" % logger.handlers[0].formatter._fmt)
 

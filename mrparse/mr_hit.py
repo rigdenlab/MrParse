@@ -47,6 +47,7 @@ class SequenceHit:
         return out_str
 
 def find_hits(seqin):
+    assert os.path.isfile(seqin), "Cannot find input file: %s" % seqin
     phmmer_logfile = run_phmmer(seqin)
     targetSequence = read_fasta(seqin)
     

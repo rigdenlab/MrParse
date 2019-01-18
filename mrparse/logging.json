@@ -1,0 +1,34 @@
+{
+    "version": 1,
+    "disable_existing_loggers": false,
+    "formatters": {
+        "consoleFormatter": {
+            "format": "%(message)s\n"
+        },
+        "colourFormatter": {
+            "()": "mr_log.LogColorFormatter",
+            "format": "%(message)s\n"
+        },
+        "fileFormatter": {
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        }
+    },
+    "handlers": {
+        "console_handler": {
+            "class": "logging.StreamHandler",
+            "level": "INFO",
+            "formatter": "colourFormatter",
+            "stream": "ext://sys.stdout"
+        },
+        "file_handler": {
+            "class": "logging.FileHandler",
+            "level": "DEBUG",
+            "formatter": "fileFormatter",
+            "filename": "mrparse.log"
+        }
+    },
+    "root": {
+        "level": "NOTSET",
+        "handlers": ["console_handler", "file_handler"]
+    }
+}
