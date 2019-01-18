@@ -23,17 +23,17 @@ import json
 import os
 import sys
 
-
-MRPARSE_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..')
-sys.path.insert(0, MRPARSE_DIR)
-from mrparse import mr_analyse
-
 logging_json = 'logging.json'
 with open(logging_json, 'rt') as f:
     config = json.load(f)
 logging.config.dictConfig(config)
-
 logger = logging.getLogger()
+
+# Set up logging before doing any more importing to make sure we log everything
+MRPARSE_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..')
+sys.path.insert(0, MRPARSE_DIR)
+from mrparse import mr_analyse
+
 #print("'%s'" % logger.handlers[0].formatter._fmt)
 
 

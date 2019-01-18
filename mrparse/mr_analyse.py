@@ -22,7 +22,6 @@ POLL_TIME = 1
 
 
 def run(seqin, hklin=None):
-    raise RuntimeError("FOO")
     if not (seqin and os.path.isfile(seqin)):
         raise RuntimeError("Cannot find seqin file: %s" % seqin)
     
@@ -68,6 +67,12 @@ def run(seqin, hklin=None):
         classifier()
         if hkl_info:
             hkl_info()
+
+
+    logger.critical("!!! HACK FOR JSON!!!!")
+    search_model_finder.as_json()
+    with open(os.path.join(HTML_DIR, 'homologs.js'), 'w') as w:
+        w.write(search_model_finder.as_json())
     
     html_out = create_webpage(search_model_finder,
                               classifier,
@@ -88,17 +93,17 @@ def create_webpage(search_model_finder,
     pfam_data['regions'] = search_model_finder.pfam_dict()
       
     js_data = 'var pfam_json = %s;\n' % json.dumps(pfam_data)
-    with open(os.path.join(HTML_DIR, 'data.js'), 'w') as w:
+    with open(os.path.join(html_dir, 'data.js'), 'w') as w:
         w.write(js_data)
      
     html_data = {'homolog_table' : search_model_finder.as_html()}
     if hkl_info:
         html_data['hkl_info'] = hkl_info.as_html()
      
-    with open(os.path.join(HTML_DIR, 'html_data.pkl'), 'w') as w:
+    with open(os.path.join(html_dir, 'html_data.pkl'), 'w') as w:
         pickle.dump(html_data, w)
 
-    html_out = os.path.join(HTML_DIR, html_filename)
+    html_out = os.path.join(html_dir, html_filename)
     write_html(html_out, html_data)
     return html_out
 
