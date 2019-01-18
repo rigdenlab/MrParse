@@ -29,6 +29,7 @@ from mrparse import mr_analyse
 
 logging.config.fileConfig('logging.cfg')
 logger = logging.getLogger()
+#print("'%s'" % logger.handlers[0].formatter._fmt)
 
 
 def main():
