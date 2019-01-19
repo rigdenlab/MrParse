@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<!--
+data attribute creates object that is bound to this
+
+computed - computed property but with caching
+method - computed property - invoked each time
+
+v-model - links inputs to vue js data
+
+
+https://codepen.io/pespantelis/pen/ojwgPB
+https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
+-->
+
+<html>
+<head>
+  <title>My first Vue app</title>
+  <!-- <script src="https://unpkg.com/vue"></script> -->
+  <script src="vue.js"></script>
+  <script src="lodash.min.js"></script>
+  <script type="text/javascript" src="pfam/homologs.js"></script>
+  <style type="text/css">
+    #homologs table , th, td {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="app">
+    {{ message }}
+    <table id="homologs">
+    <!--
+      <thead>
+        <tr>
+          frac_scat	total_frac_scat	total_frac_scat_known	pdb_url
+          <th @click="sort('name')">name</th>
+          <th @click="sort('domain')">domain</th>
+          <th @click="sort('range')">range</th>
+          <th @click="sort('eLLG')">eLLG</th>
+          <th @click="sort('ncopies')">ncopies</th>
+          <th @click="sort('molecular_weight')">molecular_weight</th>
+          <th @click="sort('rmsd')">rmsd</th>
+          <th @click="sort('seqid')">seqid</th>
+        </tr>
+      </thead>
+          -->
+      <thead>
+      <tr>
+        <th v-for ="column in columns">
+          <a href="#" @click="sortBy(column)">
+            {{ column }}
+          </a>
+        </th>
+      </tr>
+    </thead>
+      <tbody>
+        <tr v-for="homolog in orderedHomologs">
+          <td>{{homolog.name}}</td>
+          <td>{{homolog.domain}}</td>
+          <td>{{homolog.range}}</td>
+          <td>{{homolog.eLLG}}</td>
+          <td>{{homolog.ncopies}}</td>
+          <td>{{homolog.molecular_weight}}</td>
+          <td>{{homolog.rmsd}}</td>
+          <td>{{homolog.seqid}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        message: 'Hello Vue!',
+        homologs: homologs, /* Set with global variable */
+        columns: ['name', 'domain', 'range', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid'],
+        sortKey: 'name',
+        order: 'asc'
+      },
+      methods: {
+        sortBy: function(sortKey) {
+          if (this.sortKey == sortKey) {
+            if (this.order == 'asc') {
+              this.order = 'desc';
+            } else {
+              this.order = 'asc';
+            }
+          }
+          this.sortKey = sortKey;
+        }
+      },
+      /* https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter */
+      computed: {
+        orderedHomologs: function () {
+          return _.orderBy(this.homologs, this.sortKey, this.order)
+        }
+      }
+    })
+  </script>
+
+<!--
+  <div id="app">
+    {{ message }}
+  </div>
+
+  <div id="app-2">
+  <span v-bind:title="message">
+    Hover your mouse over me for a few seconds
+    to see my dynamically bound title!
+  </span>
+  </div>
+
+  <div id="app-3">
+  <span v-if="seen">Now you see me</span>
+  </div>
+
+	<div id="app-4">
+	  <ol>
+	    <li v-for="todo in todos">
+	      {{ todo.text }}
+	    </li>
+	  </ol>
+	</div>
+
+	<div id="app-5">
+	  <p>{{ message }}</p>
+	  <button v-on:click="reverseMessage">Reverse Message</button>
+	</div>
+
+-->
+
+<!--
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        message: 'Hello Vue!'
+      }
+    })
+ 	var app2 = new Vue({
+	  el: '#app-2',
+	  data: {
+	    message: 'You loaded this page on ' + new Date().toLocaleString()
+	  }
+	})
+
+	var app3 = new Vue({
+	  el: '#app-3',
+	  data: {
+	    seen: true
+	  }
+	})
+
+	var app4 = new Vue({
+	  el: '#app-4',
+	  data: {
+	    todos: [
+	      { text: 'Learn JavaScript' },
+	      { text: 'Learn Vue' },
+	      { text: 'Build something awesome' }
+	    ]
+	  }
+	})
+
+	var app5 = new Vue({
+	  el: '#app-5',
+	  data: {
+	    message: 'Hello Vue.js!'
+	  },
+	  methods: {
+	    reverseMessage: function () {
+	      this.message = this.message.split('').reverse().join('')
+	    }
+	  }
+	})
+
+  </script>
+-->
+</body>
+</html>
