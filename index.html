@@ -28,27 +28,11 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
 <body>
 
   <div id="app">
-    {{ message }}
     <table id="homologs">
-    <!--
-      <thead>
-        <tr>
-          frac_scat	total_frac_scat	total_frac_scat_known	pdb_url
-          <th @click="sort('name')">name</th>
-          <th @click="sort('domain')">domain</th>
-          <th @click="sort('range')">range</th>
-          <th @click="sort('eLLG')">eLLG</th>
-          <th @click="sort('ncopies')">ncopies</th>
-          <th @click="sort('molecular_weight')">molecular_weight</th>
-          <th @click="sort('rmsd')">rmsd</th>
-          <th @click="sort('seqid')">seqid</th>
-        </tr>
-      </thead>
-          -->
       <thead>
       <tr>
         <th v-for ="column in columns">
-          <a href="#" @click="sortBy(column)">
+          <a href="#" @click="sortBy(column)" v-bind:title="getTitle(column)">
             {{ column }}
           </a>
         </th>
@@ -74,11 +58,19 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
     var app = new Vue({
       el: '#app',
       data: {
-        message: 'Hello Vue!',
         homologs: homologs, /* Set with global variable */
         columns: ['name', 'domain', 'range', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid'],
+        columnTitles: {'name' : 'Protein Name',
+                       'domain': 'Number of the domain',
+                       'range': 'Length of the protein',
+                       'eLLG': 'Computed Log Likelihood Gain',
+                       'ncopies': 'Expected number of copies in the ASU',
+                       'molecular_weight': 'Molecular Weight in Daltons',
+                       'rmsd': 'RMSD from template',
+                       'seqid': 'Sequence Identity to template'
+                     },
         sortKey: 'name',
-        order: 'asc'
+        order: 'asc',
       },
       methods: {
         sortBy: function(sortKey) {
@@ -90,9 +82,11 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
             }
           }
           this.sortKey = sortKey;
+        },
+        getTitle: function (column) {
+          return this.columnTitles[column];
         }
       },
-      /* https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter */
       computed: {
         orderedHomologs: function () {
           return _.orderBy(this.homologs, this.sortKey, this.order)
