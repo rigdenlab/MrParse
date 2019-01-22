@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<!--
+data attribute creates object that is bound to this
+
+computed - computed property but with caching
+method - computed property - invoked each time
+
+v-model - links inputs to vue js data
+
+
+https://codepen.io/pespantelis/pen/ojwgPB
+https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
+-->
+
+<html>
+
+<head>
+  <title>My first Vue app</title>
+  <!-- <script src="https://unpkg.com/vue"></script> -->
+  <script src="vue.js"></script>
+  <script src="lodash.min.js"></script>
+  <script type="text/javascript" src="homologs.js"></script>
+
+  <!-- load the prototype library from google -->
+  <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+  <script type="text/javascript">
+    google.load("prototype", "1.7");
+  </script>
+
+  <!-- the domain graphics library -->
+  <script type="text/javascript" src="pfam/static/javascripts/domain_graphics.js"></script>
+
+  <!-- in order to standardize the look of text, and in order to make it work at
+       all in older browsers (and IE), we need the canvas text library. And, in turn,
+       that library uses a font description in a separate javascript file -->
+  <!-->
+  <script type="text/javascript" src="pfam/static/javascripts/canvas.text.js?dontUseMoz=true&amp;reimplement=true"></script>
+  </!-->
+  <script type="text/javascript" src="pfam/static/javascripts/canvas.text.js?dontUseMoz=true&amp;reimplement=true"></script>
+  <script type="text/javascript" src="pfam/static/javascripts/faces/optimer-bold-normal.js"></script>
+
+  <!-- we use the (non-free) prototip2 library to add tooltips. It's not free, but
+       nearly. The domain graphics code should cope if it's not loaded, so you
+       could just omit the prototip load -->
+  <script type="text/javascript" src="pfam/shared/javascripts/prototip.js"></script>
+  <script type="text/javascript" src="pfam/shared/javascripts/styles.js"></script>
+
+  <!-- jmht -->
+  <script type="text/javascript" src="data.js"></script>
+
+  <!-- stylesheets. We only really need the rules that are specific to the tooltips -->
+  <link rel="stylesheet" href="pfam/static/css/pfam.css" type="text/css" />
+  <link rel="stylesheet" href="pfam/shared/css/prototip.css" type="text/css" />
+
+  <!-- IE, being IE, needs extra help. In particular we need to add an extra library
+       that implements <canvas> using the VML drawing layer in IE. And, so that
+       "console.log" calls don't screw everything up, we include the firebug-lite
+       script -->
+  <!--[if IE]>
+    <script type="text/javascript" src="/static/javascripts/excanvas.js"></script>
+    <script type="text/javascript" src="http://getfirebug.com/releases/lite/1.2/firebug-lite-compressed.js"></script>
+  <![endif]-->
+
+
+  <style type="text/css">
+    #homologs table,
+    th,
+    td {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="app">
+    <p>Hello World</p>
+    <!-- <p>{{ pfam_regions }}</p> -->
+    <!-- <div id="foo" v-drawcanvas></div> -->
+    <hr />
+    <!-- <pfam-canvas></pfam-canvas> -->
+    <pfam-canvas v-for="(region, index) in pfam_regions" v-bind:region="region" v-bind:index="index"></pfam-canvas>
+    <!-- <foo v-for="region in pfam_regions" v-bind:region="region"></foo> -->
+  </div>
+
+  <script>
+    var regionX = {
+      "regions": [{
+        "startStyle": "curved",
+        "end": 359,
+        "start": 95,
+        "aliStart": 95,
+        "text": "3mwb_B_1",
+        "endStyle": "curved",
+        "colour": "#7f3f3f",
+        "aliEnd": 359,
+        "metadata": {
+          "start": 95,
+          "end": 359,
+          "description": "Domain #1",
+          "database": "PHMMER search"
+        }
+      }],
+      "length": 361
+    };
+
+    function add_graphic(region, parent) {
+      var residueWidth = 1.0;
+      // let gdiv = document.createElement('div');
+      // gdiv.setAttribute('id', div_id);
+      // gdiv.setAttribute('class', div_class);
+      // parent.appendChild(gdiv);
+      // if (typeof title != "undefined") {
+      //   let title_a = document.createElement('h4');
+      //   title_a.appendChild(document.createTextNode(title));
+      //   gdiv.appendChild(title_a);
+      // }
+      let pg = new PfamGraphic();
+      pg.setImageParams({
+        residueWidth: residueWidth,
+        xscale: 1.0,
+        yscale: 1.0
+      });
+      pg.setParent(parent);
+      pg.setSequence(region);
+      pg.render();
+    }
+
+    Vue.component('pfam-canvas', {
+      props: {
+        region: Object,
+        index: Number
+      },
+      // directives: {
+      //   drawcanvas: {
+      //     inserted: function(parent, binding) {
+      //       console.log("GOT BINDING " + JSON.stringify(binding));
+      //       return add_graphic(binding.value, parent);
+      //     }
+      //   }
+      // },
+      mounted: function() {
+        add_graphic(this.region, this.$refs.cdiv);
+      },
+      template: '<div v-bind:id="index" ref=cdiv></div>'
+      // template: '<div id=1 v-drawcanvas="region"></div>' // THIS WORKS!
+    });
+
+    new Vue({
+      el: '#app',
+      data: {
+        exampleContent: "This is TEXT",
+        // region: region,
+        pfam_regions: pfam_json.regions
+      },
+      // directives: {
+      //   drawcanvas: {
+      //     inserted: function(parent) {
+      //       // var parent = document.getElementById('foo');
+      //       console.log("DRAWING " + parent);
+      //       return add_graphic(this.region, parent, "id1", "class1");
+      //     }
+      //   }
+      // },
+    })
+  </script>
+
+  <!-- <div id="app1">
+    <canvas width="300" height="150" style="border:1px solid #BBB;" v-insert-message="exampleContent"></canvas>
+    <input type="text" v-model="exampleContent" />
+    <span>{{ exampleContent }}</span>
+  </div> -->
+
+  <!-- <script>
+  new Vue({
+      el: '#app1',
+      data: {
+          "exampleContent": "This is TEXT"
+      },
+      directives: {
+          insertMessage: function(canvasElement, binding) {
+              // Get canvas context
+              var ctx = canvasElement.getContext("2d");
+              // Clear the canvas
+              ctx.clearRect(0, 0, 300, 150);
+              // Insert stuff into canvas
+              ctx.fillStyle = "black";
+              ctx.font = "20px Georgia";
+              ctx.fillText(binding.value, 10, 50);
+          }
+      },
+      watch: {
+          exampleContent: function() {
+              console.log("exampleContent changed to " + this.exampleContent);
+          }
+      }
+  })
+  </script> -->
+
+  <!--
+  <div id="app">
+    <table id="homologs">
+      <thead>
+      <tr>
+        <th v-for="column in columns">
+          <a href="#" @click="sortBy(column)" v-bind:title="getTitle(column)">
+            {{ column }}
+          </a>
+        </th>
+      </tr>
+    </thead>
+      <tbody>
+        <tr v-for="homolog in orderedHomologs">
+          <td>{{homolog.name}}</td>
+          <td>{{homolog.domain}}</td>
+          <td>{{homolog.range}}</td>
+          <td>{{homolog.eLLG}}</td>
+          <td>{{homolog.ncopies}}</td>
+          <td>{{homolog.molecular_weight | decimalPlaces}}</td>
+          <td>{{homolog.rmsd}}</td>
+          <td>{{homolog.seqid}}</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        homologs: homologs, /* Set with global variable */
+        columns: ['name', 'domain', 'range', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid'],
+        columnTitles: {'name' : 'Protein Name',
+                       'domain': 'Number of the domain',
+                       'range': 'Length of the protein',
+                       'eLLG': 'Computed Log Likelihood Gain',
+                       'ncopies': 'Expected number of copies in the ASU',
+                       'molecular_weight': 'Molecular Weight in Daltons',
+                       'rmsd': 'RMSD from template',
+                       'seqid': 'Sequence Identity to template'
+                     },
+        sortKey: 'name',
+        order: 'asc',
+      },
+      methods: {
+        sortBy: function(sortKey) {
+          if (this.sortKey == sortKey) {
+            if (this.order == 'asc') {
+              this.order = 'desc';
+            } else {
+              this.order = 'asc';
+            }
+          }
+          this.sortKey = sortKey;
+        },
+        getTitle: function (column) {
+          return this.columnTitles[column];
+        }
+      },
+      computed: {
+        orderedHomologs: function () {
+          /* This requires loadsh: https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter */
+          return _.orderBy(this.homologs, this.sortKey, this.order)
+        }
+      },
+      filters: {
+        decimalPlaces: function (value) {
+          return value.toFixed(2)
+        }
+      }
+    })
+  </script>
+-->
+
+  <!--
+  <div id="app">
+    {{ message }}
+  </div>
+
+  <div id="app-2">
+  <span v-bind:title="message">
+    Hover your mouse over me for a few seconds
+    to see my dynamically bound title!
+  </span>
+  </div>
+
+  <div id="app-3">
+  <span v-if="seen">Now you see me</span>
+  </div>
+
+	<div id="app-4">
+	  <ol>
+	    <li v-for="todo in todos">
+	      {{ todo.text }}
+	    </li>
+	  </ol>
+	</div>
+
+	<div id="app-5">
+	  <p>{{ message }}</p>
+	  <button v-on:click="reverseMessage">Reverse Message</button>
+	</div>
+
+-->
+
+  <!--
+  <script>
+    var app = new Vue({
+      el: '#app',
+      data: {
+        message: 'Hello Vue!'
+      }
+    })
+ 	var app2 = new Vue({
+	  el: '#app-2',
+	  data: {
+	    message: 'You loaded this page on ' + new Date().toLocaleString()
+	  }
+	})
+
+	var app3 = new Vue({
+	  el: '#app-3',
+	  data: {
+	    seen: true
+	  }
+	})
+
+	var app4 = new Vue({
+	  el: '#app-4',
+	  data: {
+	    todos: [
+	      { text: 'Learn JavaScript' },
+	      { text: 'Learn Vue' },
+	      { text: 'Build something awesome' }
+	    ]
+	  }
+	})
+
+	var app5 = new Vue({
+	  el: '#app-5',
+	  data: {
+	    message: 'Hello Vue.js!'
+	  },
+	  methods: {
+	    reverseMessage: function () {
+	      this.message = this.message.split('').reverse().join('')
+	    }
+	  }
+	})
+
+  </script>
+-->
+</body>
+
+</html>
