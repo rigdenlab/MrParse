@@ -45,7 +45,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
           <td>{{homolog.range}}</td>
           <td>{{homolog.eLLG}}</td>
           <td>{{homolog.ncopies}}</td>
-          <td>{{homolog.molecular_weight}}</td>
+          <td>{{homolog.molecular_weight | decimalPlaces}}</td>
           <td>{{homolog.rmsd}}</td>
           <td>{{homolog.seqid}}</td>
         </tr>
@@ -89,7 +89,13 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       },
       computed: {
         orderedHomologs: function () {
+          /* This requires loadsh: https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter */
           return _.orderBy(this.homologs, this.sortKey, this.order)
+        }
+      },
+      filters: {
+        decimalPlaces: function (value) {
+          return value.toFixed(2)
         }
       }
     })
