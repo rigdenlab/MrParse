@@ -17,7 +17,7 @@ from mrparse.mr_classify import MrClassifier
 
 logger = logging.getLogger(__name__)
 
-HTML_DIR = '/opt/MrParse/pfam'
+HTML_DIR = '/opt/MrParse/html'
 POLL_TIME = 1
 
 
