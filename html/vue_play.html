@@ -79,7 +79,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
     <!-- <div id="foo" v-drawcanvas></div> -->
     <hr />
     <!-- <pfam-canvas></pfam-canvas> -->
-    <pfam-canvas v-for="(region, index) in pfam_regions" v-bind:region="region" v-bind:index="index"></pfam-canvas>
+    <pfam-canvas v-for="(region, index) in pfam_regions" :region="region" :index="index" :key="index"></pfam-canvas>
     <!-- <foo v-for="region in pfam_regions" v-bind:region="region"></foo> -->
   </div>
 
@@ -105,16 +105,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
     };
 
     function add_graphic(region, parent) {
-      var residueWidth = 1.0;
-      // let gdiv = document.createElement('div');
-      // gdiv.setAttribute('id', div_id);
-      // gdiv.setAttribute('class', div_class);
-      // parent.appendChild(gdiv);
-      // if (typeof title != "undefined") {
-      //   let title_a = document.createElement('h4');
-      //   title_a.appendChild(document.createTextNode(title));
-      //   gdiv.appendChild(title_a);
-      // }
+      let residueWidth = 1.0;
       let pg = new PfamGraphic();
       pg.setImageParams({
         residueWidth: residueWidth,
@@ -131,37 +122,17 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
         region: Object,
         index: Number
       },
-      // directives: {
-      //   drawcanvas: {
-      //     inserted: function(parent, binding) {
-      //       console.log("GOT BINDING " + JSON.stringify(binding));
-      //       return add_graphic(binding.value, parent);
-      //     }
-      //   }
-      // },
       mounted: function() {
         add_graphic(this.region, this.$refs.cdiv);
       },
-      template: '<div v-bind:id="index" ref=cdiv></div>'
-      // template: '<div id=1 v-drawcanvas="region"></div>' // THIS WORKS!
+      template: '<div :id="index" ref=cdiv></div>'
     });
 
     new Vue({
       el: '#app',
       data: {
-        exampleContent: "This is TEXT",
-        // region: region,
         pfam_regions: pfam_json.regions
       },
-      // directives: {
-      //   drawcanvas: {
-      //     inserted: function(parent) {
-      //       // var parent = document.getElementById('foo');
-      //       console.log("DRAWING " + parent);
-      //       return add_graphic(this.region, parent, "id1", "class1");
-      //     }
-      //   }
-      // },
     })
   </script>
 
