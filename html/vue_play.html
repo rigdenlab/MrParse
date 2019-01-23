@@ -63,6 +63,18 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
 
 
   <style type="text/css">
+    .container {
+        width: 100%;
+        margin: auto;
+        /* padding: 10px; */
+    }
+    .homolog-table {
+        width: 45%;
+        float: left;
+    }
+    .pfam-canvas {
+        margin-left: 45%;
+    }
     #homologs table,
     th,
     td {
@@ -73,11 +85,27 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
 
 <body>
   <div id="app">
-    <homolog-table></homolog-table>
-    <pfam-canvas v-for="(region, index) in pfam_regions" :region="region" :key="index"></pfam-canvas>
+    <section class="container">
+      <div class="homolog-table">
+        <homolog-table></homolog-table>
+      </div>
+      <div class="pfam-canvas">
+        <pfam-canvas v-for="(homolog, index) in homologs" :region="homolog.pfam_json" :key="index"></pfam-canvas>
+      </div>
+    </section>
   </div>
 
   <script>
+  // Add pfam render options to homologs
+  for (let i=0; i < homologs.length; i++){
+    for (let j=0; j<pfam_json.regions.length; j++){
+      if (homologs[i].name == pfam_json.regions[j].regions[0].text){
+        // console.log("MATCHED "+homologs[i].name + " " + pfam_json.regions[j].regions[0].text);
+        homologs[i].pfam_json = pfam_json.regions[j];
+      }
+    }
+  }
+
   function add_graphic(region, parent) {
     let residueWidth = 1.0;
     let pg = new PfamGraphic();
@@ -139,7 +167,9 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       computed: {
         orderedHomologs: function() {
           /* This requires loadsh: https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter */
-          return _.orderBy(this.homologs, this.sortKey, this.order)
+          // return _.orderBy(this.homologs, this.sortKey, this.order)
+          this.homologs = _.orderBy(this.homologs, this.sortKey, this.order);
+          return this.homologs;
         }
       },
       filters: {
@@ -176,7 +206,8 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
     new Vue({
       el: '#app',
       data: {
-        pfam_regions: pfam_json.regions
+        pfam_regions: pfam_json.regions,
+        homologs: homologs
       },
     })
   </script>
