@@ -72,146 +72,54 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
 </head>
 
 <body>
-
   <div id="app">
-    <p>Hello World</p>
-    <!-- <p>{{ pfam_regions }}</p> -->
-    <!-- <div id="foo" v-drawcanvas></div> -->
-    <hr />
-    <!-- <pfam-canvas></pfam-canvas> -->
+    <homolog-table></homolog-table>
     <pfam-canvas v-for="(region, index) in pfam_regions" :region="region" :key="index"></pfam-canvas>
-    <!-- <foo v-for="region in pfam_regions" v-bind:region="region"></foo> -->
   </div>
 
   <script>
-    var regionX = {
-      "regions": [{
-        "startStyle": "curved",
-        "end": 359,
-        "start": 95,
-        "aliStart": 95,
-        "text": "3mwb_B_1",
-        "endStyle": "curved",
-        "colour": "#7f3f3f",
-        "aliEnd": 359,
-        "metadata": {
-          "start": 95,
-          "end": 359,
-          "description": "Domain #1",
-          "database": "PHMMER search"
-        }
-      }],
-      "length": 361
-    };
-
-    function add_graphic(region, parent) {
-      let residueWidth = 1.0;
-      let pg = new PfamGraphic();
-      pg.setImageParams({
-        residueWidth: residueWidth,
-        xscale: 1.0,
-        yscale: 1.0
-      });
-      pg.setParent(parent);
-      pg.setSequence(region);
-      pg.render();
-    }
-
-    Vue.component('pfam-canvas', {
-      props: {
-        region: Object,
-      },
-      mounted: function() {
-        add_graphic(this.region, this.$refs.cdiv);
-      },
-      template: '<div :id=this.$vnode.key ref=cdiv></div>'
+  function add_graphic(region, parent) {
+    let residueWidth = 1.0;
+    let pg = new PfamGraphic();
+    pg.setImageParams({
+      residueWidth: residueWidth,
+      xscale: 1.0,
+      yscale: 1.0
     });
+    pg.setParent(parent);
+    pg.setSequence(region);
+    pg.render();
+  }
 
-    new Vue({
-      el: '#app',
-      data: {
-        pfam_regions: pfam_json.regions
-      },
-    })
-  </script>
+  Vue.component('pfam-canvas', {
+    props: {
+      region: Object,
+    },
+    mounted: function() {
+      add_graphic(this.region, this.$refs.cdiv);
+    },
+    template: '<div :id=this.$vnode.key ref=cdiv></div>'
+  });
 
-  <!-- <div id="app1">
-    <canvas width="300" height="150" style="border:1px solid #BBB;" v-insert-message="exampleContent"></canvas>
-    <input type="text" v-model="exampleContent" />
-    <span>{{ exampleContent }}</span>
-  </div> -->
-
-  <!-- <script>
-  new Vue({
-      el: '#app1',
-      data: {
-          "exampleContent": "This is TEXT"
-      },
-      directives: {
-          insertMessage: function(canvasElement, binding) {
-              // Get canvas context
-              var ctx = canvasElement.getContext("2d");
-              // Clear the canvas
-              ctx.clearRect(0, 0, 300, 150);
-              // Insert stuff into canvas
-              ctx.fillStyle = "black";
-              ctx.font = "20px Georgia";
-              ctx.fillText(binding.value, 10, 50);
-          }
-      },
-      watch: {
-          exampleContent: function() {
-              console.log("exampleContent changed to " + this.exampleContent);
-          }
-      }
-  })
-  </script> -->
-
-  <!--
-  <div id="app">
-    <table id="homologs">
-      <thead>
-      <tr>
-        <th v-for="column in columns">
-          <a href="#" @click="sortBy(column)" v-bind:title="getTitle(column)">
-            {{ column }}
-          </a>
-        </th>
-      </tr>
-    </thead>
-      <tbody>
-        <tr v-for="homolog in orderedHomologs">
-          <td>{{homolog.name}}</td>
-          <td>{{homolog.domain}}</td>
-          <td>{{homolog.range}}</td>
-          <td>{{homolog.eLLG}}</td>
-          <td>{{homolog.ncopies}}</td>
-          <td>{{homolog.molecular_weight | decimalPlaces}}</td>
-          <td>{{homolog.rmsd}}</td>
-          <td>{{homolog.seqid}}</td>
-        </tr>
-      </tbody>
-    </table>
-
-  </div>
-
-  <script>
-    var app = new Vue({
-      el: '#app',
-      data: {
-        homologs: homologs, /* Set with global variable */
-        columns: ['name', 'domain', 'range', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid'],
-        columnTitles: {'name' : 'Protein Name',
-                       'domain': 'Number of the domain',
-                       'range': 'Length of the protein',
-                       'eLLG': 'Computed Log Likelihood Gain',
-                       'ncopies': 'Expected number of copies in the ASU',
-                       'molecular_weight': 'Molecular Weight in Daltons',
-                       'rmsd': 'RMSD from template',
-                       'seqid': 'Sequence Identity to template'
-                     },
-        sortKey: 'name',
-        order: 'asc',
+    Vue.component('homolog-table', {
+      data: function() {
+        return {
+          homologs: homologs,
+          /* Set with global variable */
+          columns: ['name', 'domain', 'range', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid'],
+          columnTitles: {
+            'name': 'Protein Name',
+            'domain': 'Number of the domain',
+            'range': 'Length of the protein',
+            'eLLG': 'Computed Log Likelihood Gain',
+            'ncopies': 'Expected number of copies in the ASU',
+            'molecular_weight': 'Molecular Weight in Daltons',
+            'rmsd': 'RMSD from template',
+            'seqid': 'Sequence Identity to template'
+          },
+          sortKey: 'name',
+          order: 'asc',
+        }
       },
       methods: {
         sortBy: function(sortKey) {
@@ -224,24 +132,55 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
           }
           this.sortKey = sortKey;
         },
-        getTitle: function (column) {
+        getTitle: function(column) {
           return this.columnTitles[column];
         }
       },
       computed: {
-        orderedHomologs: function () {
+        orderedHomologs: function() {
           /* This requires loadsh: https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter */
           return _.orderBy(this.homologs, this.sortKey, this.order)
         }
       },
       filters: {
-        decimalPlaces: function (value) {
+        decimalPlaces: function(value) {
           return value.toFixed(2)
         }
-      }
+      },
+      template: `
+      <table id="homologs">
+          <thead>
+            <tr>
+              <th v-for="column in columns">
+                <a href="#" @click="sortBy(column)" v-bind:title="getTitle(column)">
+                  {{ column }}
+                </a>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="homolog in orderedHomologs">
+              <td>{{homolog.name}}</td>
+              <td>{{homolog.domain}}</td>
+              <td>{{homolog.range}}</td>
+              <td>{{homolog.eLLG}}</td>
+              <td>{{homolog.ncopies}}</td>
+              <td>{{homolog.molecular_weight | decimalPlaces}}</td>
+              <td>{{homolog.rmsd}}</td>
+              <td>{{homolog.seqid}}</td>
+            </tr>
+          </tbody>
+        </table>
+        `
+    })
+    new Vue({
+      el: '#app',
+      data: {
+        pfam_regions: pfam_json.regions
+      },
     })
   </script>
--->
+
 
   <!--
   <div id="app">
