@@ -79,7 +79,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
     <!-- <div id="foo" v-drawcanvas></div> -->
     <hr />
     <!-- <pfam-canvas></pfam-canvas> -->
-    <pfam-canvas v-for="(region, index) in pfam_regions" :region="region" :index="index" :key="index"></pfam-canvas>
+    <pfam-canvas v-for="(region, index) in pfam_regions" :region="region" :key="index"></pfam-canvas>
     <!-- <foo v-for="region in pfam_regions" v-bind:region="region"></foo> -->
   </div>
 
@@ -120,12 +120,11 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
     Vue.component('pfam-canvas', {
       props: {
         region: Object,
-        index: Number
       },
       mounted: function() {
         add_graphic(this.region, this.$refs.cdiv);
       },
-      template: '<div :id="index" ref=cdiv></div>'
+      template: '<div :id=this.$vnode.key ref=cdiv></div>'
     });
 
     new Vue({
