@@ -137,7 +137,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       template: `
       <div class="pfam-graphics">
         <p>{{ top }}</p>
-        <pfam-canvas v-for="(homolog, index) in pfam_homologs" :key="index" :region="homolog.pfam_json">
+        <pfam-canvas v-for="homolog in pfam_homologs" :key="homolog.name" :region="homolog.pfam_json">
         </pfam-canvas>
       </div>
       `
@@ -152,7 +152,6 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       },
       template: '<div :id=this.$vnode.key ref=cdiv></div>'
     });
-
 
     Vue.component('homolog-table', {
       data: function() {
