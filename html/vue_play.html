@@ -124,19 +124,15 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       data: function() {
         return {
           pfam_homologs: this.$root.app_homologs,
-          top: this.$root.app_homologs[0].name
         }
       },
       created: function() {
         EventBus.$on("sortedData", sortedData => {
-          console.log('pfam-graphics got sortedData ' + JSON.stringify(sortedData[0].name));
           this.pfam_homologs = sortedData;
-          this.top = this.pfam_homologs[0].name
         })
       },
       template: `
       <div class="pfam-graphics">
-        <p>{{ top }}</p>
         <pfam-canvas v-for="homolog in pfam_homologs" :key="homolog.name" :region="homolog.pfam_json">
         </pfam-canvas>
       </div>
