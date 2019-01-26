@@ -82,6 +82,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
     th,
     td {
       border: 1px solid black;
+      padding: 3px;
     }
   </style>
 </head>
@@ -133,13 +134,13 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       },
       template: `
       <div class="pfam-graphics">
-        <pfam-canvas v-for="homolog in pfam_homologs" :key="homolog.name" :region="homolog.pfam_json">
-        </pfam-canvas>
+        <br/><br/>
+        <pfam-region v-for="homolog in pfam_homologs" :key="homolog.name" :region="homolog.pfam_json"/>
       </div>
       `
     });
 
-    Vue.component('pfam-canvas', {
+    Vue.component('pfam-region', {
       props: {
         region: Object
       },
@@ -153,7 +154,6 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       data: function() {
         return {
           hhomologs: this.$root.app_homologs,
-          /* Set with global variable */
           columns: ['name', 'domain', 'range', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid'],
           columnTitles: {
             'name': 'Protein Name',
@@ -165,8 +165,8 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
             'rmsd': 'RMSD from template',
             'seqid': 'Sequence Identity to template'
           },
-          sortKey: 'name',
-          order: 'asc',
+          sortKey: 'domain',
+          order: 'desc',
         }
       },
       methods: {
@@ -187,17 +187,12 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
           return this.columnTitles[column];
         }
       },
-      // computed: {
-      //   orderedHomologs: function() {
-      //     /* This requires loadsh: https://vuejs.org/v2/guide/migration.html#Replacing-the-orderBy-Filter */
-      //     // return _.orderBy(this.homologs, this.sortKey, this.order)
-      //     this.homologs = _.orderBy(this.homologs, this.sortKey, this.order);
-      //     return this.homologs;
-      //   }
-      // },
+      mounted: function() {
+        this.sortBy('domain')
+      },
       filters: {
-        decimalPlaces: function(value) {
-          return value.toFixed(2)
+        decimalPlaces: function(value, num=2) {
+          return value.toFixed(num)
         }
       },
       template: `
@@ -213,7 +208,6 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
             </tr>
           </thead>
           <tbody>
-            <!-- <tr v-for="homolog in orderedHomologs"> -->
             <tr v-for="homolog in hhomologs">
               <td>{{homolog.name}}</td>
               <td>{{homolog.domain}}</td>
