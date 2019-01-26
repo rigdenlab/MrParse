@@ -70,9 +70,8 @@ def run(seqin, hklin=None):
 
 
     logger.critical("!!! HACK FOR JSON!!!!")
-    search_model_finder.as_json()
     with open(os.path.join(HTML_DIR, 'homologs.js'), 'w') as w:
-        w.write(search_model_finder.as_json())
+        w.write("const homologs = {}\n".format(search_model_finder.as_json()))
     
     html_out = create_webpage(search_model_finder,
                               classifier,

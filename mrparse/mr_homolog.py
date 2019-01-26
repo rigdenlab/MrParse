@@ -3,12 +3,14 @@ Created on 18 Oct 2018
 
 @author: jmht
 '''
+import copy
 import logging
 import os
 
 from simbad.util.pdb_util import PdbStructure
 
 PDB_BASE_URL = 'https://www.rcsb.org/structure/'
+PDB_DOWNLOAD_DIR = 'pdb_downloads'
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +28,13 @@ class HomologData(object):
         self.seqid = None
         self.pdb_url = None
         self.pdb_file = None
-        self.domain = None
+        self.region = None
         self.range = None
+        self._sequence_hit = None # mr_hit.SequenceHit
+        
+    @property
+    def region_id(self):
+        return self.region.ID
 
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
@@ -36,39 +43,46 @@ class HomologData(object):
         for a in sorted(attrs):
             out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
         return out_str
+    
+    def json_dict(self):
+        d = copy.copy(self.__dict__)
+        to_remove = ['_sequence_hit']
+        for k in self.__dict__.keys():
+            if k in to_remove:
+                d.pop(k)
+        return d
 
 
-def get_homologs(hits, domains):
-    pdb_dir = 'pdb_downloads'
-    if not os.path.isdir(pdb_dir):
-        os.mkdir(pdb_dir)
+def homologs_from_hits(hits):
+    if not os.path.isdir(PDB_DOWNLOAD_DIR):
+        os.mkdir(PDB_DOWNLOAD_DIR)
     homologs = {}
-    for domain in domains:
-        for match in domain.matches:
-            hit = hits[match]
-            pdb_name = hit.pdbName + '_' + hit.chainID + '.pdb'
-            pdb_file = os.path.join(pdb_dir, pdb_name)
-            pdb_struct = PdbStructure()
-            if os.path.isfile(pdb_file):
-                pdb_struct.from_file(pdb_file)
-            else:
-                pdb_struct.from_pdb_code(hit.pdbName)
-                pdb_struct.standardize()
-                pdb_struct.select_chain_by_id(hit.chainID)
-                pdb_struct.save(pdb_file)
-            hlog = HomologData()
-            hlog.name = hit.name
-            hlog.score = hits[hit.name].score
-            hlog.seqid = hits[hit.name].localSEQID / 100.0
-            hlog.domain = domain.ID
-            hlog.range = hits[hit.name].tarRange
-            homologs[hit.name] = hlog
-            hlog.pdb_url = PDB_BASE_URL + hit.pdbName
-            if len(pdb_struct.hierarchy.models()) == 0:
-                logger.critical("Hierarchy has no models for pdb_name %s" % pdb_name)
-            else:
-                hlog.pdb_file = pdb_file
-                hlog.molecular_weight = float(pdb_struct.molecular_weight)
+    for hit in hits.values():
+        pdb_name = hit.pdbName + '_' + hit.chainID + '.pdb'
+        pdb_file = os.path.join(PDB_DOWNLOAD_DIR, pdb_name)
+        pdb_struct = PdbStructure()
+        if os.path.isfile(pdb_file):
+            pdb_struct.from_file(pdb_file)
+        else:
+            pdb_struct.from_pdb_code(hit.pdbName)
+            pdb_struct.standardize()
+            pdb_struct.select_chain_by_id(hit.chainID)
+            pdb_struct.save(pdb_file)
+        hlog = HomologData()
+        hlog._sequence_hit = hit
+        hit._homolog = hlog
+        hlog.name = hit.name
+        hlog.score = hit.score
+        hlog.seqid = hit.localSEQID / 100.0
+        hlog.region = hit.region.ID
+        hlog.range = hit.tarRange
+        homologs[hlog.name] = hlog
+        hlog.pdb_url = PDB_BASE_URL + hit.pdbName
+        if len(pdb_struct.hierarchy.models()) == 0:
+            logger.critical("Hierarchy has no models for pdb_name %s" % pdb_name)
+        else:
+            hlog.pdb_file = pdb_file
+            hlog.molecular_weight = float(pdb_struct.molecular_weight)
     return homologs
 
 

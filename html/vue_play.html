@@ -96,16 +96,6 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
   </div>
 
   <script>
-    // Add pfam render options to homologs
-    for (let i = 0; i < homologs.length; i++) {
-      for (let j = 0; j < pfam_json.regions.length; j++) {
-        if (homologs[i].name == pfam_json.regions[j].regions[0].text) {
-          // console.log("MATCHED "+homologs[i].name + " " + pfam_json.regions[j].regions[0].text);
-          homologs[i].pfam_json = pfam_json.regions[j];
-        }
-      }
-    }
-
     function add_graphic(region, parent) {
       let residueWidth = 1.0;
       let pg = new PfamGraphic();
@@ -124,7 +114,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
     Vue.component('pfam-graphics', {
       data: function() {
         return {
-          pfam_homologs: this.$root.app_homologs,
+          pfam_homologs: this.$root.homologs,
         }
       },
       created: function() {
@@ -135,7 +125,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       template: `
       <div class="pfam-graphics">
         <br/><br/>
-        <pfam-region v-for="homolog in pfam_homologs" :key="homolog.name" :region="homolog.pfam_json"/>
+        <pfam-region v-for="homolog in pfam_homologs" :key="homolog.name" :region="homolog._pfam_json"/>
       </div>
       `
     });
@@ -153,11 +143,11 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
     Vue.component('homolog-table', {
       data: function() {
         return {
-          hhomologs: this.$root.app_homologs,
-          columns: ['name', 'domain', 'range', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid'],
+          hhomologs: this.$root.homologs,
+          columns: ['name', 'region', 'range', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid'],
           columnTitles: {
             'name': 'Protein Name',
-            'domain': 'Number of the domain',
+            'region': 'Number of the region',
             'range': 'Length of the protein',
             'eLLG': 'Computed Log Likelihood Gain',
             'ncopies': 'Expected number of copies in the ASU',
@@ -166,7 +156,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
             'seqid': 'Sequence Identity to template'
           },
           sortKey: 'domain',
-          order: 'desc',
+          order: 'asc',
         }
       },
       methods: {
@@ -188,7 +178,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
         }
       },
       mounted: function() {
-        this.sortBy('domain')
+        this.sortBy('region')
       },
       filters: {
         decimalPlaces: function(value, num=2) {
@@ -210,7 +200,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
           <tbody>
             <tr v-for="homolog in hhomologs">
               <td>{{homolog.name}}</td>
-              <td>{{homolog.domain}}</td>
+              <td>{{homolog.region}}</td>
               <td>{{homolog.range}}</td>
               <td>{{homolog.eLLG}}</td>
               <td>{{homolog.ncopies}}</td>
@@ -227,7 +217,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
     new Vue({
       el: '#app',
       data: {
-        app_homologs: homologs
+        homologs: homologs
       },
     })
   </script>

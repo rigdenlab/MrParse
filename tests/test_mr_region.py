@@ -1,5 +1,4 @@
-import pickle
-
+#!/usr/bin/env ccp4-python
 import set_mrparse_path
 from mrparse.mr_hit import find_hits
 from mrparse.mr_region import RegionFinder

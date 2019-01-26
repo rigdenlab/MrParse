@@ -7,11 +7,11 @@ import logging
 import json
 import pandas as pd
 
-from mrparse.mr_homolog import get_homologs, calculate_ellg
+from mrparse.mr_homolog import homologs_from_hits, calculate_ellg
 from mrparse.mr_hit import find_hits
 from mr_region import RegionFinder
 from mrparse.mr_sequence import read_fasta
-from mrparse.mr_pfam import pfam_region_dict
+from mrparse.mr_pfam import add_pfam_json_to_homologs
 from mrparse.mr_util import now
 
 logger = logging.getLogger(__name__)
@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 class SearchModelFinder(object):
     def __init__(self, seqin, hklin=None):
         self.seqin = seqin
+        self.seqlen = len(read_fasta(self.seqin))
         self.hklin = hklin
         self.hits = None
         self.regions = None
@@ -46,7 +47,7 @@ class SearchModelFinder(object):
 
     def find_homologs(self):
         assert self.hits and self.regions
-        self.homologs = get_homologs(self.hits, self.regions)
+        self.homologs = homologs_from_hits(self.hits)
         if self.hklin:
             calculate_ellg(self.homologs, self.hklin)
         return self.homologs
@@ -80,9 +81,5 @@ class SearchModelFinder(object):
         return df.to_html(index=False, escape=False)
     
     def as_json(self):
-        return json.dumps([h.__dict__ for h in self.homologs.values()])
-
-    def pfam_dict(self):
-        assert self.regions and self.seqin
-        seqlen = len(read_fasta(self.seqin))
-        return pfam_region_dict(self.regions, seqlen)
+        add_pfam_json_to_homologs(self.regions, self.seqlen)
+        return json.dumps([h.json_dict() for h in self.homologs.values()])

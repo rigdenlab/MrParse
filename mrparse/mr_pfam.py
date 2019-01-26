@@ -19,25 +19,25 @@ def get_N_HexCol(N=5):
         hex_out.append("".join(map(lambda x: chr(x).encode('hex'), rgb)))
     return ['#' + h for h in hex_out]
 
-    
-def pfam_region_dict(regions, seqlen):
+
+def add_pfam_json_to_homologs(regions, seqlen):
     assert len(regions)
     region_colors = get_N_HexCol(len(regions))
-    region_data = []
-    for idx_region, region in enumerate(regions):
-        for idx_range, rrange in enumerate(region.ranges):
-            start, stop = map(int, rrange.split('-'))
-            name = region.matches[idx_range]
+    for region in regions:
+        for hit in region.matches:
+            homolog = hit._homolog
+            start = hit.alnStart
+            stop = hit.alnStop
+            name = homolog.name
             d = { 'startStyle': "curved",
                   'endStyle': "curved",
                   'start': start,
                   'end': stop,
                   'aliStart': start,
                   'aliEnd': stop,
-                  'colour': region_colors[idx_region],
-#                       'text': str(region.ID)}
+                  'colour': region_colors[region.index],
                   'text': name,
-                  'metadata' : { "description" : "Domain #%s" % region.ID,
+                  'metadata' : { "description" : "Homolog {} from region #{}".format(name, region.ID),
                                  "database" : "PHMMER search",
                                  "start" : start,
                                  "end" : stop,
@@ -45,8 +45,8 @@ def pfam_region_dict(regions, seqlen):
                   }            
             jdict = {'length' : seqlen,
                      'regions' : [d]}
-            region_data.append(jdict)
-    return region_data
+            homolog._pfam_json = jdict
+    return
 
 
 def pfam_dict_from_annotation(annotation):

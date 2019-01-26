@@ -28,8 +28,10 @@ class SequenceHit:
         self.score = 0.0
         self.ndomains = 0
         self.alignment = ""
-        self.alnRange = ""
-        self.tarRange = ""
+        self.alnStart = None
+        self.alnStop = None
+        self.tarStart = None
+        self.tarStop = None
         self.tarExtent = 0
         self.tarMidpoint = 0.0
         self.cols = 0
@@ -37,6 +39,16 @@ class SequenceHit:
         self.overallSEQID = 0.0
         self.targetAlignment = None
         self.alignments = dict([])
+        self.region = None
+        self._homolog = None
+    
+    @property
+    def alnRange(self):
+        return "{}-{}".format(self.alnStart, self.alnStop)
+
+    @property
+    def tarRange(self):
+        return "{}-{}".format(self.tarStart, self.tarStop)
 
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
@@ -75,10 +87,12 @@ def find_hits(seqin):
 #             hstart, hstop = hsp.hit_range
             hstart = hsp.hit_start
             hstop = hsp.hit_end
-            ph.alnRange = "{}-{}".format(hstart + 1, hstop)
+            ph.alnStart = hstart + 1
+            ph.alnStop = hstop
             qstart, qstop = hsp.query_range
             qstart_p1 = qstart + 1
-            ph.tarRange = "{}-{}".format(qstart_p1, qstop)
+            ph.tarStart = qstart_p1
+            ph.tarStop = qstop
             ph.tarExtent = hsp.query_span - 1
             ph.tarMidpoint = ((float(qstop) - float(qstart_p1)) / 2.0) + float(qstart_p1)
             
