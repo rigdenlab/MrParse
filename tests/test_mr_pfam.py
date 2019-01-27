@@ -13,7 +13,7 @@ import set_mrparse_path
 from mrparse.mr_hit import find_hits
 from mrparse.mr_homolog import homologs_from_hits
 from mrparse.mr_region import RegionFinder
-from mrparse.mr_pfam import add_pfam_json_to_homologs
+from mrparse.mr_pfam import add_pfam_dict_to_homologs
 from mrparse.mr_sequence import read_fasta
 
 
@@ -24,7 +24,7 @@ def test_homologs(test_data):
     regions = RegionFinder().find_regions_from_hits(hits)
     homologs = homologs_from_hits(hits)
     seqlen = len(read_fasta(seqin))
-    add_pfam_json_to_homologs(regions, seqlen)
+    add_pfam_dict_to_homologs(regions, seqlen)
     
     print(homologs.values()[0])
     print(homologs.values()[0]._pfam_json)

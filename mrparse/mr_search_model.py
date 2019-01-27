@@ -11,7 +11,7 @@ from mrparse.mr_homolog import homologs_from_hits, calculate_ellg
 from mrparse.mr_hit import find_hits
 from mr_region import RegionFinder
 from mrparse.mr_sequence import read_fasta
-from mrparse.mr_pfam import add_pfam_json_to_homologs
+from mrparse.mr_pfam import add_pfam_dict_to_homologs
 from mrparse.mr_util import now
 
 logger = logging.getLogger(__name__)
@@ -80,6 +80,6 @@ class SearchModelFinder(object):
         pd.set_option('display.max_colwidth', -1)
         return df.to_html(index=False, escape=False)
     
-    def as_json(self):
-        add_pfam_json_to_homologs(self.regions, self.seqlen)
-        return json.dumps([h.json_dict() for h in self.homologs.values()])
+    def as_dict(self):
+        add_pfam_dict_to_homologs(self.regions, self.seqlen)
+        return {'homologs' : [h.json_dict() for h in self.homologs.values()]}

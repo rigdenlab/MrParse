@@ -19,7 +19,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
   <!-- <script src="https://unpkg.com/vue"></script> -->
   <script src="vue.js"></script>
   <script src="lodash.min.js"></script>
-  <script type="text/javascript" src="homologs.js"></script>
+  <script type="text/javascript" src="mrparse.js"></script>
 
   <!-- load the prototype library from google -->
   <script type="text/javascript" src="http://www.google.com/jsapi"></script>
@@ -44,9 +44,6 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
        could just omit the prototip load -->
   <script type="text/javascript" src="pfam/shared/javascripts/prototip.js"></script>
   <script type="text/javascript" src="pfam/shared/javascripts/styles.js"></script>
-
-  <!-- jmht -->
-  <script type="text/javascript" src="data.js"></script>
 
   <!-- stylesheets. We only really need the rules that are specific to the tooltips -->
   <link rel="stylesheet" href="pfam/static/css/pfam.css" type="text/css" />
@@ -114,18 +111,25 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
     Vue.component('pfam-graphics', {
       data: function() {
         return {
-          pfam_homologs: this.$root.homologs,
+          homologs: this.$root.homologs,
+          ss_pred: this.$root.ss_pred,
+          classification: this.$root.classification
         }
       },
       created: function() {
         EventBus.$on("sortedData", sortedData => {
-          this.pfam_homologs = sortedData;
+          this.homologs = sortedData;
         })
       },
       template: `
       <div class="pfam-graphics">
-        <br/><br/>
-        <pfam-region v-for="homolog in pfam_homologs" :key="homolog.name" :region="homolog._pfam_json"/>
+        <h2>Classification</h2>
+        <div id='classification'></div>
+
+        <pfam-region :id="'ss_pred'" :region="ss_pred"/>
+        <pfam-region :id="'classification'" :region="classification"/>
+        <h2>Regions</h2>
+        <pfam-region v-for="homolog in homologs" :key="homolog.name" :id="homolog.name" :region="homolog._pfam_json"/>
       </div>
       `
     });
@@ -137,7 +141,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       mounted: function() {
         add_graphic(this.region, this.$refs.cdiv);
       },
-      template: '<div :id=this.$vnode.key ref=cdiv></div>'
+      template: '<div id=id ref=cdiv></div>'
     });
 
     Vue.component('homolog-table', {
@@ -217,7 +221,9 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
     new Vue({
       el: '#app',
       data: {
-        homologs: homologs
+        homologs: pfam_json.homologs,
+        ss_pred: pfam_json.ss_pred,
+        classification: pfam_json.classification
       },
     })
   </script>

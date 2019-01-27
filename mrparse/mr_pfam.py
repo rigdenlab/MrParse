@@ -20,7 +20,7 @@ def get_N_HexCol(N=5):
     return ['#' + h for h in hex_out]
 
 
-def add_pfam_json_to_homologs(regions, seqlen):
+def add_pfam_dict_to_homologs(regions, seqlen):
     assert len(regions)
     region_colors = get_N_HexCol(len(regions))
     for region in regions:

@@ -7,7 +7,6 @@ import logging
 import json
 import multiprocessing
 import os
-import pickle
 import subprocess
 
 from mr_hkl import HklInfo
@@ -18,6 +17,7 @@ from mrparse.mr_classify import MrClassifier
 logger = logging.getLogger(__name__)
 
 HTML_DIR = '/opt/MrParse/html'
+HTML_OUT = os.path.join(HTML_DIR, 'vue_play.html')
 POLL_TIME = 1
 
 
@@ -69,49 +69,18 @@ def run(seqin, hklin=None):
             hkl_info()
 
 
-    logger.critical("!!! HACK FOR JSON!!!!")
-    with open(os.path.join(HTML_DIR, 'homologs.js'), 'w') as w:
-        w.write("const homologs = {}\n".format(search_model_finder.as_json()))
-    
-    html_out = create_webpage(search_model_finder,
-                              classifier,
-                              hkl_info=hkl_info,
-                              html_dir=HTML_DIR)
-    # only on Mac OSX
-    subprocess.Popen(['open', html_out])
-    return
-
-
-def create_webpage(search_model_finder,
-                   classifier,
-                   hkl_info=None,
-                   html_dir=None,
-                   html_filename='mrparse.html'):
-    
-    pfam_data = classifier.pfam_dict()
-    pfam_data['regions'] = search_model_finder.pfam_dict()
+    json_dict = {}
+    json_dict.update(search_model_finder.as_dict())
+    json_dict.update(classifier.pfam_dict())
       
-    js_data = 'var pfam_json = %s;\n' % json.dumps(pfam_data)
-    with open(os.path.join(html_dir, 'data.js'), 'w') as w:
+    js_data = 'const pfam_json = %s;\n' % json.dumps(json_dict)
+    with open(os.path.join(HTML_DIR, 'mrparse.js'), 'w') as w:
         w.write(js_data)
      
-    html_data = {'homolog_table' : search_model_finder.as_html()}
     if hkl_info:
         html_data['hkl_info'] = hkl_info.as_html()
      
-    with open(os.path.join(html_dir, 'html_data.pkl'), 'w') as w:
-        pickle.dump(html_data, w)
 
-    html_out = os.path.join(html_dir, html_filename)
-    write_html(html_out, html_data)
-    return html_out
-
-def write_html(html_out, html_data, template_file='multi_domains_template.html', template_dir='/opt/MrParse/pfam/'):
-    from jinja2 import Environment, FileSystemLoader
-    env = Environment( 
-        loader=FileSystemLoader(template_dir), 
-#             autoescape=select_autoescape(['html']) 
-        )                                                                                                                                                                          
-    template = env.get_template(template_file)
-    with open(html_out, 'w') as w:
-        w.write(template.render(html_data))
+    # only on Mac OSX
+    subprocess.Popen(['open', HTML_OUT])
+    return
