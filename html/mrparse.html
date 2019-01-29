@@ -86,6 +86,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
 
 <body>
   <div id="app">
+    <hkl-info-table></hkl-info-table>
     <section class="container">
       <homolog-table></homolog-table>
       <pfam-graphics></pfam-graphics>
@@ -108,6 +109,10 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
 
     const EventBus = new Vue();
 
+    Vue.filter("decimalPlaces", (value, num = 2) => {
+        return value.toFixed(num)
+      });
+
     Vue.component('pfam-graphics', {
       data: function() {
         return {
@@ -125,7 +130,6 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       <div class="pfam-graphics">
         <h2>Classification</h2>
         <div id='classification'></div>
-
         <pfam-region :id="'ss_pred'" :region="ss_pred"/>
         <pfam-region :id="'classification'" :region="classification"/>
         <h2>Regions</h2>
@@ -144,10 +148,45 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       template: '<div id=id ref=cdiv></div>'
     });
 
+    Vue.component('hkl-info-table', {
+      data: function() {
+        return {
+          hklinfo: this.$root.hklinfo
+        }
+      },
+      template: `<div id="hkl_info">
+  <table border="1">
+    <thead>
+      <tr style="text-align: right;">
+        <th>name</th>
+        <th>Resolution</th>
+        <th>Space Group</th>
+        <th>Has NCS?</th>
+        <th>Has Twinning?</th>
+        <th>Has Anisotropy?</th>
+        <th>File Path</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ hklinfo.name }}</td>
+        <td>{{ hklinfo.resolution | decimalPlaces }}</td>
+        <td>{{ hklinfo.space_group}}</td>
+        <td>{{ hklinfo.has_ncs}}</td>
+        <td>{{ hklinfo.has_twinning}}</td>
+        <td>{{ hklinfo.has_anisotropy}}</td>
+        <td>{{ hklinfo.hklin}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>`
+    });
+
+
     Vue.component('homolog-table', {
       data: function() {
         return {
-          hhomologs: this.$root.homologs,
+          homologs: this.$root.homologs,
           columns: ['name', 'region', 'range', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid'],
           columnTitles: {
             'name': 'Protein Name',
@@ -173,8 +212,8 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
             }
           }
           this.sortKey = sortKey;
-          this.hhomologs = _.orderBy(this.hhomologs, this.sortKey, this.order);
-          EventBus.$emit("sortedData", this.hhomologs);
+          this.homologs = _.orderBy(this.homologs, this.sortKey, this.order);
+          EventBus.$emit("sortedData", this.homologs);
           return
         },
         getTitle: function(column) {
@@ -183,11 +222,6 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       },
       mounted: function() {
         this.sortBy('region')
-      },
-      filters: {
-        decimalPlaces: function(value, num=2) {
-          return value.toFixed(num)
-        }
       },
       template: `
       <div class="homolog-table">
@@ -202,7 +236,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
             </tr>
           </thead>
           <tbody>
-            <tr v-for="homolog in hhomologs">
+            <tr v-for="homolog in homologs">
               <td>{{homolog.name}}</td>
               <td>{{homolog.region}}</td>
               <td>{{homolog.range}}</td>
