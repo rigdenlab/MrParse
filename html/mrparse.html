@@ -189,11 +189,12 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       data: function() {
         return {
           homologs: this.$root.homologs,
-          columns: ['name', 'region', 'range', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid'],
+          columns: ['name', 'region', 'range', 'length', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid'],
           columnTitles: {
             'name': 'Protein Name',
             'region': 'Number of the region',
-            'range': 'Length of the protein',
+            'range': 'Start - stop coordinates of the homolog',
+            'length': 'Length of the homolog in residues',
             'eLLG': 'Computed Log Likelihood Gain',
             'ncopies': 'Expected number of copies in the ASU',
             'molecular_weight': 'Molecular Weight in Daltons',
@@ -242,6 +243,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
               <td>{{homolog.name}}</td>
               <td>{{homolog.region}}</td>
               <td>{{homolog.range}}</td>
+              <td>{{homolog.length}}</td>
               <td>{{homolog.eLLG}}</td>
               <td>{{homolog.ncopies}}</td>
               <td>{{homolog.molecular_weight | decimalPlaces}}</td>

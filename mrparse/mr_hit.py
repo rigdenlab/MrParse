@@ -28,9 +28,9 @@ class SequenceHit:
         self.score = 0.0
         self.ndomains = 0
         self.alignment = ""
-        self.alnStart = None
+        self.alnStart = None # Count from 1
         self.alnStop = None
-        self.tarStart = None
+        self.tarStart = None # Count from 1
         self.tarStop = None
         self.tarExtent = 0
         self.tarMidpoint = 0.0
@@ -45,6 +45,10 @@ class SequenceHit:
     @property
     def alnRange(self):
         return "{}-{}".format(self.alnStart, self.alnStop)
+    
+    @property
+    def length(self):
+        return self.alnStop - self.alnStart
 
     @property
     def tarRange(self):

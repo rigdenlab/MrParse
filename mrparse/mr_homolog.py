@@ -16,20 +16,21 @@ logger = logging.getLogger(__name__)
 
 class HomologData(object):
     def __init__(self):
-        self.name = None
         self.eLLG = None
         self.frac_scat = None
-        self.total_frac_scat = None
-        self.total_frac_scat_known = None
-        self.rmsd = None
-        self.ncopies = None
+        self.length = None
         self.molecular_weight = None
-        self.score = None
-        self.seqid = None
+        self.name = None
+        self.ncopies = None
         self.pdb_url = None
         self.pdb_file = None
-        self.region = None
         self.range = None
+        self.region = None
+        self.rmsd = None
+        self.score = None
+        self.seqid = None
+        self.total_frac_scat = None
+        self.total_frac_scat_known = None
         self._sequence_hit = None # mr_hit.SequenceHit
         
     @property
@@ -75,6 +76,7 @@ def homologs_from_hits(hits):
         hlog.score = hit.score
         hlog.seqid = hit.localSEQID / 100.0
         hlog.region = hit.region.ID
+        hlog.length = hit.length
         hlog.range = hit.tarRange
         homologs[hlog.name] = hlog
         hlog.pdb_url = PDB_BASE_URL + hit.pdbName
