@@ -4,7 +4,6 @@ Created on 18 Oct 2018
 @author: jmht
 '''
 import logging
-import json
 import pandas as pd
 
 from mrparse.mr_homolog import homologs_from_hits, calculate_ellg

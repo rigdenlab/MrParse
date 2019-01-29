@@ -99,6 +99,14 @@ class HklInfo(object):
         self.has_twinning = ctr.TWIN
         self.has_anisotropy = ctr.ANISO
         return
+
+    def as_dict(self):
+        attrs = ['hklin', 'name', 'space_group', 'resolution', 'cell_parameters', 'has_ncs', 'has_twinning', 'has_anisotropy']
+        d = {}
+        for k, v in self.__dict__.items():
+            if k in attrs:
+                d[k] = v
+        return d
     
     def as_html(self):
         return """

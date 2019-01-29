@@ -17,8 +17,8 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
 <head>
   <title>My first Vue app</title>
   <!-- <script src="https://unpkg.com/vue"></script> -->
-  <script src="vue.js"></script>
-  <script src="lodash.min.js"></script>
+  <script type="text/javascript" src="vue.js"></script>
+  <script type="text/javascript" src="lodash.min.js"></script>
   <script type="text/javascript" src="mrparse.js"></script>
 
   <!-- load the prototype library from google -->
@@ -220,10 +220,12 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
 
     new Vue({
       el: '#app',
+      /* Check hkl_info undefined */
       data: {
-        homologs: pfam_json.homologs,
-        ss_pred: pfam_json.ss_pred,
-        classification: pfam_json.classification
+        homologs: mrparse_data.pfam.homologs,
+        ss_pred: mrparse_data.pfam.ss_pred,
+        classification: mrparse_data.pfam.classification,
+        hklinfo: mrparse_data.hkl_info
       },
     })
   </script>

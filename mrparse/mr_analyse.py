@@ -68,18 +68,18 @@ def run(seqin, hklin=None):
         if hkl_info:
             hkl_info()
 
-
     json_dict = {}
     json_dict.update(search_model_finder.as_dict())
     json_dict.update(classifier.pfam_dict())
-      
-    js_data = 'const pfam_json = %s;\n' % json.dumps(json_dict)
+
+    data_dict = {}
+    data_dict['pfam'] = json_dict
+    if hkl_info:
+        data_dict['hkl_info'] = hkl_info.as_dict()
+        
+    js_data = 'const mrparse_data = %s;\n' % json.dumps(data_dict)
     with open(os.path.join(HTML_DIR, 'mrparse.js'), 'w') as w:
         w.write(js_data)
-     
-    if hkl_info:
-        html_data['hkl_info'] = hkl_info.as_html()
-     
 
     # only on Mac OSX
     subprocess.Popen(['open', HTML_OUT])
