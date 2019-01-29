@@ -86,7 +86,9 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
 
 <body>
   <div id="app">
+    <h2>HKL Info</h2>
     <hkl-info-table></hkl-info-table>
+    <h2>Homolog Information</h2>
     <section class="container">
       <homolog-table></homolog-table>
       <pfam-graphics></pfam-graphics>
@@ -94,8 +96,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
   </div>
 
   <script>
-    function add_graphic(region, parent) {
-      let residueWidth = 1.0;
+    function add_graphic(region, parent, residueWidth = 1.0) {
       let pg = new PfamGraphic();
       pg.setImageParams({
         residueWidth: residueWidth,
@@ -127,7 +128,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
         })
       },
       template: `
-      <div class="pfam-graphics">
+      <div class="pfam-graphics" ref=pfamgraphics>
         <h2>Classification</h2>
         <div id='classification'></div>
         <pfam-region :id="'ss_pred'" :region="ss_pred"/>
@@ -143,7 +144,8 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
         region: Object
       },
       mounted: function() {
-        add_graphic(this.region, this.$refs.cdiv);
+        let residueWidth = Math.max(1.0, this.$parent.$refs.pfamgraphics.clientWidth / this.region.length);
+        add_graphic(this.region, this.$refs.cdiv, residueWidth);
       },
       template: '<div id=id ref=cdiv></div>'
     });
