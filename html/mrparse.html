@@ -60,29 +60,43 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
 
 
   <style type="text/css">
-    body { padding: 10px;
-    };
+    body {
+      padding: 10px;
+    }
+
     .container {
       width: 100%;
       margin: auto;
-      /* padding: 10px; */
     }
 
-    .homolog-table {
+    /* .homolog-table {
       width: 45%;
       float: left;
     }
 
     .pfam-graphics {
       margin-left: 45%;
-      /* clear: left; */
+      clear: left;
+    } */
+
+    table th, td {
+      border: 1px solid black;
+      padding: 2px;
     }
 
-    #homologs table,
-    th,
-    td {
-      border: 1px solid black;
-      padding: 3px;
+    table th {
+      background-color: #d3d3d3;
+      text-align: left;
+    }
+
+    .homolog-table th > a {
+      text-decoration: none;
+      color: #000000;
+    }
+
+    .homolog-table th > a:hover {
+      text-decoration: none ! important;
+      /* color: #000000; */
     }
   </style>
 </head>
@@ -160,7 +174,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
         }
       },
       template: `<div id="hkl_info">
-  <table border="1">
+  <table>
     <thead>
       <tr style="text-align: right;">
         <th>name</th>
