@@ -20,7 +20,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
   <script type="text/javascript" src="vue.js"></script>
   <script type="text/javascript" src="lodash.min.js"></script>
   <script type="text/javascript" src="mrparse.js"></script>
-  
+
   <!-- the domain graphics library -->
   <script type="text/javascript" src="pfam/prototype.js"></script>
   <script type="text/javascript" src="pfam/static/javascripts/domain_graphics.js"></script>
@@ -93,6 +93,15 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       text-decoration: none ! important;
       /* color: #000000; */
     }
+
+    /* responsive structures */
+    @media screen and (max-width: 1308px) {
+      .pfam-graphics {
+        margin-left: 0px;
+        clear: left;
+      }
+    }
+
   </style>
 </head>
 
