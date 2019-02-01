@@ -20,14 +20,9 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
   <script type="text/javascript" src="vue.js"></script>
   <script type="text/javascript" src="lodash.min.js"></script>
   <script type="text/javascript" src="mrparse.js"></script>
-
-  <!-- load the prototype library from google -->
-  <script type="text/javascript" src="http://www.google.com/jsapi"></script>
-  <script type="text/javascript">
-    google.load("prototype", "1.7");
-  </script>
-
+  
   <!-- the domain graphics library -->
+  <script type="text/javascript" src="pfam/prototype.js"></script>
   <script type="text/javascript" src="pfam/static/javascripts/domain_graphics.js"></script>
 
   <!-- in order to standardize the look of text, and in order to make it work at
@@ -69,15 +64,15 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       margin: auto;
     }
 
-    /* .homolog-table {
+    .homolog-table {
       width: 45%;
       float: left;
     }
 
     .pfam-graphics {
       margin-left: 45%;
-      clear: left;
-    } */
+      /* clear: left; */
+    }
 
     table th, td {
       border: 1px solid black;
