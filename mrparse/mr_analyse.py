@@ -17,7 +17,7 @@ from mrparse.mr_classify import MrClassifier
 logger = logging.getLogger(__name__)
 
 HTML_DIR = '/opt/MrParse/html'
-HTML_OUT = os.path.join(HTML_DIR, 'vue_play.html')
+HTML_OUT = os.path.join(HTML_DIR, 'mrparse.html')
 POLL_TIME = 1
 
 

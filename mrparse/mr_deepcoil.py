@@ -129,7 +129,7 @@ def join_probability_chunks(probabilities, overlap, aa=None):
 def run_deepcoil_on_chunks(chunks):
     deepcoil_outputs = []
     for i, chunk in enumerate(chunks):
-        name = 'foo%d' % i
+        name = 'deepcoil_chunk_%d' % i
         fasta_in = write_fasta(chunk, name)
         dout = run_deepcoil(fasta_in)
         deepcoil_outputs.append(dout)

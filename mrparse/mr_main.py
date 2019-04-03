@@ -23,19 +23,18 @@ import json
 import os
 import sys
 
-logging_json = 'logging.json'
+THIS_DIR = os.path.abspath(os.path.dirname(__file__))
+logging_json = os.path.join(THIS_DIR, 'logging.json')
 with open(logging_json, 'rt') as f:
     config = json.load(f)
 logging.config.dictConfig(config)
 logger = logging.getLogger()
 
 # Set up logging before doing any more importing to make sure we log everything
-MRPARSE_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), '..')
+MRPARSE_DIR = os.path.join(THIS_DIR, '..')
 sys.path.insert(0, MRPARSE_DIR)
 from mrparse import mr_analyse
-
 #print("'%s'" % logger.handlers[0].formatter._fmt)
-
 
 def main():
     '''Command line options.'''

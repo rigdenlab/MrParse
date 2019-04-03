@@ -132,7 +132,11 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
     const EventBus = new Vue();
 
     Vue.filter("decimalPlaces", (value, num = 2) => {
-        return value.toFixed(num)
+        if (value == null) {
+            return "N/A";
+        } else {
+            return value.toFixed(num);
+        }
       });
 
     Vue.component('pfam-graphics', {
