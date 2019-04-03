@@ -87,17 +87,30 @@ def find_hits(seqin):
             ph.score = hit.bitscore
             ph.evalue = hsp.evalue # is i-Evalue - possibly evalue_cond in later BioPython
             ph.ndomains = len(hit)
+
+            if False:
+    #             hstart, hstop = hsp.hit_range
+                hstart = hsp.hit_start
+                hstop = hsp.hit_end
+                ph.alnStart = hstart + 1
+                ph.alnStop = hstop
+                qstart, qstop = hsp.query_range
+                qstart_p1 = qstart + 1
+                ph.tarStart = qstart_p1
+                ph.tarStop = qstop
+                ph.tarExtent = hsp.query_span - 1
+            else:
+                hstart = hsp.hit_start
+                hstop = hsp.hit_end
+                qstart, qstop = hsp.query_range
+                qstart_p1 = qstart + 1
+                ph.alnStart = qstart_p1
+                ph.alnStop = qstop
+                ph.tarStart = hstart
+                ph.tarStop = hstop
+                ph.tarExtent = hstop - hstart        
             
-#             hstart, hstop = hsp.hit_range
-            hstart = hsp.hit_start
-            hstop = hsp.hit_end
-            ph.alnStart = hstart + 1
-            ph.alnStop = hstop
-            qstart, qstop = hsp.query_range
-            qstart_p1 = qstart + 1
-            ph.tarStart = qstart_p1
-            ph.tarStop = qstop
-            ph.tarExtent = hsp.query_span - 1
+            
             ph.tarMidpoint = ((float(qstop) - float(qstart_p1)) / 2.0) + float(qstart_p1)
             
             targetAlignment = "".join(hsp.aln[0].upper()) # assume the first Sequence is always the target

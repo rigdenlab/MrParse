@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 HTML_DIR = '/opt/MrParse/html'
 HTML_OUT = os.path.join(HTML_DIR, 'mrparse.html')
 POLL_TIME = 1
+MUTLIPROCESSING = True
 
 
 def run(seqin, hklin=None):
@@ -36,8 +37,7 @@ def run(seqin, hklin=None):
             raise RuntimeError("Cannot find hklin file: %s" % hklin)
         hkl_info  = HklInfo(hklin)
     
-    multip = False
-    if multip:
+    if MUTLIPROCESSING:
         nproc = 3 if hklin else 2
         logger.info("Running on %d processors." % nproc)
         pool = multiprocessing.Pool(nproc)
