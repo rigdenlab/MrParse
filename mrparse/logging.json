@@ -6,7 +6,7 @@
             "format": "%(message)s\n"
         },
         "colourFormatter": {
-            "()": "mr_log.LogColorFormatter",
+            "()": "mrparse.mr_log.LogColorFormatter",
             "format": "%(message)s\n"
         },
         "fileFormatter": {

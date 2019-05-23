@@ -1,21 +1,23 @@
 #!/usr/bin/env ccp4-python
 # encoding: utf-8
+import os, sys
 from argparse import ArgumentParser
 import logging.config
 import json
-import os
-import sys
 
+# Set up python path so we can do our imports
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-logging_json = os.path.join(THIS_DIR, 'logging.json')
+ROOT_DIR = os.path.join(THIS_DIR, '..')
+sys.path.insert(0, ROOT_DIR)
+from mrparse import mr_analyse
+
+# setup logging
+logging_json = os.path.join(ROOT_DIR, 'mrparse', 'logging.json')
 with open(logging_json, 'rt') as f:
     config = json.load(f)
 logging.config.dictConfig(config)
 logger = logging.getLogger()
 
-MRPARSE_DIR = os.path.join(THIS_DIR, '..')
-sys.path.insert(0, MRPARSE_DIR)
-from mrparse import mr_analyse
 
 def main():
     '''Command line options.'''
@@ -25,9 +27,9 @@ def main():
         parser = ArgumentParser()
         parser.add_argument('--hklin', help='MTZ/CIF Crystal Data file')
         parser.add_argument('--seqin', required=True, help='Sequence file')
-        parser.add_argument('--multip', type=bool, help='Run on multiple processors')
+        parser.add_argument('--multip', action='store_true', help='Run on multiple processors')
         args = parser.parse_args()
-        return mr_analyse.run(args.seqin, hklin=args.hklin, multiprocessing=args.multip)
+        return mr_analyse.run(args.seqin, hklin=args.hklin, run_parallel=args.multip)
     except KeyboardInterrupt:
         logger.critcal("Interrupted by keyboard!")
         return 0

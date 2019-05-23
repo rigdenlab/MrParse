@@ -21,7 +21,7 @@ HTML_OUT = os.path.join(HTML_DIR, 'mrparse.html')
 POLL_TIME = 1
 
 
-def run(seqin, hklin=None, multiprocessing=False):
+def run(seqin, hklin=None, run_parallel=False):
     if not (seqin and os.path.isfile(seqin)):
         raise RuntimeError("Cannot find seqin file: %s" % seqin)
     if hklin and not os.path.isfile(hklin):
@@ -35,7 +35,7 @@ def run(seqin, hklin=None, multiprocessing=False):
     if hklin:
         hkl_info  = HklInfo(hklin)
     
-    if multiprocessing:
+    if run_parallel:
         nproc = 3 if hklin else 2
         logger.info("Running on %d processors." % nproc)
         pool = multiprocessing.Pool(nproc)
@@ -61,10 +61,19 @@ def run(seqin, hklin=None, multiprocessing=False):
             except Exception as e:
                 logger.critical('HklInfo failed: %s' % e)
     else:
-        search_model_finder()
-        classifier()
+        try:
+            search_model_finder()
+        except Exception as e:
+            logger.critical('SearchModelFinder failed: %s' % e)
+        try:
+            classifier()
+        except Exception as e:
+            logger.critical('MrClassifier failed: %s' % e)
         if hkl_info:
-            hkl_info()
+            try:
+                hkl_info()
+            except Exception as e:
+                logger.critical('HklInfo failed: %s' % e)
 
     json_dict = {}
     json_dict.update(search_model_finder.as_dict())

@@ -55,6 +55,8 @@ def pfam_dict_from_annotation(annotation):
 
 
 def pfam_dict_from_chunks(chunk_data, seqlen):
+    if not chunk_data:
+        return None
     regions = []
     for i, chunk in enumerate(chunk_data):
         idx = i + 1

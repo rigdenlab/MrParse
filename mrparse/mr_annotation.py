@@ -130,6 +130,8 @@ class AnnotationChunk(object):
     
     
 def get_annotation_chunks(annotation):
+    if annotation is None:
+        return None
     chunks = []
     chunk = None
     for i, a in enumerate(annotation):

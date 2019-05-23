@@ -86,7 +86,9 @@ class MrClassifier(object):
         return consensus
     
     def pfam_dict(self):
-        class_d = pfam_dict_from_annotation(self.classification_prediction)
-        sspred_d = pfam_dict_from_annotation(self.ss_prediction)
-        return { 'ss_pred' : sspred_d,
-                 'classification' :class_d}
+        d = {}
+        if self.classification_prediction:
+            d['classification'] = pfam_dict_from_annotation(self.classification_prediction)
+        if self.ss_prediction:
+            d['ss_pred'] = pfam_dict_from_annotation(self.ss_prediction)
+        return d
