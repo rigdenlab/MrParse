@@ -44,7 +44,7 @@ def main():
         # Setup argument parser
         parser = ArgumentParser()
         parser.add_argument('-hklin', help='MTZ/CIF Crystal Data file')
-        parser.add_argument('-seqin', help='Sequence file')
+        parser.add_argument('-seqin', required=True, help='Sequence file')
 
         # Process arguments
         args = parser.parse_args()
