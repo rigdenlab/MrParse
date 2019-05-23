@@ -16,8 +16,9 @@ from mrparse.mr_classify import MrClassifier
 
 logger = logging.getLogger(__name__)
 
-HTML_DIR = '/opt/MrParse/html'
-HTML_OUT = os.path.join(HTML_DIR, 'mrparse.html')
+
+THIS_DIR = os.path.abspath(os.path.dirname(__file__))
+HTML_OUT = os.path.join(THIS_DIR, '../html/mrparse.html')
 POLL_TIME = 1
 
 
