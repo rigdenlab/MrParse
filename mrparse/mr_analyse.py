@@ -19,25 +19,23 @@ logger = logging.getLogger(__name__)
 HTML_DIR = '/opt/MrParse/html'
 HTML_OUT = os.path.join(HTML_DIR, 'mrparse.html')
 POLL_TIME = 1
-MUTLIPROCESSING = True
 
 
-def run(seqin, hklin=None):
+def run(seqin, hklin=None, multiprocessing=False):
     if not (seqin and os.path.isfile(seqin)):
         raise RuntimeError("Cannot find seqin file: %s" % seqin)
-    
+    if hklin and not os.path.isfile(hklin):
+            raise RuntimeError("Cannot find hklin file: %s" % hklin)
+
     logger.info("mr_analyse running with seqin %s", seqin)
      
-    # Find homologs and determine properties
     search_model_finder = SearchModelFinder(seqin, hklin=hklin)
     classifier = MrClassifier(seqin=seqin)
     hkl_info = None
     if hklin:
-        if not (hklin and os.path.isfile(hklin)):
-            raise RuntimeError("Cannot find hklin file: %s" % hklin)
         hkl_info  = HklInfo(hklin)
     
-    if MUTLIPROCESSING:
+    if multiprocessing:
         nproc = 3 if hklin else 2
         logger.info("Running on %d processors." % nproc)
         pool = multiprocessing.Pool(nproc)
@@ -83,4 +81,4 @@ def run(seqin, hklin=None):
 
     # only on Mac OSX
     subprocess.Popen(['open', HTML_OUT])
-    return
+    return 0
