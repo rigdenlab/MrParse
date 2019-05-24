@@ -91,6 +91,12 @@ def run(seqin, hklin=None, run_parallel=False):
     with open(os.path.join(HTML_DIR, 'mrparse.js'), 'w') as w:
         w.write(js_data)
 
-    # only on Mac OSX
-    subprocess.Popen(['open', HTML_OUT])
+    # Display results in browser
+    opencmd = None
+    if sys.platform.lower().startswith('linux'):
+        opencmd = 'xdg-open'
+    elif sys.platform.lower().startswith('darwin'):
+        opencmd = 'open'
+    if opencmd:
+        subprocess.Popen([opencmd, HTML_OUT])
     return 0
