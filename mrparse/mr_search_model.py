@@ -79,6 +79,6 @@ class SearchModelFinder(object):
         pd.set_option('display.max_colwidth', -1)
         return df.to_html(index=False, escape=False)
     
-    def as_dict(self):
+    def pfam_dict(self):
         add_pfam_dict_to_homologs(self.regions, self.seqlen)
         return {'homologs' : [h.json_dict() for h in self.homologs.values()]}

@@ -18,18 +18,20 @@ logger = logging.getLogger(__name__)
 
 
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-HTML_OUT = os.path.join(THIS_DIR, '../html/mrparse.html')
+HTML_DIR= os.path.join(THIS_DIR, '../html')
+HTML_OUT = os.path.join(HTML_DIR, 'mrparse.html')
 POLL_TIME = 1
 
 
 def run(seqin, hklin=None, run_parallel=False):
     if not (seqin and os.path.isfile(seqin)):
         raise RuntimeError("Cannot find seqin file: %s" % seqin)
-    if hklin and not os.path.isfile(hklin):
+    logger.info("mr_analyse running with seqin %s", os.path.abspath(seqin))
+    if hklin:
+        if not os.path.isfile(hklin):
             raise RuntimeError("Cannot find hklin file: %s" % hklin)
+        logger.info("mr_analyse running with hklin %s", os.path.abspath(hklin))
 
-    logger.info("mr_analyse running with seqin %s", seqin)
-     
     search_model_finder = SearchModelFinder(seqin, hklin=hklin)
     classifier = MrClassifier(seqin=seqin)
     hkl_info = None
@@ -76,12 +78,12 @@ def run(seqin, hklin=None, run_parallel=False):
             except Exception as e:
                 logger.critical('HklInfo failed: %s' % e)
 
-    json_dict = {}
-    json_dict.update(search_model_finder.as_dict())
-    json_dict.update(classifier.pfam_dict())
+    pfam_dict = {}
+    pfam_dict.update(search_model_finder.pfam_dict())
+    pfam_dict.update(classifier.pfam_dict())
 
     data_dict = {}
-    data_dict['pfam'] = json_dict
+    data_dict['pfam'] = pfam_dict
     if hkl_info:
         data_dict['hkl_info'] = hkl_info.as_dict()
         
