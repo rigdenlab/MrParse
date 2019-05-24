@@ -1,4 +1,5 @@
 from enum import Enum
+import json
 import logging
 import os
 
@@ -19,3 +20,10 @@ class LogColorFormatter(logging.Formatter):
             record.msg = os.linesep.join([prefix + msg + postfix for msg in str(record.msg).splitlines()])
         return logging.Formatter.format(self, record)
  
+def setup_logging():
+    THIS_DIR = os.path.abspath(os.path.dirname(__file__))
+    logging_json = os.path.join(THIS_DIR, 'logging.json')
+    with open(logging_json, 'rt') as f:
+        config = json.load(f)
+    logging.config.dictConfig(config)
+    return logging.getLogger()

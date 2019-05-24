@@ -24,7 +24,8 @@
             "class": "logging.FileHandler",
             "level": "DEBUG",
             "formatter": "fileFormatter",
-            "filename": "mrparse.log"
+            "filename": "mrparse.log",
+            "mode": "w"
         }
     },
     "root": {
