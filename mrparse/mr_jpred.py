@@ -135,15 +135,15 @@ You can check the status of the job using the following URL: http://www.compbio.
                'file=%s' % seqin,
                'mode=single',
                'format=fasta',
-               'email={}'.format(JPRED_SUBMISSION_EMAIL),
-               'name=jens_test_job',
+#                'email={}'.format(JPRED_SUBMISSION_EMAIL),
+               'name=ccp4_mrparse_submission',
                'skipPDB=on']
         logger.debug("Running cmd: %s", " ".join(cmd))
         optd = {}
         if PYTHONVERSION > 2:
             optd['encoding'] = 'utf-8'
         out = subprocess.check_output(cmd, **optd)
-        logger.debug("Got output: %s", out)
+        logger.debug("%s got output: %s", self.jpred_script, out)
         jobid = None
         for line in out.split(os.linesep):
             if line.startswith("Created JPred job with jobid:"):
@@ -171,7 +171,7 @@ Job results archive is now available at: jp_H_5vG49/jp_H_5vG49.tar.gz
                'status',
                'jobid=%s' % jobid,
                'getResults=yes',
-               'checkEvery=10']
+               'checkEvery=5']
         logger.debug("Running cmd: %s", " ".join(cmd))
         optd = {}
         if PYTHONVERSION > 2:

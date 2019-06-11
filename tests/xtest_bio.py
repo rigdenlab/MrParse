@@ -54,8 +54,8 @@ for i, hit in enumerate(included):
         ph.alignment = alignment
 
         local, overall = simpleSeqID.simpleSeqID().getPercent(alignment, targetAlignment, targetSequence)
-        ph.localSEQID = local
-        ph.overallSEQID = overall
+        ph.local_sequence_identity = local
+        ph.overall_sequence_identity = overall
         
         name = hit.id + str(hsp.domain_index)
         # jmht - need to add this
@@ -131,8 +131,8 @@ assert(resultsDict[k].tarRange == '10-41')
 assert(abs(resultsDict[k].tarMidpoint - 25.5) <= 0.0001)
 assert(resultsDict[k].alignment == 'SWGGQVLSTTAKEFEAAALGYSASGVNGVSSS')
 assert(resultsDict[k].targetAlignment == 'SGGGQLVTEVTKKEDSCQLGYSAGPCMGMTSR')
-assert(resultsDict[k].localSEQID == 37)
-assert(resultsDict[k].overallSEQID == 8)
+assert(resultsDict[k].local_sequence_identity == 37)
+assert(resultsDict[k].overall_sequence_identity == 8)
 
 
 # Check domains

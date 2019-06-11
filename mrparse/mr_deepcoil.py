@@ -21,6 +21,8 @@ warnings.warn("numpify sequence code")
 warnings.warn("map sequence object onto biopython sequence")
 
 THRESHOLD_PROBABILITY = 0.6
+DEEPCOIL_PYTHON = '/Users/jmht/miniconda2/envs/py36/bin/python'
+DEEPCOIL_SCRIPT = '/opt/DeepCoil/deepcoil.py'
 
 CC = AnnotationSymbol()
 CC.symbol = 'C'
@@ -81,15 +83,15 @@ def split_sequence(sequence, chunk_size=500, overlap=100):
 def run_deepcoil(fasta_in):
     with open(fasta_in) as f:
         name = f.readline().strip()[1:]
-    cmd = ['/Users/jmht/miniconda2/envs/py36/bin/python',
-            '/opt/DeepCoil/deepcoil.py',
-            '-i',
-            fasta_in]
+    cmd = [DEEPCOIL_PYTHON,
+           DEEPCOIL_SCRIPT,
+           '-i',
+           fasta_in]
     try:
         # Need to sent env so that we don't inherit python2 environment
-        stdout = cexec(cmd, env={})
+        _ = cexec(cmd, env={})
     except (OSError, PyJobExecutionError) as e:
-        print("Error running command:{}\n\n{}".format(cmd, e))
+        logger.error("Error running command:%s\n%s", cmd, e)
         raise(e)
     out_file = '{}.out'.format(name)
     if not os.path.isfile(out_file):

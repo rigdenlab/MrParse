@@ -35,8 +35,8 @@ class SequenceHit:
         self.tarExtent = 0
         self.tarMidpoint = 0.0
         self.cols = 0
-        self.localSEQID = 0.0
-        self.overallSEQID = 0.0
+        self.local_sequence_identity = 0.0
+        self.overall_sequence_identity = 0.0
         self.targetAlignment = None
         self.alignments = dict([])
         self.region = None
@@ -105,8 +105,8 @@ def find_hits(seqin):
             alignment = "".join(hsp.aln[1].upper()) # assume the first Sequence is always the target
             ph.alignment = alignment
             local, overall = simpleSeqID().getPercent(alignment, targetAlignment, targetSequence)
-            ph.localSEQID = local
-            ph.overallSEQID = overall
+            ph.local_sequence_identity = local
+            ph.overall_sequence_identity = overall
             name = hit.id + "_" + str(hsp.domain_index)
             ph.name = name
             hitDict[name] = ph

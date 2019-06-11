@@ -169,6 +169,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
         region: Object
       },
       mounted: function() {
+        console.log("GOT REGION " + JSON.stringify(this.region));
         let residueWidth = Math.max(1.0, this.$parent.$refs.pfamgraphics.clientWidth / this.region.length);
         add_graphic(this.region, this.$refs.cdiv, residueWidth);
       },
@@ -214,7 +215,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
       data: function() {
         return {
           homologs: this.$root.homologs,
-          columns: ['name', 'region', 'range', 'length', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seqid'],
+          columns: ['name', 'region', 'range', 'length', 'eLLG', 'ncopies', 'molecular_weight', 'rmsd', 'seq_ident'],
           columnTitles: {
             'name': 'Protein Name',
             'region': 'Number of the region',
@@ -224,7 +225,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
             'ncopies': 'Expected number of copies in the ASU',
             'molecular_weight': 'Molecular Weight in Daltons',
             'rmsd': 'RMSD from template',
-            'seqid': 'Sequence Identity to template'
+            'seq_ident': 'Sequence Identity to template'
           },
           sortKey: 'domain',
           order: 'asc',
@@ -273,7 +274,7 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
               <td>{{homolog.ncopies}}</td>
               <td>{{homolog.molecular_weight | decimalPlaces}}</td>
               <td>{{homolog.rmsd}}</td>
-              <td>{{homolog.seqid}}</td>
+              <td>{{homolog.seq_ident}}</td>
             </tr>
           </tbody>
         </table>

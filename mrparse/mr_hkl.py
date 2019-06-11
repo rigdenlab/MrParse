@@ -7,19 +7,32 @@ import os
 
 from mrbump.ccp4.MRBUMP_ctruncate import Ctruncate
 from simbad.util import mtz_util
+from simbad.util.matthews_prob import MatthewsProbability
 from ample.util.ample_util import filename_append
 
+from Bio import SeqIO
+from Bio.SeqUtils import molecular_weight
+from Bio.Alphabet import IUPAC
+
 class HklInfo(object):
-    def __init__(self, hklin):
+    def __init__(self, hklin, seqin=None):
         self.hklin = hklin
+        self.seqin = seqin
         if not os.path.isfile(hklin):
             raise RuntimeError("Cannot find hklin file: %s" % hklin)
+        if seqin and not os.path.isfile(seqin):
+            raise RuntimeError("Cannot find seqin file: %s" % seqin)
         self.name = os.path.splitext(os.path.basename(hklin))[0]
         self.labels = mtz_util.GetLabels(hklin)
         self.space_group, self.resolution, self.cell_parameters = mtz_util.crystal_data(self.hklin)
+        self.predicted_solvent_content = None
+        self.predicted_ncopies = None
+        self.molecular_weight = None
         self.has_ncs = False
         self.has_twinning = False
         self.has_anisotropy = False
+        if self.seqin:
+            self.calculate_matthews_probabilties()
     
     def __call__(self):
         """Required so that we can use multiprocessing pool. We need to be able to pickle the object passed
@@ -28,6 +41,13 @@ class HklInfo(object):
         """
         self.check_pathologies()
         return self
+    
+    def calculate_matthews_probabilties(self):
+        mp = MatthewsProbability(self.cell_parameters, self.space_group)
+        seq_record = SeqIO.read(self.seqin, "fasta", alphabet=IUPAC.protein)
+        self.molecular_weight = molecular_weight(seq_record.seq, 'protein')
+        nres = len(seq_record)
+        self.predicted_solvent_content, self.predicted_ncopies = mp._calculate(nres)
     
     def check_pathologies(self):
         """DOC TODO"""

@@ -26,7 +26,7 @@ class HomologData(object):
         self.eLLG = None
         self.frac_scat = None
         self.length = None
-        self.localSEQID = None
+        self.seq_ident = None
         self.molecular_weight = None
         self.name = None
         self.ncopies = None
@@ -53,14 +53,6 @@ class HomologData(object):
     def region_id(self):
         return self.region.ID
 
-    def __str__(self):
-        attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
-        INDENT = "  "
-        out_str = "Class: {}\nData:\n".format(self.__class__)
-        for a in sorted(attrs):
-            out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
-        return out_str
-    
     def json_dict(self):
         """Return a representation of ourselves in json""" 
         d = copy.copy(self.__dict__)
@@ -71,6 +63,14 @@ class HomologData(object):
         # Need to add in properties as these aren't included
         d['range'] = self.range_as_str
         return d
+    
+    def __str__(self):
+        attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
+        INDENT = "  "
+        out_str = "Class: {}\nData:\n".format(self.__class__)
+        for a in sorted(attrs):
+            out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
+        return out_str
 
 
 def homologs_from_hits(hits):
@@ -85,7 +85,7 @@ def homologs_from_hits(hits):
         hit._homolog = hlog
         hlog.name = hit.name
         hlog.score = hit.score
-        hlog.localSEQID = hit.localSEQID / 100.0
+        hlog.seq_ident = hit.local_sequence_identity / 100.0
         hlog.region = hit.regionId
         hlog.length = hit.length
         hlog.seqid_start = hit.tarStart
@@ -105,12 +105,7 @@ def prepare_pdb(hit):
     Download pdb or take file from cache
     trucate to required residues
     calculate the MW
-    
-    
-    To add to SIMBAD PdbStructure
-    pdb_id property
-    ability to select residues
-    
+
     """
     from ample.util.pdb_edit import _select_residues # import on demand as import v slow
 
@@ -134,12 +129,11 @@ def prepare_pdb(hit):
     pdb_struct.save(truncated_pdb_path)
     return truncated_pdb_path, float(pdb_struct.molecular_weight)
 
-def calculate_ellg(homologs, hkl_info, asu_mw=72846.44):
+def calculate_ellg(homologs, hkl_info):
     """Run PHASER to calculate the eLLG values and update the homolog data
     
     Sourced from: ccp4-src-2016-02-10/checkout/cctbx-phaser-dials-2015-12-22/phaser/phaser/CalcCCFromMRsolutions.py"""
     import phaser
-    warnings.warn("FIX MW!!!")
     mrinput = phaser.InputMR_DAT()
     mrinput.setHKLI(hkl_info.hklin)
     if hkl_info.labels.i and hkl_info.labels.sigi:
@@ -161,11 +155,11 @@ def calculate_ellg(homologs, hkl_info, asu_mw=72846.44):
     #ellginput.setMUTE(True)
     
     # Should calculate MW without the search model so that the total MW will be correct when we add the search model
-    ellginput.addCOMP_PROT_MW_NUM(asu_mw, 1)
+    ellginput.addCOMP_PROT_MW_NUM(hkl_info.molecular_weight, hkl_info.predicted_ncopies)
     search_models = []
     for hname, d in homologs.items():
-        if d.pdb_file and d.localSEQID:
-            ellginput.addENSE_PDB_ID(hname, d.pdb_file, d.localSEQID)
+        if d.pdb_file and d.seq_ident:
+            ellginput.addENSE_PDB_ID(hname, d.pdb_file, d.seq_ident)
             search_models.append(hname)
         else:
             logger.warn("Cannot calculate eLLG for homolog {} due to missing data.".format(hname))

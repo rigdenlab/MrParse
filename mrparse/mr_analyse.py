@@ -17,7 +17,6 @@ from mrparse.mr_classify import MrClassifier
 
 logger = logging.getLogger(__name__)
 
-
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 HTML_DIR= os.path.join(THIS_DIR, '../html')
 HTML_OUT = os.path.join(HTML_DIR, 'mrparse.html')
@@ -33,13 +32,13 @@ def run(seqin, hklin=None, run_parallel=False):
         if not os.path.isfile(hklin):
             raise RuntimeError("Cannot find hklin file: %s" % hklin)
         logger.info("mr_analyse running with hklin %s", os.path.abspath(hklin))
-        hkl_info  = HklInfo(hklin)
+        hkl_info  = HklInfo(hklin, seqin=seqin)
 
     search_model_finder = SearchModelFinder(seqin, hkl_info=hkl_info)
     classifier = MrClassifier(seqin=seqin)
     
     if run_parallel:
-        nproc = 3 if hklin else 2
+        nproc = 3 if hkl_info else 2
         logger.info("Running on %d processors." % nproc)
         pool = multiprocessing.Pool(nproc)
         smf_result = pool.apply_async(search_model_finder)
