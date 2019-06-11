@@ -1,9 +1,3 @@
-    '''
-Created on 17 Nov 2018
-
-@author: jmht
-'''
-
 import set_mrparse_path
 import conftest
 

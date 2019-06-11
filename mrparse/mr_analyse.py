@@ -54,30 +54,30 @@ def run(seqin, hklin=None, run_parallel=False):
         try:
             search_model_finder = smf_result.get()
         except Exception as e:
-            logger.critical('SearchModelFinder failed: %s' % e)
+            logger.exception('SearchModelFinder failed: %s' % e)
         try:
             classifier = mrc_result.get()
         except Exception as e:
-            logger.critical('MrClassifier failed: %s' % e)
+            logger.exception('MrClassifier failed: %s' % e)
         if hkl_info:
             try:
                 hkl_info = hklin_result.get()
             except Exception as e:
-                logger.critical('HklInfo failed: %s' % e)
+                logger.exception('HklInfo failed: %s' % e)
     else:
         try:
             search_model_finder()
         except Exception as e:
-            logger.critical('SearchModelFinder failed: %s' % e)
+            logger.exception('SearchModelFinder failed: %s' % e)
         try:
             classifier()
         except Exception as e:
-            logger.critical('MrClassifier failed: %s' % e)
+            logger.exception('MrClassifier failed: %s' % e)
         if hkl_info:
             try:
                 hkl_info()
             except Exception as e:
-                logger.critical('HklInfo failed: %s' % e)
+                logger.exception('HklInfo failed: %s' % e)
 
     pfam_dict = {}
     pfam_dict.update(search_model_finder.pfam_dict())
