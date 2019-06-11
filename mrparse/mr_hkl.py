@@ -5,23 +5,18 @@ Created on 18 Oct 2018
 '''
 import os
 
+from ample.util.ample_util import filename_append
+from cctbx.crystal import symmetry
+from mmtbx.scaling.matthews import matthews_rupp
 from mrbump.ccp4.MRBUMP_ctruncate import Ctruncate
 from simbad.util import mtz_util
-from simbad.util.matthews_prob import MatthewsProbability
-from ample.util.ample_util import filename_append
-
-from Bio import SeqIO
-from Bio.SeqUtils import molecular_weight
-from Bio.Alphabet import IUPAC
 
 class HklInfo(object):
-    def __init__(self, hklin, seqin=None):
+    def __init__(self, hklin, seq_info=None):
         self.hklin = hklin
-        self.seqin = seqin
+        self.seq_info = seq_info
         if not os.path.isfile(hklin):
             raise RuntimeError("Cannot find hklin file: %s" % hklin)
-        if seqin and not os.path.isfile(seqin):
-            raise RuntimeError("Cannot find seqin file: %s" % seqin)
         self.name = os.path.splitext(os.path.basename(hklin))[0]
         self.labels = mtz_util.GetLabels(hklin)
         self.space_group, self.resolution, self.cell_parameters = mtz_util.crystal_data(self.hklin)
@@ -31,7 +26,8 @@ class HklInfo(object):
         self.has_ncs = False
         self.has_twinning = False
         self.has_anisotropy = False
-        if self.seqin:
+        if self.seq_info:
+            self.molecular_weight = self.seq_info.molecular_weight
             self.calculate_matthews_probabilties()
     
     def __call__(self):
@@ -43,11 +39,10 @@ class HklInfo(object):
         return self
     
     def calculate_matthews_probabilties(self):
-        mp = MatthewsProbability(self.cell_parameters, self.space_group)
-        seq_record = SeqIO.read(self.seqin, "fasta", alphabet=IUPAC.protein)
-        self.molecular_weight = molecular_weight(seq_record.seq, 'protein')
-        nres = len(seq_record)
-        self.predicted_solvent_content, self.predicted_ncopies = mp._calculate(nres)
+        crystal_symmetry = symmetry(unit_cell=self.cell_parameters, space_group_symbol=self.space_group)
+        result = matthews_rupp(crystal_symmetry, n_residues=self.seq_info.nresidues)
+        self.predicted_solvent_content = result.solvent_content
+        self.predicted_ncopies = result.n_copies
     
     def check_pathologies(self):
         """DOC TODO"""
