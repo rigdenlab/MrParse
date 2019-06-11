@@ -28,16 +28,15 @@ def run(seqin, hklin=None, run_parallel=False):
     if not (seqin and os.path.isfile(seqin)):
         raise RuntimeError("Cannot find seqin file: %s" % seqin)
     logger.info("mr_analyse running with seqin %s", os.path.abspath(seqin))
+    hkl_info = None
     if hklin:
         if not os.path.isfile(hklin):
             raise RuntimeError("Cannot find hklin file: %s" % hklin)
         logger.info("mr_analyse running with hklin %s", os.path.abspath(hklin))
-
-    search_model_finder = SearchModelFinder(seqin, hklin=hklin)
-    classifier = MrClassifier(seqin=seqin)
-    hkl_info = None
-    if hklin:
         hkl_info  = HklInfo(hklin)
+
+    search_model_finder = SearchModelFinder(seqin, hkl_info=hkl_info)
+    classifier = MrClassifier(seqin=seqin)
     
     if run_parallel:
         nproc = 3 if hklin else 2

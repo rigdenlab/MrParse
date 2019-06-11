@@ -4,6 +4,8 @@ import pickle
 import set_mrparse_path
 
 from mrparse.mr_search_model import SearchModelFinder
+from mrparse.mr_hkl import HklInfo
+
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -23,7 +25,8 @@ def Xtest_SearchModelFinder2uvoOnlySequence(test_data):
 def test_SearchModelFinder2uvo(test_data):
     seqin = test_data.x2uvoA_fasta
     hklin = test_data.x2uvo_mtz
-    smf = SearchModelFinder(seqin, hklin=hklin)
+    hkl_info = HklInfo(hklin)
+    smf = SearchModelFinder(seqin, hkl_info=hkl_info)
     smf()
     nregions = len(smf.regions)
     assert nregions == 6, "Incorrect number of regions: {}".format(nregions)

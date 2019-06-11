@@ -16,10 +16,10 @@ from mrparse.mr_util import now
 logger = logging.getLogger(__name__)
 
 class SearchModelFinder(object):
-    def __init__(self, seqin, hklin=None):
+    def __init__(self, seqin, hkl_info=None):
         self.seqin = seqin
         self.seqlen = len(mr_sequence.read_fasta(self.seqin))
-        self.hklin = hklin
+        self.hkl_info = hkl_info
         self.hits = None
         self.regions = None
         self.homologs = None
@@ -47,8 +47,8 @@ class SearchModelFinder(object):
     def find_homologs(self):
         assert self.hits and self.regions
         self.homologs = mr_homolog.homologs_from_hits(self.hits)
-        if self.hklin:
-            mr_homolog.calculate_ellg(self.homologs, self.hklin)
+        if self.hkl_info:
+            mr_homolog.calculate_ellg(self.homologs, self.hkl_info)
         return self.homologs
 
     def as_dataframe(self):

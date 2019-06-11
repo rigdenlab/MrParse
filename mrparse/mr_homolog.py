@@ -167,27 +167,22 @@ def ellg_data_from_phaser_log(fpath, homologs):
     return homologs
 
 
-def calculate_ellg(homologs, hklin):
+def calculate_ellg(homologs, hkl_info, asu_mw=72846.44):
     """Stuff from : ccp4-src-2016-02-10/checkout/cctbx-phaser-dials-2015-12-22/phaser/phaser/CalcCCFromMRsolutions.py"""
     import phaser
     mrinput = phaser.InputMR_DAT()
     #hklin = '../data/2uvo_pdbredo.mtz'
-    mrinput.setHKLI(hklin)
+    mrinput.setHKLI(hkl_info.hklin)
 
-    if self.i != "None" and self.sigi != "None":
-        i.setLABI_I_SIGI(self.i, self.sigi)
-    elif self.f != "None" and self.sigf != "None":
-        i.setLABI_F_SIGF(self.f, self.sigf)
+    if hkl_info.labels.i and hkl_info.labels.sigi:
+        mrinput.setLABI_I_SIGI(hkl_info.labels.i, hkl_info.labels.sigi)
+    elif hkl_info.labels.f and hkl_info.labels.sigf:
+        mrinput.setLABI_F_SIGF(hkl_info.labels.f, hkl_info.labels.sigf)
     else:
         msg = "No flags for intensities or amplitudes have been provided"
         raise RuntimeError(msg)
 
-    F = 'FP'
-    SIGF = 'SIGFP'
-    mrinput.setLABI_F_SIGF(F, SIGF)
-    
     datrun = phaser.runMR_DAT(mrinput)
-    
     if not datrun.Success():
         raise RuntimeError("NO SUCCESS")
     
@@ -198,8 +193,6 @@ def calculate_ellg(homologs, hklin):
     # Can't mute or no logfile!
     #ellginput.setMUTE(True)
     
-    asu_mw = 72846.44
-
     # Should calculate MW without the search model so that the total MW will be correct when we add the search model
     ellginput.addCOMP_PROT_MW_NUM(asu_mw, 1)
     search_models = []
