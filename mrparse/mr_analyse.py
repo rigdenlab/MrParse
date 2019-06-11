@@ -8,6 +8,7 @@ import json
 import multiprocessing
 import os
 import subprocess
+import sys
 
 from mr_hkl import HklInfo
 from mr_search_model import SearchModelFinder

@@ -9,8 +9,14 @@ import os
 
 from simbad.util.pdb_util import PdbStructure
 
+
+class ModelDownloadException(Exception):
+    pass
+
+
 PDB_BASE_URL = 'https://www.rcsb.org/structure/'
 PDB_DOWNLOAD_DIR = 'pdb_downloads'
+HOMOLOGS_DIR = 'homologs'
 
 logger = logging.getLogger(__name__)
 
@@ -19,20 +25,29 @@ class HomologData(object):
         self.eLLG = None
         self.frac_scat = None
         self.length = None
+        self.localSEQID = None
         self.molecular_weight = None
         self.name = None
         self.ncopies = None
         self.pdb_url = None
         self.pdb_file = None
-        self.range = None
         self.region = None
         self.rmsd = None
         self.score = None
-        self.seqid = None
+        self.seqid_start = None
+        self.seqid_stop = None
         self.total_frac_scat = None
         self.total_frac_scat_known = None
         self._sequence_hit = None # mr_hit.SequenceHit
         
+    @property
+    def range(self):
+        return (self.seqid_start, self.seqid_stop)
+
+    @property
+    def range_as_str(self):
+        return "{}-{}".format(*self.range)
+
     @property
     def region_id(self):
         return self.region.ID
@@ -46,46 +61,77 @@ class HomologData(object):
         return out_str
     
     def json_dict(self):
+        """Return a representation of ourselves in json""" 
         d = copy.copy(self.__dict__)
         to_remove = ['_sequence_hit']
         for k in self.__dict__.keys():
             if k in to_remove:
                 d.pop(k)
+        # Need to add in properties as these aren't included
+        d['range'] = self.range_as_str
         return d
 
 
 def homologs_from_hits(hits):
     if not os.path.isdir(PDB_DOWNLOAD_DIR):
         os.mkdir(PDB_DOWNLOAD_DIR)
+    if not os.path.isdir(HOMOLOGS_DIR):
+        os.mkdir(HOMOLOGS_DIR)
     homologs = {}
     for hit in hits.values():
-        pdb_name = hit.pdbName + '_' + hit.chainID + '.pdb'
-        pdb_file = os.path.join(PDB_DOWNLOAD_DIR, pdb_name)
-        pdb_struct = PdbStructure()
-        if os.path.isfile(pdb_file):
-            pdb_struct.from_file(pdb_file)
-        else:
-            pdb_struct.from_pdb_code(hit.pdbName)
-            pdb_struct.standardize()
-            pdb_struct.select_chain_by_id(hit.chainID)
-            pdb_struct.save(pdb_file)
         hlog = HomologData()
         hlog._sequence_hit = hit
         hit._homolog = hlog
         hlog.name = hit.name
         hlog.score = hit.score
-        hlog.seqid = hit.localSEQID / 100.0
-        hlog.region = hit.region.ID
+        hlog.localSEQID = hit.localSEQID / 100.0
+        hlog.region = hit.regionId
         hlog.length = hit.length
-        hlog.range = hit.tarRange
-        homologs[hlog.name] = hlog
+        hlog.seqid_start = hit.tarStart
+        hlog.seqid_stop = hit.tarStop
+        
         hlog.pdb_url = PDB_BASE_URL + hit.pdbName
-        if len(pdb_struct.hierarchy.models()) == 0:
-            logger.critical("Hierarchy has no models for pdb_name %s" % pdb_name)
-        else:
-            hlog.pdb_file = pdb_file
-            hlog.molecular_weight = float(pdb_struct.molecular_weight)
+        try:
+            hlog.pdb_file, hlog.molecular_weight = prepare_pdb(hit)
+        except ModelDownloadException as e:
+            logger.critical("Error processing hit pdb %s", e.message)
+        homologs[hlog.name] = hlog
     return homologs
+
+
+def prepare_pdb(hit):
+    """
+    Download pdb or take file from cache
+    trucate to required residues
+    calculate the MW
+    
+    
+    To add to SIMBAD PdbStructure
+    pdb_id property
+    ability to select residues
+    
+    """
+    from ample.util.pdb_edit import _select_residues # import on demand as import v slow
+
+    pdb_name = "{}_{}.pdb".format(hit.pdbName, hit.chainID)
+    pdb_file = os.path.join(PDB_DOWNLOAD_DIR, pdb_name)
+    pdb_struct = PdbStructure()
+    if os.path.isfile(pdb_file):
+        pdb_struct.from_file(pdb_file)
+    else:
+        pdb_struct.from_pdb_code(hit.pdbName)
+        pdb_struct.standardize()
+        pdb_struct.select_chain_by_id(hit.chainID)
+        pdb_struct.save(pdb_file)
+    if len(pdb_struct.hierarchy.models()) == 0:
+        raise ModelDownloadException("Hierarchy has no models for pdb_name %s" % pdb_name)
+    
+    seqid_range = range(hit.tarStart, hit.tarStop + 1) 
+    _select_residues(pdb_struct.hierarchy, tokeep_idx=seqid_range)    
+    truncated_pdb_name = "{}_{}_{}-{}.pdb".format(hit.pdbName, hit.chainID, hit.tarStart, hit.tarStop)
+    truncated_pdb_path = os.path.join(HOMOLOGS_DIR, truncated_pdb_name)
+    pdb_struct.save(truncated_pdb_path)
+    return truncated_pdb_path, float(pdb_struct.molecular_weight)
 
 
 def ellg_data_from_phaser_log(fpath, homologs):

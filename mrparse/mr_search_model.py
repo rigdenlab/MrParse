@@ -6,11 +6,11 @@ Created on 18 Oct 2018
 import logging
 import pandas as pd
 
-from mrparse.mr_homolog import homologs_from_hits, calculate_ellg
-from mrparse.mr_hit import find_hits
+from mrparse import mr_homolog 
+from mrparse import mr_hit
 from mr_region import RegionFinder
-from mrparse.mr_sequence import read_fasta
-from mrparse.mr_pfam import add_pfam_dict_to_homologs
+from mrparse import mr_sequence
+from mrparse import mr_pfam
 from mrparse.mr_util import now
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class SearchModelFinder(object):
     def __init__(self, seqin, hklin=None):
         self.seqin = seqin
-        self.seqlen = len(read_fasta(self.seqin))
+        self.seqlen = len(mr_sequence.read_fasta(self.seqin))
         self.hklin = hklin
         self.hits = None
         self.regions = None
@@ -37,7 +37,7 @@ class SearchModelFinder(object):
         return self
     
     def find_regions(self):
-        self.hits = find_hits(self.seqin)
+        self.hits = mr_hit.find_hits(self.seqin)
         if not self.hits:
             logger.critical('SearchModelFinder could not find any hits!')
             return None
@@ -46,9 +46,9 @@ class SearchModelFinder(object):
 
     def find_homologs(self):
         assert self.hits and self.regions
-        self.homologs = homologs_from_hits(self.hits)
+        self.homologs = mr_homolog.homologs_from_hits(self.hits)
         if self.hklin:
-            calculate_ellg(self.homologs, self.hklin)
+            mr_homolog.calculate_ellg(self.homologs, self.hklin)
         return self.homologs
 
     def as_dataframe(self):
@@ -80,5 +80,5 @@ class SearchModelFinder(object):
         return df.to_html(index=False, escape=False)
     
     def pfam_dict(self):
-        add_pfam_dict_to_homologs(self.regions, self.seqlen)
+        mr_pfam.add_pfam_dict_to_homologs(self.regions, self.seqlen)
         return {'homologs' : [h.json_dict() for h in self.homologs.values()]}

@@ -49,6 +49,12 @@ class SequenceHit:
     @property
     def length(self):
         return self.alnStop - self.alnStart
+    
+    @property
+    def regionId(self):
+        if self.region is not None and hasattr(self.region, 'ID'):
+            return self.region.ID
+        return None
 
     @property
     def tarRange(self):
@@ -66,10 +72,8 @@ def find_hits(seqin):
     assert os.path.isfile(seqin), "Cannot find input file: %s" % seqin
     phmmer_logfile = run_phmmer(seqin)
     targetSequence = read_fasta(seqin)
-    
     io = SearchIO.read(phmmer_logfile, 'hmmer3-text')
     included = io.hit_filter(lambda x: x.is_included)
-    
     hitDict = OrderedDict()
     rank = 0
     for i, hit in enumerate(included):
@@ -82,51 +86,30 @@ def find_hits(seqin):
             name, chain = hsp.hit_id.split('_')
             ph.pdbName = name
             ph.chainID = chain
-            
             #ph.score = hsp.bitscore
             ph.score = hit.bitscore
             ph.evalue = hsp.evalue # is i-Evalue - possibly evalue_cond in later BioPython
             ph.ndomains = len(hit)
-
-            if False:
-    #             hstart, hstop = hsp.hit_range
-                hstart = hsp.hit_start
-                hstop = hsp.hit_end
-                ph.alnStart = hstart + 1
-                ph.alnStop = hstop
-                qstart, qstop = hsp.query_range
-                qstart_p1 = qstart + 1
-                ph.tarStart = qstart_p1
-                ph.tarStop = qstop
-                ph.tarExtent = hsp.query_span - 1
-            else:
-                hstart = hsp.hit_start
-                hstop = hsp.hit_end
-                qstart, qstop = hsp.query_range
-                qstart_p1 = qstart + 1
-                ph.alnStart = qstart_p1
-                ph.alnStop = qstop
-                ph.tarStart = hstart
-                ph.tarStop = hstop
-                ph.tarExtent = hstop - hstart        
-            
-            
+            hstart = hsp.hit_start
+            hstop = hsp.hit_end
+            qstart, qstop = hsp.query_range
+            qstart_p1 = qstart + 1
+            ph.alnStart = qstart_p1
+            ph.alnStop = qstop
+            ph.tarStart = hstart
+            ph.tarStop = hstop
+            ph.tarExtent = hstop - hstart        
             ph.tarMidpoint = ((float(qstop) - float(qstart_p1)) / 2.0) + float(qstart_p1)
-            
             targetAlignment = "".join(hsp.aln[0].upper()) # assume the first Sequence is always the target
             ph.targetAlignment = targetAlignment
             alignment = "".join(hsp.aln[1].upper()) # assume the first Sequence is always the target
             ph.alignment = alignment
-    
             local, overall = simpleSeqID().getPercent(alignment, targetAlignment, targetSequence)
             ph.localSEQID = local
             ph.overallSEQID = overall
-            
             name = hit.id + "_" + str(hsp.domain_index)
-            # jmht - need to add this
             ph.name = name
             hitDict[name] = ph
-
     return hitDict
 
 def sort_hits_by_size(hits, ascending=False):
