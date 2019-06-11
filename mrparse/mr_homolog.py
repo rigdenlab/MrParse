@@ -173,6 +173,15 @@ def calculate_ellg(homologs, hklin):
     mrinput = phaser.InputMR_DAT()
     #hklin = '../data/2uvo_pdbredo.mtz'
     mrinput.setHKLI(hklin)
+
+    if self.i != "None" and self.sigi != "None":
+        i.setLABI_I_SIGI(self.i, self.sigi)
+    elif self.f != "None" and self.sigf != "None":
+        i.setLABI_F_SIGF(self.f, self.sigf)
+    else:
+        msg = "No flags for intensities or amplitudes have been provided"
+        raise RuntimeError(msg)
+
     F = 'FP'
     SIGF = 'SIGFP'
     mrinput.setLABI_F_SIGF(F, SIGF)
@@ -195,7 +204,7 @@ def calculate_ellg(homologs, hklin):
     ellginput.addCOMP_PROT_MW_NUM(asu_mw, 1)
     search_models = []
     for hname, d in homologs.items():
-        ellginput.addENSE_PDB_ID(hname, d.pdb_file, d.seqid)
+        ellginput.addENSE_PDB_ID(hname, d.pdb_file, d.localSEQID)
         search_models.append(hname)
     ellginput.addSEAR_ENSE_OR_ENSE_NUM(search_models, 1)
     

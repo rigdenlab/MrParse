@@ -15,14 +15,11 @@ class HklInfo(object):
         if not os.path.isfile(hklin):
             raise RuntimeError("Cannot find hklin file: %s" % hklin)
         self.name = os.path.splitext(os.path.basename(hklin))[0]
-        
         self.space_group, self.resolution, self.cell_parameters = mtz_util.crystal_data(self.hklin)
         self.labels = None
-        
         self.has_ncs = False
         self.has_twinning = False
         self.has_anisotropy = False
-        return
     
     def __call__(self):
         """Required so that we can use multiprocessing pool. We need to be able to pickle the object passed
@@ -50,50 +47,50 @@ class HklInfo(object):
         log_file = hklout.rsplit(".", 1)[0] + '.log'
         ctr.setlogfile(log_file)
     
-        if mtz_obj.f:
-            input_f = True
-        else:
-            input_f = False
-    
-        if mtz_obj.f or mtz_obj.i:
-            plus_minus = False
-            if mtz_obj.i:
-                ctr_colin = mtz_obj.i
-                ctr_colin_sig = mtz_obj.sigi
-            else:
-                ctr_colin = mtz_obj.f
-                ctr_colin_sig = mtz_obj.sigf
-    
-        elif mtz_obj.iplus:
-            plus_minus = True
-            ctr_colin = []
-            ctr_colin_sig = []
-            ctr_colin.append(mtz_obj.fplus)
-            ctr_colin.append(mtz_obj.fminus)
-            ctr_colin_sig.append(mtz_obj.sigfplus)
-            ctr_colin_sig.append(mtz_obj.sigfminus)
-    
-        elif mtz_obj.fplus:
-            plus_minus = True
-            ctr_colin = []
-            ctr_colin_sig = []
-            ctr_colin.append(mtz_obj.fplus)
-            ctr_colin.append(mtz_obj.fminus)
-            ctr_colin_sig.append(mtz_obj.sigfplus)
-            ctr_colin_sig.append(mtz_obj.sigfminus)
-    
-        if mtz_obj.i and mtz_obj.free:
-            ctr.ctruncate(hklin, hklout, ctr_colin, ctr_colin_sig, colout="from_SIMBAD", colinFREE=mtz_obj.free,
-                          USEINTEN=True, INPUTF=input_f, PLUSMINUS=plus_minus)
-        elif mtz_obj.i and not mtz_obj.free:
-            ctr.ctruncate(hklin, hklout, ctr_colin, ctr_colin_sig, colout="from_SIMBAD", USEINTEN=True, INPUTF=input_f,
-                          PLUSMINUS=plus_minus)
-        elif mtz_obj.free:
-            ctr.ctruncate(hklin, hklout, ctr_colin, ctr_colin_sig, colout="from_SIMBAD", colinFREE=mtz_obj.free,
-                          USEINTEN=False, PLUSMINUS=plus_minus)
-        else:
-            ctr.ctruncate(hklin, hklout, ctr_colin, ctr_colin_sig, colout="from_SIMBAD", USEINTEN=False,
-                          PLUSMINUS=plus_minus)
+#         if mtz_obj.f:
+#             input_f = True
+#         else:
+#             input_f = False
+#     
+#         if mtz_obj.f or mtz_obj.i:
+#             plus_minus = False
+#             if mtz_obj.i:
+#                 ctr_colin = mtz_obj.i
+#                 ctr_colin_sig = mtz_obj.sigi
+#             else:
+#                 ctr_colin = mtz_obj.f
+#                 ctr_colin_sig = mtz_obj.sigf
+#     
+#         elif mtz_obj.iplus:
+#             plus_minus = True
+#             ctr_colin = []
+#             ctr_colin_sig = []
+#             ctr_colin.append(mtz_obj.fplus)
+#             ctr_colin.append(mtz_obj.fminus)
+#             ctr_colin_sig.append(mtz_obj.sigfplus)
+#             ctr_colin_sig.append(mtz_obj.sigfminus)
+#     
+#         elif mtz_obj.fplus:
+#             plus_minus = True
+#             ctr_colin = []
+#             ctr_colin_sig = []
+#             ctr_colin.append(mtz_obj.fplus)
+#             ctr_colin.append(mtz_obj.fminus)
+#             ctr_colin_sig.append(mtz_obj.sigfplus)
+#             ctr_colin_sig.append(mtz_obj.sigfminus)
+#     
+#         if mtz_obj.i and mtz_obj.free:
+#             ctr.ctruncate(hklin, hklout, ctr_colin, ctr_colin_sig, colout="from_SIMBAD", colinFREE=mtz_obj.free,
+#                           USEINTEN=True, INPUTF=input_f, PLUSMINUS=plus_minus)
+#         elif mtz_obj.i and not mtz_obj.free:
+#             ctr.ctruncate(hklin, hklout, ctr_colin, ctr_colin_sig, colout="from_SIMBAD", USEINTEN=True, INPUTF=input_f,
+#                           PLUSMINUS=plus_minus)
+#         elif mtz_obj.free:
+#             ctr.ctruncate(hklin, hklout, ctr_colin, ctr_colin_sig, colout="from_SIMBAD", colinFREE=mtz_obj.free,
+#                           USEINTEN=False, PLUSMINUS=plus_minus)
+#         else:
+#             ctr.ctruncate(hklin, hklout, ctr_colin, ctr_colin_sig, colout="from_SIMBAD", USEINTEN=False,
+#                           PLUSMINUS=plus_minus)
             
         self.has_ncs = ctr.NCS
         self.has_twinning = ctr.TWIN

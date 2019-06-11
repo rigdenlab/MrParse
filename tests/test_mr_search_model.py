@@ -1,3 +1,4 @@
+#!/usr/bin/env ccp4-python
 import logging
 import pickle
 import set_mrparse_path
@@ -7,19 +8,30 @@ from mrparse.mr_search_model import SearchModelFinder
 logging.basicConfig(level=logging.DEBUG)
 
 
+def Xtest_SearchModelFinder2uvoOnlySequence(test_data):
+    seqin = test_data.x2uvoA_fasta
+    smf = SearchModelFinder(seqin)
+    smf()
+    nregions = len(smf.regions)
+    assert nregions == 6, "Incorrect number of regions: {}".format(nregions)
+    nhomologs = len(smf.homologs)
+    assert nhomologs == 14, "Incorrect number of homologs: {}".format(nhomologs)
+    assert abs(smf.homologs['1iqb_B_1'].molecular_weight-8750.8) < 0.1, \
+    "Incorrect MW: {}".format(smf.homologs['1iqb_B_1'].molecular_weight)
+#     print(smf.as_html())
+    
 def test_SearchModelFinder2uvo(test_data):
     seqin = test_data.x2uvoA_fasta
     hklin = test_data.x2uvo_mtz
     smf = SearchModelFinder(seqin, hklin=hklin)
     smf()
-    print(smf.as_html())
-    
-# def test_SearchModelFinder5u4p(test_data):
-#     seqin = '/opt/MrParse/data/5u4pA.fasta'
-#     hklin = None
-#     smf = SearchModelFinder(seqin, hklin=hklin)
-#     smf()
-#     print(smf.as_html())
+    nregions = len(smf.regions)
+    assert nregions == 6, "Incorrect number of regions: {}".format(nregions)
+    nhomologs = len(smf.homologs)
+    assert nhomologs == 14, "Incorrect number of homologs: {}".format(nhomologs)
+    assert abs(smf.homologs['1iqb_B_1'].molecular_weight-8750.8) < 0.1, \
+    "Incorrect MW: {}".format(smf.homologs['1iqb_B_1'].molecular_weight)
+
 
 
 if __name__ == '__main__':
