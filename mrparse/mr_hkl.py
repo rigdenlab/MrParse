@@ -33,18 +33,14 @@ class HklInfo(object):
         """DOC TODO"""
         hklin = self.hklin
         hklout = filename_append(filename=hklin, directory=os.getcwd(), astr='fixcols')
-    
         ctr_colin = None
         ctr_colin_sig = None
         plus_minus = None
         mtz_obj = self.labels
-    
         ctr = Ctruncate()
         ctr.debug = False
-    
         log_file = hklout.rsplit(".", 1)[0] + '.log'
         ctr.setlogfile(log_file)
-    
         if mtz_obj.f:
             input_f = True
         else:
@@ -58,7 +54,6 @@ class HklInfo(object):
             else:
                 ctr_colin = mtz_obj.f
                 ctr_colin_sig = mtz_obj.sigf
-    
         elif mtz_obj.iplus:
             plus_minus = True
             ctr_colin = []
@@ -67,7 +62,6 @@ class HklInfo(object):
             ctr_colin.append(mtz_obj.fminus)
             ctr_colin_sig.append(mtz_obj.sigfplus)
             ctr_colin_sig.append(mtz_obj.sigfminus)
-    
         elif mtz_obj.fplus:
             plus_minus = True
             ctr_colin = []
@@ -89,7 +83,6 @@ class HklInfo(object):
         else:
             ctr.ctruncate(hklin, hklout, ctr_colin, ctr_colin_sig, colout="from_SIMBAD", USEINTEN=False,
                           PLUSMINUS=plus_minus)
-            
         self.has_ncs = ctr.NCS
         self.has_twinning = ctr.TWIN
         self.has_anisotropy = ctr.ANISO

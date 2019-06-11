@@ -11,10 +11,11 @@ import sys
 import tarfile
 import time
 
-PYTHONVERSION = sys.version_info[0]
-
 from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation
 from mrparse.mr_util import now
+
+PYTHONVERSION = sys.version_info[0]
+JPRED_SUBMISSION_EMAIL = 'jens.thomas@liverpool.ac.uk'
 
 logger = logging.getLogger(__name__)
 #logger.addHandler(logging.NullHandler()
@@ -134,7 +135,7 @@ You can check the status of the job using the following URL: http://www.compbio.
                'file=%s' % seqin,
                'mode=single',
                'format=fasta',
-               'email=jens.thomas@liverpool.ac.uk',
+               'email={}'.format(JPRED_SUBMISSION_EMAIL),
                'name=jens_test_job',
                'skipPDB=on']
         logger.debug("Running cmd: %s", " ".join(cmd))
