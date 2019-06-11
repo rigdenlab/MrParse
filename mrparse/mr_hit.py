@@ -9,8 +9,6 @@ import os
 from mrbump.seq_align.simpleSeqID import simpleSeqID
 from pyjob import cexec
 from pyjob.script import EXE_EXT
-from mr_sequence import read_fasta
-
 from Bio import SearchIO
 
 
@@ -68,10 +66,10 @@ class SequenceHit:
             out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
         return out_str
 
-def find_hits(seqin):
-    assert os.path.isfile(seqin), "Cannot find input file: %s" % seqin
-    phmmer_logfile = run_phmmer(seqin)
-    targetSequence = read_fasta(seqin)
+def find_hits(seq_info):
+    assert os.path.isfile(seq_info.sequence_file), "Cannot find input file: %s" % seq_info.sequence_file
+    phmmer_logfile = run_phmmer(seq_info.sequence_file)
+    target_sequence = seq_info.sequence
     io = SearchIO.read(phmmer_logfile, 'hmmer3-text')
     included = io.hit_filter(lambda x: x.is_included)
     hitDict = OrderedDict()
@@ -100,11 +98,11 @@ def find_hits(seqin):
             ph.tarStop = hstop
             ph.tarExtent = hstop - hstart        
             ph.tarMidpoint = ((float(qstop) - float(qstart_p1)) / 2.0) + float(qstart_p1)
-            targetAlignment = "".join(hsp.aln[0].upper()) # assume the first Sequence is always the target
-            ph.targetAlignment = targetAlignment
+            target_alignment = "".join(hsp.aln[0].upper()) # assume the first Sequence is always the target
+            ph.targetAlignment = target_alignment
             alignment = "".join(hsp.aln[1].upper()) # assume the first Sequence is always the target
             ph.alignment = alignment
-            local, overall = simpleSeqID().getPercent(alignment, targetAlignment, targetSequence)
+            local, overall = simpleSeqID().getPercent(alignment, target_alignment, target_sequence)
             ph.local_sequence_identity = local
             ph.overall_sequence_identity = overall
             name = hit.id + "_" + str(hsp.domain_index)

@@ -7,16 +7,14 @@ import logging
 from mrparse import mr_homolog 
 from mrparse import mr_hit
 from mr_region import RegionFinder
-from mrparse import mr_sequence
 from mrparse import mr_pfam
 from mrparse.mr_util import now
 
 logger = logging.getLogger(__name__)
 
 class SearchModelFinder(object):
-    def __init__(self, seqin, hkl_info=None):
-        self.seqin = seqin
-        self.seqlen = len(mr_sequence.read_fasta(self.seqin))
+    def __init__(self, seq_info, hkl_info=None):
+        self.seq_info = seq_info
         self.hkl_info = hkl_info
         self.hits = None
         self.regions = None
@@ -35,7 +33,7 @@ class SearchModelFinder(object):
         return self
     
     def find_regions(self):
-        self.hits = mr_hit.find_hits(self.seqin)
+        self.hits = mr_hit.find_hits(self.seq_info)
         if not self.hits:
             logger.critical('SearchModelFinder could not find any hits!')
             return None
@@ -50,5 +48,5 @@ class SearchModelFinder(object):
         return self.homologs
 
     def pfam_dict(self):
-        mr_pfam.add_pfam_dict_to_homologs(self.regions, self.seqlen)
+        mr_pfam.add_pfam_dict_to_homologs(self.regions, self.seq_info.nresidues)
         return {'homologs' : [h.json_dict() for h in self.homologs.values()]}

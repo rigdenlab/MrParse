@@ -36,8 +36,8 @@ class OutOfTimeException(Exception):
 
 
 class JPred(object):
-    def __init__(self, seqin=None, jpred_rundir=None):
-        self.seqin = seqin
+    def __init__(self, seq_info=None, jpred_rundir=None):
+        self.seq_info = seq_info
         self.jpred_rundir= jpred_rundir
         self.poll_time = 1
         self.max_poll_time = 120
@@ -82,13 +82,13 @@ class JPred(object):
 
     def get_prediction(self):
         if not self.jpred_rundir: # for testing
-            if not os.path.isfile(self.seqin):
-                msg = "Cannot find JPRED seqin: %s" % self.seqin
+            if not os.path.isfile(self.seq_info.sequence_file):
+                msg = "Cannot find JPRED sequence file: %s" % self.seq_info.sequence_file
                 self.exception = msg
                 logger.critical(msg)
                 raise RuntimeError(msg)
             try:
-                self.jpred_rundir = self.run_jpred(self.seqin)
+                self.jpred_rundir = self.run_jpred(self.seq_info.sequence_file)
             except Exception as e:
                 logger.critical(e)
                 self.exception = e

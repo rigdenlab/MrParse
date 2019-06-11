@@ -12,7 +12,8 @@ import sys
 
 from mr_hkl import HklInfo
 from mr_search_model import SearchModelFinder
-from mrparse.mr_classify import MrClassifier
+from mr_sequence import Sequence
+from mr_classify import MrClassifier
 
 
 logger = logging.getLogger(__name__)
@@ -27,15 +28,16 @@ def run(seqin, hklin=None, run_parallel=False):
     if not (seqin and os.path.isfile(seqin)):
         raise RuntimeError("Cannot find seqin file: %s" % seqin)
     logger.info("mr_analyse running with seqin %s", os.path.abspath(seqin))
+    seq_info = Sequence(seqin)
     hkl_info = None
     if hklin:
         if not os.path.isfile(hklin):
             raise RuntimeError("Cannot find hklin file: %s" % hklin)
         logger.info("mr_analyse running with hklin %s", os.path.abspath(hklin))
-        hkl_info  = HklInfo(hklin, seqin=seqin)
+        hkl_info  = HklInfo(hklin, seq_info=seq_info)
 
-    search_model_finder = SearchModelFinder(seqin, hkl_info=hkl_info)
-    classifier = MrClassifier(seqin=seqin)
+    search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info)
+    classifier = MrClassifier(seq_info=seq_info)
     
     if run_parallel:
         nproc = 3 if hkl_info else 2

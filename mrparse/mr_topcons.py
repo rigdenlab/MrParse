@@ -35,8 +35,8 @@ logger = logging.getLogger(__name__)
 
 class TMPred(object):
     
-    def __init__(self, seqin, topcons_dir=None):
-        self.seqin = seqin
+    def __init__(self, seq_info, topcons_dir=None):
+        self.seq_info = seq_info
         self.topcons_dir = topcons_dir
         self.prediction = None
         script_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'../scripts')
@@ -173,7 +173,7 @@ class TMPred(object):
     def get_prediction(self):
         logger.debug("TMPred starting prediction at: %s" % now())
         if not self.topcons_dir:
-            self.topcons_dir = self.run_topcons(self.seqin)
+            self.topcons_dir = self.run_topcons(self.seq_info.sequence_file)
         prediction, scores = self.parse_topcons_output(self.topcons_dir)
         self.prediction = self.create_annotation(prediction, scores)
         logger.debug("TMPred finished prediction at: %s" % now())

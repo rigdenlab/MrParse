@@ -29,8 +29,8 @@ class PredictorThread(threading.Thread):
 
 
 class MrClassifier(object):
-    def __init__(self, seqin, topcons_dir=None):
-        self.seqin = seqin
+    def __init__(self, seq_info, topcons_dir=None):
+        self.seq_info = seq_info
         self.topcons_dir = topcons_dir
         self.ss_prediction = None
         self.classification_prediction = None
@@ -44,9 +44,9 @@ class MrClassifier(object):
         return self
         
     def get_prediction(self):
-        cc_predictor = CCPred(self.seqin)
-        tm_predictor = TMPred(self.seqin, topcons_dir=self.topcons_dir)
-        ss_predictor = JPred(seqin=self.seqin)
+        cc_predictor = CCPred(self.seq_info)
+        tm_predictor = TMPred(self.seq_info, topcons_dir=self.topcons_dir)
+        ss_predictor = JPred(seq_info=self.seq_info)
         cc_thread = PredictorThread(cc_predictor)
         tm_thread = PredictorThread(tm_predictor)
         ss_thread = PredictorThread(ss_predictor)

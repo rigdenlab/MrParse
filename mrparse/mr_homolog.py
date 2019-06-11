@@ -6,8 +6,6 @@ Created on 18 Oct 2018
 import copy
 import logging
 import os
-import warnings
-
 from simbad.util.pdb_util import PdbStructure
 
 

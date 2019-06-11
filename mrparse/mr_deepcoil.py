@@ -11,14 +11,13 @@ import warnings
 
 import numpy as np
 
-from mrparse.mr_sequence import read_fasta, write_fasta
 from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation, NULL_ANNOTATION
 from mrparse.mr_util import now
+from mrparse.mr_sequence import Sequence
 from pyjob import cexec
 from pyjob.exception import PyJobExecutionError
 
 warnings.warn("numpify sequence code")
-warnings.warn("map sequence object onto biopython sequence")
 
 THRESHOLD_PROBABILITY = 0.6
 DEEPCOIL_PYTHON = '/Users/jmht/miniconda2/envs/py36/bin/python'
@@ -33,14 +32,13 @@ logger = logging.getLogger(__name__)
 
 
 class CCPred(object):
-    def __init__(self, seqin):
-        self.seqin = seqin
+    def __init__(self, seq_info):
+        self.seq_info = seq_info
         self.prediction = None
         
     def get_prediction(self):
         logger.debug("CCPred starting prediction at: %s" % now())
-        seq_aa = read_fasta(self.seqin)
-        scores = probabilites_from_sequence(seq_aa)
+        scores = probabilites_from_sequence(self.seq_info.sequence)
         ann = SequenceAnnotation()
         ann.source = 'Deepcoil localhost'
         ann.library_add_annotation(CC)
@@ -132,7 +130,9 @@ def run_deepcoil_on_chunks(chunks):
     deepcoil_outputs = []
     for i, chunk in enumerate(chunks):
         name = 'deepcoil_chunk_%d' % i
-        fasta_in = write_fasta(chunk, name)
+        seq = Sequence(sequence=chunk)
+        fasta_in =  "{}.fasta".format(name)
+        seq.write(fasta_in)
         dout = run_deepcoil(fasta_in)
         deepcoil_outputs.append(dout)
     return deepcoil_outputs
