@@ -1,8 +1,3 @@
-'''
-Created on 18 Oct 2018
-
-@author: jmht
-'''
 import logging
 import json
 import multiprocessing
@@ -19,8 +14,9 @@ from mr_classify import MrClassifier
 logger = logging.getLogger(__name__)
 
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-HTML_DIR= os.path.join(THIS_DIR, '../html')
+HTML_DIR = os.path.join(THIS_DIR, '../html')
 HTML_OUT = os.path.join(HTML_DIR, 'mrparse.html')
+JS_OUT = os.path.join(HTML_DIR, 'mrparse.js')
 POLL_TIME = 1
 
 
@@ -36,8 +32,10 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True):
         logger.info("mr_analyse running with hklin %s", os.path.abspath(hklin))
         hkl_info  = HklInfo(hklin, seq_info=seq_info)
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info)
+    classifier = None
     if do_classify:
         classifier = MrClassifier(seq_info=seq_info)
+        
     if run_serial:
         try:
             search_model_finder()
@@ -81,17 +79,9 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True):
             except Exception as e:
                 logger.exception('HklInfo failed: %s' % e)
 
-    pfam_dict = {}
-    pfam_dict.update(search_model_finder.pfam_dict())
-    if do_classify:
-        pfam_dict.update(classifier.pfam_dict())
-    data_dict = {}
-    data_dict['pfam'] = pfam_dict
-    if hkl_info:
-        data_dict['hkl_info'] = hkl_info.as_dict()
-        
-    js_data = 'const mrparse_data = %s;\n' % json.dumps(data_dict)
-    with open(os.path.join(HTML_DIR, 'mrparse.js'), 'w') as w:
+    results_json = get_results_json(search_model_finder, hkl_info=hkl_info, classifier=classifier)
+    js_data = 'const mrparse_data = %s;\n' % results_json
+    with open(JS_OUT, 'w') as w:
         w.write(js_data)
 
     # Display results in browser
@@ -103,3 +93,14 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True):
     if opencmd:
         subprocess.Popen([opencmd, HTML_OUT])
     return 0
+
+def get_results_json(search_model_finder, hkl_info=None, classifier=None):
+    pfam_dict = {}
+    pfam_dict.update(search_model_finder.pfam_dict())
+    if classifier:
+        pfam_dict.update(classifier.pfam_dict())
+    data_dict = {}
+    data_dict['pfam'] = pfam_dict
+    if hkl_info:
+        data_dict['hkl_info'] = hkl_info.as_dict()
+    return json.dumps(data_dict)
