@@ -24,7 +24,7 @@ HTML_OUT = os.path.join(HTML_DIR, 'mrparse.html')
 POLL_TIME = 1
 
 
-def run(seqin, hklin=None, run_serial=False):
+def run(seqin, hklin=None, run_serial=False, do_classify=True):
     if not (seqin and os.path.isfile(seqin)):
         raise RuntimeError("Cannot find seqin file: %s" % seqin)
     logger.info("mr_analyse running with seqin %s", os.path.abspath(seqin))
@@ -36,16 +36,18 @@ def run(seqin, hklin=None, run_serial=False):
         logger.info("mr_analyse running with hklin %s", os.path.abspath(hklin))
         hkl_info  = HklInfo(hklin, seq_info=seq_info)
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info)
-    classifier = MrClassifier(seq_info=seq_info)
+    if do_classify:
+        classifier = MrClassifier(seq_info=seq_info)
     if run_serial:
         try:
             search_model_finder()
         except Exception as e:
             logger.exception('SearchModelFinder failed: %s' % e)
-        try:
-            classifier()
-        except Exception as e:
-            logger.exception('MrClassifier failed: %s' % e)
+        if do_classify:
+            try:
+                classifier()
+            except Exception as e:
+                logger.exception('MrClassifier failed: %s' % e)
         if hkl_info:
             try:
                 hkl_info()
@@ -56,7 +58,8 @@ def run(seqin, hklin=None, run_serial=False):
         logger.info("Running on %d processors." % nproc)
         pool = multiprocessing.Pool(nproc)
         smf_result = pool.apply_async(search_model_finder)
-        mrc_result = pool.apply_async(classifier)
+        if do_classify:
+            mrc_result = pool.apply_async(classifier)
         if hkl_info:
             hklin_result = pool.apply_async(hkl_info)    
         pool.close()
@@ -67,10 +70,11 @@ def run(seqin, hklin=None, run_serial=False):
             search_model_finder = smf_result.get()
         except Exception as e:
             logger.exception('SearchModelFinder failed: %s' % e)
-        try:
-            classifier = mrc_result.get()
-        except Exception as e:
-            logger.exception('MrClassifier failed: %s' % e)
+        if do_classify:
+            try:
+                classifier = mrc_result.get()
+            except Exception as e:
+                logger.exception('MrClassifier failed: %s' % e)
         if hkl_info:
             try:
                 hkl_info = hklin_result.get()
@@ -79,7 +83,8 @@ def run(seqin, hklin=None, run_serial=False):
 
     pfam_dict = {}
     pfam_dict.update(search_model_finder.pfam_dict())
-    pfam_dict.update(classifier.pfam_dict())
+    if do_classify:
+        pfam_dict.update(classifier.pfam_dict())
     data_dict = {}
     data_dict['pfam'] = pfam_dict
     if hkl_info:

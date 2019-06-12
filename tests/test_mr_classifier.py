@@ -17,7 +17,7 @@ def test_generate_local():
     s = '--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------MMMMMMMMMMMMMMMMMMMMM-------------CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC---------------C-CC--------CC-CC-----------------------------------------CCCCCCCCCCCCCCC----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------'
     assert classification.annotation == s, classification.annotation
     
-def test_generate_remote():
+def Xtest_generate_remote():
     seqin = '/opt/MrParse/data/Q13586.fasta'
     classifier = MrClassifier(seqin)
     classifier()

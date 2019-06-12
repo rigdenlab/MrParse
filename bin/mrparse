@@ -22,10 +22,11 @@ def main():
     try:
         parser = ArgumentParser()
         parser.add_argument('--hklin', help='MTZ/CIF Crystal Data file')
-        parser.add_argument('--seqin', required=True, help='Sequence file')
+        parser.add_argument('--no_classify', action='store_true', help='Do not run the classifiers')
         parser.add_argument('--run_serial', action='store_true', help='Run on a single processor')
+        parser.add_argument('--seqin', required=True, help='Sequence file')
         args = parser.parse_args()
-        return mr_analyse.run(args.seqin, hklin=args.hklin, run_serial=args.run_serial)
+        return mr_analyse.run(args.seqin, hklin=args.hklin, run_serial=args.run_serial, do_classify=not(args.no_classify))
     except KeyboardInterrupt:
         logger.critcal("Interrupted by keyboard!")
         return 0

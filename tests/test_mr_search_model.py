@@ -1,8 +1,7 @@
 #!/usr/bin/env ccp4-python
-import logging
-import pickle
 import set_mrparse_path
 
+import logging
 from mrparse.mr_search_model import SearchModelFinder
 from mrparse.mr_hkl import HklInfo
 

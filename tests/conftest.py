@@ -1,3 +1,4 @@
+import set_mrparse_path
 import os
 import pytest
 from collections import namedtuple
