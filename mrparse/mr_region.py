@@ -14,7 +14,6 @@ class RegionData:
         self.midpoint = 0
         self.extent = 0
         self.matches = []
-#         self.ranges = []
     
     @property
     def start_stop(self):

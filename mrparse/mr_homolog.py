@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class HomologData(object):
     def __init__(self):
-        self.eLLG = -1 # default -1 so cases where calculation impossible sort last
+        self.eLLG = None
         self.frac_scat = None
         self.length = None
         self.seq_ident = None
@@ -163,6 +163,7 @@ def calculate_ellg(homologs, hkl_info):
             ellginput.addENSE_PDB_ID(hname, d.pdb_file, d.seq_ident)
             search_models.append(hname)
         else:
+            d.eLLG = -1 # Set to -1 so that sorting works properly
             logger.warn("Cannot calculate eLLG for homolog {} due to missing data.".format(hname))
     ellginput.addSEAR_ENSE_OR_ENSE_NUM(search_models, 1)
     runellg = phaser.runMR_ELLG(ellginput)

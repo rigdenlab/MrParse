@@ -92,6 +92,7 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
     except AttributeError:
         # If the error is: "'NoneType' object has no attribute 'group'" then this is an error in Biopython that
         # has been fixed in later versions
+        logger.exception("AttributeError while running Biopython")
         raise RuntimeError('Problem running Biopython SearchIO - you may need to update your version of Biopython.')
     except:
         logger.exception("Unexpected error while running Biopython")
