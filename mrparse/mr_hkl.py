@@ -101,6 +101,7 @@ class HklInfo(object):
         self.has_ncs = ctr.NCS
         self.has_twinning = ctr.TWIN
         self.has_anisotropy = ctr.ANISO
+        os.unlink(hklout)
         return
 
     def as_dict(self):
