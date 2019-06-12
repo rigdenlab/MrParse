@@ -4,6 +4,7 @@ Created on 18 Oct 2018
 @author: jmht
 '''
 from collections import OrderedDict
+import logging
 import os
 
 from mrbump.seq_align.simpleSeqID import simpleSeqID
@@ -14,6 +15,7 @@ from Bio import SearchIO
 PHMMER = 'phmmer'
 HHSEARCH = 'hhsearch'
 
+logger = logging.getLogger(__name__)
 
 class SequenceHit:
     def __init__(self):
@@ -85,7 +87,16 @@ def find_hits(seq_info, search_engine=PHMMER):
 
 def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
     assert logfile and searchio_type and target_sequence
-    io = SearchIO.read(logfile, searchio_type)
+    try:
+        io = SearchIO.read(logfile, searchio_type)
+    except AttributeError:
+        # If the error is: "'NoneType' object has no attribute 'group'" then this is an error in Biopython that
+        # has been fixed in later versions
+        raise RuntimeError('Problem running Biopython SearchIO - you may need to update your version of Biopython.')
+    except:
+        logger.exception("Unexpected error while running Biopython")
+        raise
+        
     included = io.hit_filter(lambda x: x.is_included)
     hitDict = OrderedDict()
     rank = 0
