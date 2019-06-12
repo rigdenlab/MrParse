@@ -131,6 +131,9 @@ def calculate_ellg(homologs, hkl_info):
     """Run PHASER to calculate the eLLG values and update the homolog data
     
     Sourced from: ccp4-src-2016-02-10/checkout/cctbx-phaser-dials-2015-12-22/phaser/phaser/CalcCCFromMRsolutions.py"""
+    
+    if not (hkl_info.molecular_weight and hkl_info.predicted_ncopies):
+        raise RuntimeError("Cannot calculate eLLGs without molecular_weight and predicted ncopies")
     import phaser
     mrinput = phaser.InputMR_DAT()
     mrinput.setHKLI(hkl_info.hklin)
