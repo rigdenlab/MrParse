@@ -9,7 +9,7 @@ Results are currently displayed in a simple HTML webpage that is rendered using 
 
 ## Notes
 ### Search Model Finder
-The search model finder currently uses [PHMMER](http://hmmer.org/) (distributed with [CCP4](http://www.ccp4.ac.uk)) to search for homologs. The facility to use [HHSEARCH](https://github.com/soedinglab/hh-suite) is almost complete, but is waiting on the HHSEARCH parsing functionality implemented in the GitHub [pull request](https://github.com/biopython/biopython/pull/1965) to be incorporated into the BioPython release.
+The search model finder currently uses [PHMMER](http://hmmer.org/) (distributed with [CCP4](http://www.ccp4.ac.uk)) to search for homologs. The facility to use [HHSEARCH](https://github.com/soedinglab/hh-suite) is almost complete, but is waiting on the HHSEARCH parsing functionality implemented in the GitHub [pull request](https://github.com/biopython/biopython/pull/1965) to be incorporated into the [BioPython](https://biopython.org) release.
 
 ### Classifiers
 * secondary structure classification is currently carried by submitting jobs to the [JPRED](http://www.compbio.dundee.ac.uk/jpred/) server 
