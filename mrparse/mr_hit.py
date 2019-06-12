@@ -11,6 +11,9 @@ from pyjob import cexec
 from pyjob.script import EXE_EXT
 from Bio import SearchIO
 
+PHMMER = 'phmmer'
+HHSEARCH = 'hhsearch'
+
 
 class SequenceHit:
     def __init__(self):
@@ -66,11 +69,23 @@ class SequenceHit:
             out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
         return out_str
 
-def find_hits(seq_info):
-    assert os.path.isfile(seq_info.sequence_file), "Cannot find input file: %s" % seq_info.sequence_file
-    phmmer_logfile = run_phmmer(seq_info.sequence_file)
+
+def find_hits(seq_info, search_engine=PHMMER):
+    if search_engine == PHMMER:
+        logfile = run_phmmer(seq_info)
+        searchio_type = 'hmmer3-text'
+    elif search_engine == HHSEARCH:
+        searchio_type = 'hhsuite2-text'
+        logfile = run_hhsearch(seq_info)
+    else:
+        raise RuntimeError("Unrecognised search_engine: {}".format(search_engine))
     target_sequence = seq_info.sequence
-    io = SearchIO.read(phmmer_logfile, 'hmmer3-text')
+    return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence)
+    
+
+def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
+    assert logfile and searchio_type and target_sequence
+    io = SearchIO.read(logfile, searchio_type)
     included = io.hit_filter(lambda x: x.is_included)
     hitDict = OrderedDict()
     rank = 0
@@ -114,7 +129,7 @@ def sort_hits_by_size(hits, ascending=False):
     reverse = not(ascending)
     return OrderedDict(sorted(hits.items(), key=lambda x: x[1].tarExtent, reverse=reverse))
 
-def run_phmmer(seqin, dblvl=95):
+def run_phmmer(seq_info, dblvl=95):
     logfile = "phmmer.log"
     alnfile = "phmmerAlignment.log"
     phmmerTblout = "phmmerTblout.log"
@@ -130,8 +145,12 @@ def run_phmmer(seqin, dblvl=95):
            '--tblout', phmmerTblout,
            '--domtblout', phmmerDomTblout,
            '-A', alnfile,
-           seqin, seqdb]
+           seq_info.sequence_file, seqdb]
     stdout = cexec(cmd)
     with open(logfile, 'w') as f_out:
         f_out.write(stdout)
-    return logfile 
+    return logfile
+
+def run_hhsearch(seq_info):
+    raise NotImplementedError("{} search needs to be implemented".format(HHSEARCH))
+

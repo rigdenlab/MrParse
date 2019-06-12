@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class HomologData(object):
     def __init__(self):
-        self.eLLG = None
+        self.eLLG = -1 # default -1 so cases where calculation impossible sort last
         self.frac_scat = None
         self.length = None
         self.seq_ident = None
