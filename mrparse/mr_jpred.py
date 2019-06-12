@@ -171,7 +171,7 @@ Job results archive is now available at: jp_H_5vG49/jp_H_5vG49.tar.gz
                'status',
                'jobid=%s' % jobid,
                'getResults=yes',
-               'checkEvery=5']
+               'checkEvery=10']
         logger.debug("Running cmd: %s", " ".join(cmd))
         optd = {}
         if PYTHONVERSION > 2:

@@ -6,15 +6,13 @@ import os
 from mrparse.mr_sequence import Sequence
 from Bio import SeqIO
 from Bio.Alphabet import IUPAC
-
-
-TWOUVO_SEQ = 'ERCGEQGSNMECPNNLCCSQYGYCGMGGDYCGKGCQNGACWTSKRCGSQAGGATCTNNQCCSQYGYCGFGAEYCGAGCQGGPCRADIKCGSQAGGKLCPNNLCCSQWGFCGLGSEFCGGGCQSGACSTDKPCGKDAGGRVCTNNYCCSKWGSCGIGPGYCGAGCQSGGCDG'
+import data_constants
 
 
 def test_2uvo(test_data):
     seq_info = Sequence(seq_file=test_data.x2uvoA_fasta)
     assert seq_info.nresidues == 171
-    assert seq_info.sequence == TWOUVO_SEQ
+    assert seq_info.sequence == data_constants.TWOUVO_SEQ
     assert abs(seq_info.molecular_weight - 17131) < 0.1
     
 
@@ -29,14 +27,14 @@ def test_2uvo_write(test_data):
     
 
 def test_2uvo_seq():
-    seq_info = Sequence(sequence=TWOUVO_SEQ)
+    seq_info = Sequence(sequence=data_constants.TWOUVO_SEQ)
     assert seq_info.nresidues == 171
-    assert seq_info.sequence == TWOUVO_SEQ
+    assert seq_info.sequence == data_constants.TWOUVO_SEQ
     assert abs(seq_info.molecular_weight - 17131) < 0.1
 
 
 def test_2uvo_seq_write(test_data):
-    seq_info = Sequence(sequence=TWOUVO_SEQ)
+    seq_info = Sequence(sequence=data_constants.TWOUVO_SEQ)
     filename = 'foo.fasta'
     seq_info.write(filename)
     assert os.path.isfile(filename)

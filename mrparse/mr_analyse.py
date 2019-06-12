@@ -24,7 +24,7 @@ HTML_OUT = os.path.join(HTML_DIR, 'mrparse.html')
 POLL_TIME = 1
 
 
-def run(seqin, hklin=None, run_parallel=False):
+def run(seqin, hklin=None, run_serial=False):
     if not (seqin and os.path.isfile(seqin)):
         raise RuntimeError("Cannot find seqin file: %s" % seqin)
     logger.info("mr_analyse running with seqin %s", os.path.abspath(seqin))
@@ -35,11 +35,23 @@ def run(seqin, hklin=None, run_parallel=False):
             raise RuntimeError("Cannot find hklin file: %s" % hklin)
         logger.info("mr_analyse running with hklin %s", os.path.abspath(hklin))
         hkl_info  = HklInfo(hklin, seq_info=seq_info)
-
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info)
     classifier = MrClassifier(seq_info=seq_info)
-    
-    if run_parallel:
+    if run_serial:
+        try:
+            search_model_finder()
+        except Exception as e:
+            logger.exception('SearchModelFinder failed: %s' % e)
+        try:
+            classifier()
+        except Exception as e:
+            logger.exception('MrClassifier failed: %s' % e)
+        if hkl_info:
+            try:
+                hkl_info()
+            except Exception as e:
+                logger.exception('HklInfo failed: %s' % e)
+    else:
         nproc = 3 if hkl_info else 2
         logger.info("Running on %d processors." % nproc)
         pool = multiprocessing.Pool(nproc)
@@ -64,25 +76,10 @@ def run(seqin, hklin=None, run_parallel=False):
                 hkl_info = hklin_result.get()
             except Exception as e:
                 logger.exception('HklInfo failed: %s' % e)
-    else:
-        try:
-            search_model_finder()
-        except Exception as e:
-            logger.exception('SearchModelFinder failed: %s' % e)
-        try:
-            classifier()
-        except Exception as e:
-            logger.exception('MrClassifier failed: %s' % e)
-        if hkl_info:
-            try:
-                hkl_info()
-            except Exception as e:
-                logger.exception('HklInfo failed: %s' % e)
 
     pfam_dict = {}
     pfam_dict.update(search_model_finder.pfam_dict())
     pfam_dict.update(classifier.pfam_dict())
-
     data_dict = {}
     data_dict['pfam'] = pfam_dict
     if hkl_info:
