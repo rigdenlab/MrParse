@@ -22,7 +22,8 @@ def test_data():
             'x2uvoA_fasta' : os.path.join(data_dir, '2uvoA.fasta'),
             'x2uvo_mtz' : os.path.join(data_dir, '2uvo_pdbredo.mtz'),
             'Q13586_fasta' : os.path.join(data_dir, 'Q13586.fasta'),
-            'topcons_output' : os.path.join(data_dir, 'query.result.txt')
+            'topcons_output' : os.path.join(data_dir, 'query.result.txt'),
+            'jpred_output' : os.path.join(data_dir, 'jp_dSDGWMs.concise')
         }
     nt = namedtuple('TestData', d.keys())
     return nt(**d)

@@ -45,6 +45,7 @@ def test_hit_2uvoA_sort_by_size(test_data, get_2uvo_test_hits):
     assert hit_names.index(name) == 5, "Incorrect descending for: %s" % name
     name = '1mmc_A_1'
     assert hit_names.index(name) == 11, "Incorrect descending for: %s" % name
+
     hits = sort_hits_by_size(hits, ascending=True)
     hit_names = hits.keys()
     name = '2x3t_C_1'

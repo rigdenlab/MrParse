@@ -36,9 +36,9 @@ class OutOfTimeException(Exception):
 
 
 class JPred(object):
-    def __init__(self, seq_info=None, jpred_rundir=None):
+    def __init__(self, seq_info=None, jpred_output=None):
         self.seq_info = seq_info
-        self.jpred_rundir= jpred_rundir
+        self.jpred_output = jpred_output
         self.poll_time = 1
         self.max_poll_time = 120
         script_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'../scripts')
@@ -46,12 +46,15 @@ class JPred(object):
         self.prediction = None
         self.exception = None
 
-    @staticmethod
-    def parse_jpred_output(jpred_rundir):
+    def parse_jpred_directory(self, jpred_rundir):
         if not os.path.isdir(jpred_rundir):
             raise RuntimeError("Cannot find directory:%s" % jpred_rundir)
         out_concise = [f for f in os.listdir(jpred_rundir) if f.endswith('.concise')][0]
         out_concise = os.path.join(jpred_rundir, out_concise)
+        self.parse_jpred_output(out_concise)
+
+    @staticmethod
+    def parse_jpred_output(out_concise):
         cc_28 = None
         ss_pred = None
         logger.debug('Parsing JPRED concise output: %s' % out_concise)
@@ -69,7 +72,7 @@ class JPred(object):
                 line = f.readline()
         assert cc_28 and ss_pred
         return ss_pred, cc_28
-    
+
     @staticmethod
     def create_annotation(annotation):
         ann = SequenceAnnotation()
@@ -81,20 +84,23 @@ class JPred(object):
         return ann
 
     def get_prediction(self):
-        if not self.jpred_rundir: # for testing
+        if not self.jpred_output: # for testing
             if not os.path.isfile(self.seq_info.sequence_file):
                 msg = "Cannot find JPRED sequence file: %s" % self.seq_info.sequence_file
                 self.exception = msg
                 logger.critical(msg)
                 raise RuntimeError(msg)
             try:
-                self.jpred_rundir = self.run_jpred(self.seq_info.sequence_file)
+                jpred_rundir = self.run_jpred(self.seq_info.sequence_file)
             except Exception as e:
                 logger.critical(e)
                 self.exception = e
                 raise e
-        ss_pred, cc_28 = self.parse_jpred_output(self.jpred_rundir)
-        self.cleanup(self.jpred_rundir)
+            ss_pred, _ = self.parse_jpred_directory(self.jpred_rundir)
+        else:
+            jpred_rundir = None
+            ss_pred, _ = self.parse_jpred_output(self.jpred_output)
+        self.cleanup(jpred_rundir)
         self.prediction = self.create_annotation(ss_pred)
         logger.debug("JPred finished prediction at: %s" % now())
         return self.prediction
@@ -182,7 +188,7 @@ Job results archive is now available at: jp_H_5vG49/jp_H_5vG49.tar.gz
         for line in out.split(os.linesep):
             if line.startswith("Job results archive is now available at:"):
                 dpath = line.split(':')[1].strip()
-                _jobid, tarf = dpath.split('/')
+                _jobid, _ = dpath.split('/')
                 if _jobid != jobid:
                     raise RuntimeError("Error collecting jpred job: %s" % out)
                 else:
@@ -191,7 +197,7 @@ Job results archive is now available at: jp_H_5vG49/jp_H_5vG49.tar.gz
         return False
 
     def unpack_results(self, results_path):
-        jobdir, tarf = results_path.split('/')
+        jobdir, _ = results_path.split('/')
         with tarfile.open(results_path, 'r:*') as tf:
             if not tf.getmembers():
                 raise RuntimeError('Empty archive: %s' % results_path)
@@ -200,6 +206,6 @@ Job results archive is now available at: jp_H_5vG49/jp_H_5vG49.tar.gz
         return jobdir
 
     def cleanup(self, results_dir):
-        if os.path.isdir(results_dir):
+        if results_dir and os.path.isdir(results_dir):
             logger.debug('Removing jpred results directory: %s' % results_dir)
             shutil.rmtree(results_dir)
