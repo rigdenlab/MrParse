@@ -35,19 +35,21 @@ logger = logging.getLogger(__name__)
 
 class TMPred(object):
     
-    def __init__(self, seq_info, topcons_dir=None):
+    def __init__(self, seq_info):
         self.seq_info = seq_info
-        self.topcons_dir = topcons_dir
         self.prediction = None
         script_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'../scripts')
         self.topcons_script = os.path.join(script_dir, 'topcons2_wsdl.py')
         self.poll_time = POLL_TIME
         self.max_poll_time = MAX_POLL_TIME
 
-    @staticmethod
-    def parse_topcons_output(results_dir):
+    def parse_topcons_directory(self, results_dir):
         assert os.path.isdir(results_dir), "Cannot find directory: %s" % results_dir
         results_file = os.path.join(results_dir, 'query.result.txt')
+        return self.parse_topcons_output(results_file)
+
+    @staticmethod
+    def parse_topcons_output(results_file):
         with open(results_file) as fh:
             line = fh.readline()
             while line:
@@ -172,9 +174,8 @@ class TMPred(object):
     
     def get_prediction(self):
         logger.debug("TMPred starting prediction at: %s" % now())
-        if not self.topcons_dir:
-            self.topcons_dir = self.run_topcons(self.seq_info.sequence_file)
-        prediction, scores = self.parse_topcons_output(self.topcons_dir)
+        topcons_dir = self.run_topcons(self.seq_info.sequence_file)
+        prediction, scores = self.parse_topcons_directory(topcons_dir)
         self.prediction = self.create_annotation(prediction, scores)
         logger.debug("TMPred finished prediction at: %s" % now())
         #self.cleanup()
