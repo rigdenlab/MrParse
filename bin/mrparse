@@ -14,6 +14,9 @@ from mrparse import mr_log
 
 logger = mr_log.setup_logging()
 
+if "CCP4" not in os.environ:
+    raise RuntimeError("Cannot find CCP4 installation - please make sure CCP4 is installed and the setup scripts have been run!")
+
 
 def main():
     '''Command line options.'''
