@@ -1,7 +1,7 @@
 # MrParse
 Automated Molecular Replacement decision protocol
 
-MrParse is a [CCP4](http://www.ccp4.ac.uk) program takes a protein amino acid sequence file and searches for homologs using [PHMMER](http://hmmer.org/) (default) or [HHSEARCH](https://github.com/soedinglab/hh-suite). It can then use [PHASER](https://www.phaser.cimr.cam.ac.uk/index.php/Phaser_Crystallographic_Software) to calculate the Expected Log Likelihood Gains (eLLG) values for the homologs.
+MrParse is a [CCP4](http://www.ccp4.ac.uk) program takes a protein amino acid sequence file and searches for homologs using [PHMMER](http://hmmer.org/) (default) or [HHSEARCH](https://github.com/soedinglab/hh-suite). If supplied with a reflection data file (currently in MTZ format), it can then use [PHASER](https://www.phaser.cimr.cam.ac.uk/index.php/Phaser_Crystallographic_Software) to calculate the Expected Log Likelihood Gains (eLLG) values for the homologs.
 
 It also attempts to classifiy the sequence according to its secondary structure, and whether any regions are expected to be Coiled-Coil or Transmembrane.
 
