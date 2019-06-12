@@ -19,7 +19,8 @@ def test_data():
     data_dir = '../data'
     d = {
             'x2uvoA_fasta' : os.path.join(data_dir, '2uvoA.fasta'),
-            'x2uvo_mtz' : os.path.join(data_dir, '2uvo_pdbredo.mtz')
+            'x2uvo_mtz' : os.path.join(data_dir, '2uvo_pdbredo.mtz'),
+            'Q13586_fasta' : os.path.join(data_dir, 'Q13586.fasta')
         }
     nt = namedtuple('TestData', d.keys())
     return nt(**d)

@@ -14,8 +14,8 @@ def test_2uvo(test_data):
     assert seq_info.nresidues == 171
     assert seq_info.sequence == data_constants.TWOUVO_SEQ
     assert abs(seq_info.molecular_weight - 17131) < 0.1
-    
-
+     
+ 
 def test_2uvo_write(test_data):
     seq_info = Sequence(seq_file=test_data.x2uvoA_fasta)
     filename = 'foo.fasta'
@@ -26,13 +26,25 @@ def test_2uvo_write(test_data):
     os.unlink(filename)
     
 
+def test_2uvo_write_description(test_data):
+    seq_info = Sequence(seq_file=test_data.x2uvoA_fasta)
+    filename = 'foo.fasta'
+    description = 'foo'
+    seq_info.write(filename, description=description)
+    assert os.path.isfile(filename)
+    s = SeqIO.read(filename, 'fasta', alphabet=IUPAC.protein)
+    assert len(s) == 171
+    assert s.description == description
+    os.unlink(filename)
+    
+ 
 def test_2uvo_seq():
     seq_info = Sequence(sequence=data_constants.TWOUVO_SEQ)
     assert seq_info.nresidues == 171
     assert seq_info.sequence == data_constants.TWOUVO_SEQ
     assert abs(seq_info.molecular_weight - 17131) < 0.1
-
-
+ 
+ 
 def test_2uvo_seq_write(test_data):
     seq_info = Sequence(sequence=data_constants.TWOUVO_SEQ)
     filename = 'foo.fasta'
@@ -41,6 +53,7 @@ def test_2uvo_seq_write(test_data):
     s = SeqIO.read(filename, 'fasta', alphabet=IUPAC.protein)
     assert len(s) == 171
     os.unlink(filename)
+
 
 
 if __name__ == '__main__':
