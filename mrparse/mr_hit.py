@@ -20,10 +20,9 @@ logger = logging.getLogger(__name__)
 class SequenceHit:
     def __init__(self):
         self.name = None
-        self.chainName = None
-        self.pdbName = None
-        self.chainID = None
-        self.domainID = None
+        self.chain_name = None
+        self.pdb_id = None
+        self.chain_id = None
         self.rank = None
         self.prob = 0.0
         self.evalue = 0.0
@@ -31,37 +30,37 @@ class SequenceHit:
         self.score = 0.0
         self.ndomains = 0
         self.alignment = ""
-        self.alnStart = None # Count from 1
-        self.alnStop = None
-        self.tarStart = None # Count from 1
-        self.tarStop = None
-        self.tarExtent = 0
-        self.tarMidpoint = 0.0
+        self.aln_start = None # Count from 1
+        self.aln_stop = None
+        self.tar_start = None # Count from 1
+        self.tar_stop = None
+        self.tar_extent = 0
+        self.tar_midpoint = 0.0
         self.cols = 0
         self.local_sequence_identity = 0.0
         self.overall_sequence_identity = 0.0
-        self.targetAlignment = None
+        self.target_alignment = None
         self.alignments = dict([])
         self.region = None
         self._homolog = None
     
     @property
-    def alnRange(self):
-        return "{}-{}".format(self.alnStart, self.alnStop)
+    def aln_range(self):
+        return "{}-{}".format(self.aln_start, self.aln_stop)
     
     @property
     def length(self):
-        return self.alnStop - self.alnStart
+        return self.aln_stop - self.aln_start
     
     @property
-    def regionId(self):
-        if self.region is not None and hasattr(self.region, 'ID'):
-            return self.region.ID
+    def region_id(self):
+        if self.region is not None and hasattr(self.region, 'id'):
+            return self.region.id
         return None
 
     @property
-    def tarRange(self):
-        return "{}-{}".format(self.tarStart, self.tarStop)
+    def tar_range(self):
+        return "{}-{}".format(self.tar_start, self.tar_stop)
 
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
@@ -107,10 +106,10 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
 #             sequence_identity = float(sum([a==b for a, b in zip(*[str(s.upper().seq) for s in hsp.aln.get_all_seqs()])])) / float(hsp.aln_span) 
             ph = SequenceHit()
             ph.rank = rank
-            ph.chainName = hsp.hit_id
+            ph.chain_name = hsp.hit_id
             name, chain = hsp.hit_id.split('_')
-            ph.pdbName = name
-            ph.chainID = chain
+            ph.pdb_id = name
+            ph.chain_id = chain
             #ph.score = hsp.bitscore
             ph.score = hit.bitscore
             ph.evalue = hsp.evalue # is i-Evalue - possibly evalue_cond in later BioPython
@@ -119,14 +118,14 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
             hstop = hsp.hit_end
             qstart, qstop = hsp.query_range
             qstart_p1 = qstart + 1
-            ph.alnStart = qstart_p1
-            ph.alnStop = qstop
-            ph.tarStart = hstart
-            ph.tarStop = hstop
-            ph.tarExtent = hstop - hstart        
-            ph.tarMidpoint = ((float(qstop) - float(qstart_p1)) / 2.0) + float(qstart_p1)
+            ph.aln_start = qstart_p1
+            ph.aln_stop = qstop
+            ph.tar_start = hstart
+            ph.tar_stop = hstop
+            ph.tar_extent = hstop - hstart        
+            ph.tar_midpoint = ((float(qstop) - float(qstart_p1)) / 2.0) + float(qstart_p1)
             target_alignment = "".join(hsp.aln[0].upper()) # assume the first Sequence is always the target
-            ph.targetAlignment = target_alignment
+            ph.target_alignment = target_alignment
             alignment = "".join(hsp.aln[1].upper()) # assume the first Sequence is always the target
             ph.alignment = alignment
             local, overall = simpleSeqID().getPercent(alignment, target_alignment, target_sequence)
@@ -139,7 +138,7 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
 
 def sort_hits_by_size(hits, ascending=False):
     reverse = not(ascending)
-    return OrderedDict(sorted(hits.items(), key=lambda x: x[1].tarExtent, reverse=reverse))
+    return OrderedDict(sorted(hits.items(), key=lambda x: x[1].tar_extent, reverse=reverse))
 
 def run_phmmer(seq_info, dblvl=95):
     logfile = "phmmer.log"

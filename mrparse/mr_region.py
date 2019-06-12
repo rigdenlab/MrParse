@@ -9,7 +9,7 @@ from mrparse.mr_hit import sort_hits_by_size
 
 class RegionData:
     def __init__(self):
-        self.targetName = ""
+        self.target_name = ""
         self.index = 0
         self.midpoint = 0
         self.extent = 0
@@ -24,7 +24,7 @@ class RegionData:
         return start, stop
 
     @property
-    def ID(self):
+    def id(self):
         return self.index + 1
         
     def __str__(self):
@@ -45,21 +45,21 @@ class RegionFinder(object):
         # Hits need to be sorted from smallest to largest or the domain finding won't work
         if sort:
             hits = sort_hits_by_size(hits, ascending=True)
-        targetRegions = []
+        target_regions = []
         for hit in hits.values():
-#             print "CHECKING HIT %s %s %s" % (hit.name, hit.tarExtent, hit.tarMidpoint)
-            self.create_or_update_region(hit, targetRegions)
+#             print "CHECKING HIT %s %s %s" % (hit.name, hit.tar_extent, hit.tar_midpoint)
+            self.create_or_update_region(hit, target_regions)
         if sort:
-            targetRegions = self.sort_regions(targetRegions)
-        return targetRegions
+            target_regions = self.sort_regions(target_regions)
+        return target_regions
     
-    def create_or_update_region(self, hit, targetRegions):
-        for region in targetRegions:
-#             print "Checking region %s %s %s" % (region.ID, region.extent, region.midpoint)
+    def create_or_update_region(self, hit, target_regions):
+        for region in target_regions:
+#             print "Checking region %s %s %s" % (region.id, region.extent, region.midpoint)
             if self.hit_within_region(hit, region):
 #                 print "WITHIN"
                 return self.update_region(hit, region)
-        self.add_new_region(hit, targetRegions)
+        self.add_new_region(hit, target_regions)
         return
 
     def hit_within_region(self, hit, region, extentTolerance=50, midpointTolerance=20):
@@ -67,10 +67,10 @@ class RegionFinder(object):
 #                                            region.extent + extentTolerance,
 #                                            region.midpoint - midpointTolerance,
 #                                            region.midpoint + midpointTolerance)
-        if hit.tarExtent >= region.extent - extentTolerance and \
-            hit.tarExtent <= region.extent + extentTolerance and \
-            hit.tarMidpoint >= region.midpoint - midpointTolerance and \
-            hit.tarMidpoint <= region.midpoint + midpointTolerance:
+        if hit.tar_extent >= region.extent - extentTolerance and \
+            hit.tar_extent <= region.extent + extentTolerance and \
+            hit.tar_midpoint >= region.midpoint - midpointTolerance and \
+            hit.tar_midpoint <= region.midpoint + midpointTolerance:
             return True
         return False
 
@@ -80,15 +80,15 @@ class RegionFinder(object):
         hit.region = region
         return
     
-    def add_new_region(self, hit, targetRegions):
+    def add_new_region(self, hit, target_regions):
         region = RegionData()
-        region.index = len(targetRegions)
-        region.midpoint = hit.tarMidpoint
-        region.extent = hit.tarExtent
+        region.index = len(target_regions)
+        region.midpoint = hit.tar_midpoint
+        region.extent = hit.tar_extent
         region.matches.append(hit)
-        targetRegions.append(region)
+        target_regions.append(region)
         hit.region = region
-        return targetRegions
+        return target_regions
     
     def sort_regions(self, regions, ascending=False):
         reverse = not(ascending)

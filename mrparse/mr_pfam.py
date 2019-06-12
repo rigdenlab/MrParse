@@ -26,8 +26,8 @@ def add_pfam_dict_to_homologs(regions, seqlen):
     for region in regions:
         for hit in region.matches:
             homolog = hit._homolog
-            start = hit.alnStart
-            stop = hit.alnStop
+            start = hit.aln_start
+            stop = hit.aln_stop
             name = homolog.name
             d = { 'startStyle': "curved",
                   'endStyle': "curved",
@@ -37,7 +37,7 @@ def add_pfam_dict_to_homologs(regions, seqlen):
                   'aliEnd': stop,
                   'colour': region_colors[region.index],
                   'text': name,
-                  'metadata' : { "description" : "Homolog {} from region #{}".format(name, region.ID),
+                  'metadata' : { "description" : "Homolog {} from region #{}".format(name, region.id),
                                  "database" : "PHMMER search",
                                  "start" : start,
                                  "end" : stop,

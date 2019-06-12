@@ -13,7 +13,7 @@ def test_hit_2uvoA(test_data):
         
 
 def test_hit_2uvoA_sort_by_size(test_data, get_2uvo_test_hits):
-    """Hit tarExtent:
+    """Hit tar_extent:
     '2x3t_C_1', 166
     '1ulk_B_1', 117
     '1eis_A_1', 82

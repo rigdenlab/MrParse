@@ -19,7 +19,7 @@ def test_homologs(test_data, get_2uvo_test_hits):
     add_pfam_dict_to_homologs(regions, seq_info.nresidues)
     
     homolog = homologs.values()[0]
-    ali_start = homolog._sequence_hit.alnStart
+    ali_start = homolog._sequence_hit.aln_start
     pfam_ali_start = homolog._pfam_json['regions'][0]['aliStart']
     assert ali_start == pfam_ali_start
 #     {'regions': [{'startStyle': 'curved', 'end': 79, 'start': 2, 'aliStart': 2, 

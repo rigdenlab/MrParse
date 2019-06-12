@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class HomologData(object):
     def __init__(self):
-        self.eLLG = None
+        self.ellg = None
         self.frac_scat = None
         self.length = None
         self.seq_ident = None
@@ -49,7 +49,7 @@ class HomologData(object):
 
     @property
     def region_id(self):
-        return self.region.ID
+        return self.region.id
 
     def json_dict(self):
         """Return a representation of ourselves in json""" 
@@ -84,12 +84,12 @@ def homologs_from_hits(hits):
         hlog.name = hit.name
         hlog.score = hit.score
         hlog.seq_ident = hit.local_sequence_identity / 100.0
-        hlog.region = hit.regionId
+        hlog.region = hit.region_id
         hlog.length = hit.length
-        hlog.seqid_start = hit.tarStart
-        hlog.seqid_stop = hit.tarStop
+        hlog.seqid_start = hit.tar_start
+        hlog.seqid_stop = hit.tar_stop
         
-        hlog.pdb_url = PDB_BASE_URL + hit.pdbName
+        hlog.pdb_url = PDB_BASE_URL + hit.pdb_id
         try:
             hlog.pdb_file, hlog.molecular_weight = prepare_pdb(hit)
         except ModelDownloadException as e:
@@ -107,22 +107,22 @@ def prepare_pdb(hit):
     """
     from ample.util.pdb_edit import _select_residues # import on demand as import v slow
 
-    pdb_name = "{}_{}.pdb".format(hit.pdbName, hit.chainID)
+    pdb_name = "{}_{}.pdb".format(hit.pdb_id, hit.chain_id)
     pdb_file = os.path.join(PDB_DOWNLOAD_DIR, pdb_name)
     pdb_struct = PdbStructure()
     if os.path.isfile(pdb_file):
         pdb_struct.from_file(pdb_file)
     else:
-        pdb_struct.from_pdb_code(hit.pdbName)
+        pdb_struct.from_pdb_code(hit.pdb_id)
         pdb_struct.standardize()
-        pdb_struct.select_chain_by_id(hit.chainID)
+        pdb_struct.select_chain_by_id(hit.chain_id)
         pdb_struct.save(pdb_file)
     if len(pdb_struct.hierarchy.models()) == 0:
         raise ModelDownloadException("Hierarchy has no models for pdb_name %s" % pdb_name)
     
-    seqid_range = range(hit.tarStart, hit.tarStop + 1) 
+    seqid_range = range(hit.tar_start, hit.tar_stop + 1) 
     _select_residues(pdb_struct.hierarchy, tokeep_idx=seqid_range)    
-    truncated_pdb_name = "{}_{}_{}-{}.pdb".format(hit.pdbName, hit.chainID, hit.tarStart, hit.tarStop)
+    truncated_pdb_name = "{}_{}_{}-{}.pdb".format(hit.pdb_id, hit.chain_id, hit.tar_start, hit.tar_stop)
     truncated_pdb_path = os.path.join(HOMOLOGS_DIR, truncated_pdb_name)
     pdb_struct.save(truncated_pdb_path)
     return truncated_pdb_path, float(pdb_struct.molecular_weight)
@@ -163,7 +163,7 @@ def calculate_ellg(homologs, hkl_info):
             ellginput.addENSE_PDB_ID(hname, d.pdb_file, d.seq_ident)
             search_models.append(hname)
         else:
-            d.eLLG = -1 # Set to -1 so that sorting works properly
+            d.ellg = -1 # Set to -1 so that sorting works properly
             logger.warn("Cannot calculate eLLG for homolog {} due to missing data.".format(hname))
     ellginput.addSEAR_ENSE_OR_ENSE_NUM(search_models, 1)
     runellg = phaser.runMR_ELLG(ellginput)
@@ -196,7 +196,7 @@ def ellg_data_from_phaser_log(fpath, homologs):
                         break
                     eLLG, rmsd, frac_scat, name = line.strip().split()
                     h = homologs[name]
-                    h.eLLG = float(eLLG)
+                    h.ellg = float(eLLG)
                     h.rmsd = float(rmsd)
                     h.frac_scat = float(frac_scat)
             # Get ncopies
