@@ -51,12 +51,12 @@ class JPred(object):
             raise RuntimeError("Cannot find directory:%s" % jpred_rundir)
         out_concise = [f for f in os.listdir(jpred_rundir) if f.endswith('.concise')][0]
         out_concise = os.path.join(jpred_rundir, out_concise)
-        self.parse_jpred_output(out_concise)
+        return self.parse_jpred_output(out_concise)
 
     @staticmethod
     def parse_jpred_output(out_concise):
-        cc_28 = None
         ss_pred = None
+        cc_28 = None
         logger.debug('Parsing JPRED concise output: %s' % out_concise)
         with open(out_concise) as f:
             line = f.readline()
@@ -70,7 +70,7 @@ class JPred(object):
                     line = line.strip().replace(prefix,'')
                     ss_pred = "".join(line.split(","))
                 line = f.readline()
-        assert cc_28 and ss_pred
+        assert ss_pred and cc_28
         return ss_pred, cc_28
 
     @staticmethod
