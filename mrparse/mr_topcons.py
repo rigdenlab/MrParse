@@ -118,10 +118,17 @@ class TMPred(object):
     def submit_job(self, seqin):
         cmd = [self.topcons_script, '-m', 'submit', '-seq', seqin]
         logger.debug("Running cmd: %s", " ".join(cmd))
-        optd = {}
+        optd = { 'stderr': subprocess.STDOUT }
         if PYTHONVERSION > 2:
             optd['encoding'] = 'utf-8'
-        out = subprocess.check_output(cmd, **optd)
+        try:
+            out = subprocess.check_output(cmd, **optd)
+        except Exception as e:
+            logger.debug("Error submitting topcons job: %s", e)
+            logger.debug("Traceback is:", exc_info=sys.exc_info())
+            logger.debug("Output from job is: %s", e.output)
+            raise(e)
+#         out = subprocess.check_output(cmd, **optd)
         logger.debug("Got output: %s", out)
         jobid = None
         for line in out.split(os.linesep):
