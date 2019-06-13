@@ -117,10 +117,11 @@ https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-i
   </div>
 
   <script>
-    function add_graphic(region, parent, residueWidth = 1.0) {
+    function add_graphic(region, parent, residueWidth) {
+      var myResidueWidth = residueWidth || 1.0; 
       let pg = new PfamGraphic();
       pg.setImageParams({
-        residueWidth: residueWidth,
+        residueWidth: myResidueWidth,
         xscale: 1.0,
         yscale: 1.0
       });
