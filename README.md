@@ -14,5 +14,5 @@ The search model finder currently uses [PHMMER](http://hmmer.org/) (distributed 
 ### Classifiers
 * secondary structure classification is currently carried by submitting jobs to the [JPRED](http://www.compbio.dundee.ac.uk/jpred/) server 
 * Coiled-Coil classification is carried out with [Deepcoil](https://github.com/labstructbioinf/DeepCoil). This needs to be installed locally.
-* Transmembrane classification is carried out with [Topcons2](https://github.com/ElofssonLab/TOPCONS2). This functionality is currently broken as the WSDL description file for their online server http://topcons.net/ is missing (an email was sent but no response received)
+* Transmembrane classification is carried out with [Topcons2](https://github.com/ElofssonLab/TOPCONS2). This functionality is currently broken as the WSDL description file for their online server http://topcons.net/ appears to be missing.
 
