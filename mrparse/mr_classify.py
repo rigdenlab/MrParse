@@ -5,6 +5,7 @@ Created on 18 Oct 2018
 '''
 import logging
 import threading
+import sys
 
 
 from mrparse.mr_deepcoil import CCPred
@@ -19,12 +20,14 @@ class PredictorThread(threading.Thread):
     def __init__(self, classifier):
         super(PredictorThread, self).__init__()
         self.classifier = classifier
+        self.exc_info = None
         self.exception = None
     
     def run(self):
         try:
             self.classifier.get_prediction()
         except Exception as e:
+            self.exc_info = sys.exc_info()
             self.exception = e
 
 
@@ -60,10 +63,10 @@ class MrClassifier(object):
             ss_thread.start()
         
         # wait for jobs to finish
-        if  self.do_cc_predictor:
+        if self.do_cc_predictor:
             cc_thread.join()
             logger.info('Coiled-Coil predictor finished')
-        if  self.do_tm_predictor:
+        if self.do_tm_predictor:
             tm_thread.join()
             logger.info('TM predictor finished')
         if  self.do_ss_predictor:
@@ -72,10 +75,10 @@ class MrClassifier(object):
         
         # Handle errors
         if self.do_cc_predictor and cc_thread.exception:
-            logger.critical("Coiled-Coil predictor raised an exception: %s" % cc_thread.exception)
+            logger.critical("Coiled-Coil predictor raised an exception: %s" % cc_thread.exception, exc_info=cc_thread.exc_info)
             self.do_cc_predictor = False
         if self.do_tm_predictor and tm_thread.exception:
-            logger.critical("Transmembrane predictor raised an exception: %s" % tm_thread.exception)
+            logger.critical("Transmembrane predictor raised an exception: %s" % tm_thread.exception, exc_info=tm_thread.exc_info)
             self.do_tm_predictor = False
         
         # Determine pediction
@@ -86,10 +89,11 @@ class MrClassifier(object):
         elif self.do_tm_predictor:
             self.classification_prediction = tm_predictor.prediction
             
-        if self.do_ss_predictor and ss_thread.exception:
-            logger.critical("JPred predictor raised error: %s" % ss_thread.exception)
-        else:
-            self.ss_prediction = ss_predictor.prediction
+        if self.do_ss_predictor:
+            if ss_thread.exception:
+                logger.critical("JPred predictor raised error: %s" % ss_thread.exception, exc_info=ss_thread.exc_info)
+            else:
+                self.ss_prediction = ss_predictor.prediction
     
     def generate_consensus_classification(self, annotations):
         lengths = [len(a) for a in annotations]

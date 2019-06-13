@@ -1,24 +1,23 @@
-'''
-Created on 17 Nov 2018
-
-@author: jmht
-'''
+#!/usr/bin/env ccp4-python
 import set_mrparse_path
 import conftest
+import logging
 import pytest
 
+from mrparse.mr_sequence import Sequence
 from mrparse.mr_classify import MrClassifier
 
 
-@pytest.mark.skip(reason="Need to develop combined classificier tests that run offline")
-def test_generate_local():
-    seqin = '/opt/MrParse/data/Q13586.fasta'
-    topcons_dir = "/opt/MrParse/data/Q13586/topcons"
-    classifier = MrClassifier(seqin, topcons_dir=topcons_dir)
+logging.basicConfig(level=logging.DEBUG)
+
+def test_generate_null(test_data):
+    """This test does nothing as it turns off all of the predictors. It does just however check that the code
+    is consistent and there are no syntax error"""
+    seq_info = Sequence(test_data.x2uvoA_fasta)
+    classifier = MrClassifier(seq_info=seq_info, do_ss_predictor=False, do_tm_predictor=False, do_cc_predictor=False)
     classifier()
     classification = classifier.classification_prediction
-    s = '--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------MMMMMMMMMMMMMMMMMMMMM-------------CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC---------------C-CC--------CC-CC-----------------------------------------CCCCCCCCCCCCCCC----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------'
-    assert classification.annotation == s, classification.annotation
+    assert classification.annotation is None
 
 
 if __name__ == '__main__':
