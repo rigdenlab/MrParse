@@ -14,7 +14,6 @@ from pyjob.exception import PyJobExecutionError
 
 
 THRESHOLD_PROBABILITY = 0.6
-DEEPCOIL_PYTHON = '/Users/jmht/miniconda2/envs/py36/bin/python'
 DEEPCOIL_SCRIPT = '/opt/DeepCoil/deepcoil.py'
 DEEPCOIL_MIN_RESIDUES = 30
 DEEPCOIL_MAX_RESIDUES = 500
@@ -39,9 +38,8 @@ class CCPred(object):
     def __init__(self, seq_info):
         self.seq_info = seq_info
         self.prediction = None
-        if not os.path.isfile(DEEPCOIL_PYTHON) and os.path.isfile(DEEPCOIL_SCRIPT):
-            raise RuntimeError("Cannot find required Deepcoil executables: {} and {}".format(DEEPCOIL_PYTHON,
-                                                                                             DEEPCOIL_SCRIPT))
+        if not os.path.isfile(DEEPCOIL_SCRIPT):
+            raise RuntimeError("Cannot find required Deepcoil script: {}".format(DEEPCOIL_SCRIPT))
         
     def get_prediction(self):
         logger.debug("CCPred starting prediction at: %s" % now())
@@ -76,8 +74,7 @@ def run_deepcoil(seq_info):
     name = 'deepcoil_input'
     input_fasta = '{}.fasta'.format(name)
     seq_info.write(input_fasta, 'fasta', description=name)
-    cmd = [DEEPCOIL_PYTHON,
-           DEEPCOIL_SCRIPT,
+    cmd = [DEEPCOIL_SCRIPT,
            '-i',
            input_fasta]
     try:
