@@ -29,8 +29,11 @@ class PredictorThread(threading.Thread):
 
 
 class MrClassifier(object):
-    def __init__(self, seq_info):
+    def __init__(self, seq_info, do_ss_predictor=True, do_cc_predictor=True, do_tm_predictor=True):
         self.seq_info = seq_info
+        self.do_ss_predictor = do_ss_predictor
+        self.do_cc_predictor = do_cc_predictor
+        self.do_tm_predictor = do_tm_predictor
         self.ss_prediction = None
         self.classification_prediction = None
     
@@ -43,36 +46,50 @@ class MrClassifier(object):
         return self
         
     def get_prediction(self):
-        cc_predictor = CCPred(self.seq_info)
-        tm_predictor = TMPred(self.seq_info)
-        ss_predictor = JPred(seq_info=self.seq_info)
-        cc_thread = PredictorThread(cc_predictor)
-        tm_thread = PredictorThread(tm_predictor)
-        ss_thread = PredictorThread(ss_predictor)
-        cc_thread.start()
-        tm_thread.start()
-        ss_thread.start()
-        cc_thread.join()
-        logger.info('Coiled-Coil predictor finished')
-        tm_thread.join()
-        logger.info('TM predictor finished')
-        ss_thread.join()
-        logger.info('SS predictor finished')
+        if  self.do_cc_predictor:
+            cc_predictor = CCPred(self.seq_info)
+            cc_thread = PredictorThread(cc_predictor)
+            cc_thread.start()
+        if  self.do_tm_predictor:
+            tm_predictor = TMPred(self.seq_info)
+            tm_thread = PredictorThread(tm_predictor)
+            tm_thread.start()
+        if  self.do_ss_predictor:
+            ss_predictor = JPred(seq_info=self.seq_info)
+            ss_thread = PredictorThread(ss_predictor)
+            ss_thread.start()
         
-        if cc_thread.exception and tm_thread.exception:
-            logger.critical("BOTH predictors raised expeptions: %s | %s" % (cc_thread.exception, tm_thread.exception))
-        elif cc_thread.exception:
+        # wait for jobs to finish
+        if  self.do_cc_predictor:
+            cc_thread.join()
+            logger.info('Coiled-Coil predictor finished')
+        if  self.do_tm_predictor:
+            tm_thread.join()
+            logger.info('TM predictor finished')
+        if  self.do_ss_predictor:
+            ss_thread.join()
+            logger.info('SS predictor finished')
+        
+        # Handle errors
+        if self.do_cc_predictor and cc_thread.exception:
             logger.critical("Coiled-Coil predictor raised an exception: %s" % cc_thread.exception)
-            self.classification_prediction = tm_predictor.prediction
-        elif tm_thread.exception:
+            self.do_cc_predictor = False
+        if self.do_tm_predictor and tm_thread.exception:
             logger.critical("Transmembrane predictor raised an exception: %s" % tm_thread.exception)
-            self.classification_prediction = cc_predictor.prediction
-        else:
-            self.classification_prediction = self.generate_consensus_classification([cc_predictor.prediction, tm_predictor.prediction])
+            self.do_tm_predictor = False
         
-        if ss_thread.exception:
+        # Determine pediction
+        if self.do_cc_predictor and self.do_tm_predictor:
+            self.classification_prediction = self.generate_consensus_classification([cc_predictor.prediction, tm_predictor.prediction])
+        elif self.do_cc_predictor:
+            self.classification_prediction = cc_predictor.prediction
+        elif self.do_tm_predictor:
+            self.classification_prediction = tm_predictor.prediction
+            
+        if self.do_ss_predictor and ss_thread.exception:
             logger.critical("JPred predictor raised error: %s" % ss_thread.exception)
-        self.ss_prediction = ss_predictor.prediction
+        else:
+            self.ss_prediction = ss_predictor.prediction
     
     def generate_consensus_classification(self, annotations):
         lengths = [len(a) for a in annotations]
