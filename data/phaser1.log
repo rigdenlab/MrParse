@@ -1,0 +1,856 @@
+<pre>
+<B><FONT COLOR="#FF0000">
+<html><!-- PHENIX HTML LOGFILE -->
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
+### PHENIX: Phaser                                                               2.8.2 ###
+##########################################################################################
+User:         adamsimpkin
+Run time:     Thu Jun 13 11:13:47 2019
+Version:      2.8.2
+Release Date: Mon Feb 11 15:07:43 2019 (svn 8393) (git 7417, d6241f2... )
+
+If you use this software please cite:
+"Phaser Crystallographic Software"
+A.J. McCoy, R.W. Grosse-Kunstleve, P.D. Adams, M.D. Winn, L.C. Storoni & R.J. Read
+J. Appl. Cryst. (2007). 40, 658-674
+<a href="http://journals.iucr.org/j/issues/2007/04/00/he5368/he5368.pdf">PDF</a>
+
+<!--END--></FONT></B>
+
+******************************************************************************************
+*** Phaser Module: PREPROCESSOR                                                  2.8.2 ***
+******************************************************************************************
+
+Input Parameters:
+CELL 44.39 91.51 94.5 90 82 90
+COMPOSITION BY ASU
+COMPOSITION PROTEIN MW 17131 NUM 4
+ENSEMBLE 1eis_A_1 PDB "homologs/1eis_A_0-82.pdb" ID 0.45 
+ENSEMBLE 1iqb_B_1 PDB "homologs/1iqb_B_0-82.pdb" ID 0.45 
+ENSEMBLE 1mmc_A_1 PDB "homologs/1mmc_A_7-30.pdb" ID 0.6 
+ENSEMBLE 1ulk_B_1 PDB "homologs/1ulk_B_3-120.pdb" ID 0.53 
+ENSEMBLE 1ulm_B_1 PDB "homologs/1ulm_B_2-81.pdb" ID 0.54 
+ENSEMBLE 1zuv_A_1 PDB "homologs/1zuv_A_7-29.pdb" ID 0.59 
+ENSEMBLE 2kus_A_1 PDB "homologs/2kus_A_5-34.pdb" ID 0.58 
+ENSEMBLE 2lb7_A_1 PDB "homologs/2lb7_A_1-42.pdb" ID 0.56 
+ENSEMBLE 2n1s_A_1 PDB "homologs/2n1s_A_8-30.pdb" ID 0.63 
+ENSEMBLE 2x3t_C_1 PDB "homologs/2x3t_C_0-166.pdb" ID 1 
+ENSEMBLE 4mpi_A_1 PDB "homologs/4mpi_A_2-39.pdb" ID 0.62 
+ENSEMBLE 4wp4_A_1 PDB "homologs/4wp4_A_1-40.pdb" ID 0.66 
+ENSEMBLE 5wuz_A_1 PDB "homologs/5wuz_A_1-40.pdb" ID 0.58 
+ENSEMBLE 5xdi_A_1 PDB "homologs/5xdi_A_1-37.pdb" ID 0.66 
+ELLG HIRES ON
+LABIN F = FP SIGF = SIGFP
+SEARCH ENSEMBLE 1iqb_B_1  OR ENSEMBLE 2n1s_A_1 OR ENSEMBLE 5xdi_A_1 OR ENSEMBLE 1zuv_A_1
+OR ENSEMBLE 5wuz_A_1 OR ENSEMBLE 1ulm_B_1 OR ENSEMBLE 2x3t_C_1 OR ENSEMBLE 1eis_A_1 OR
+ENSEMBLE 2lb7_A_1 OR ENSEMBLE 2kus_A_1 OR ENSEMBLE 1mmc_A_1 OR ENSEMBLE 4mpi_A_1 OR
+ENSEMBLE 1ulk_B_1 OR ENSEMBLE 4wp4_A_1
+SPACEGROUP P 1 21 1
+
+CPU Time: 0 days 0 hrs 0 mins 0.59 secs (      0.59 secs)
+Finished: Thu Jun 13 11:13:48 2019
+
+******************************************************************************************
+*** Phaser Module: EXPECTED LLG OF ENSEMBLES                                     2.8.2 ***
+******************************************************************************************
+
+---------------------
+ANISOTROPY CORRECTION
+---------------------
+
+   Outlier Rejection
+   -----------------
+   There was 1 reflection of 137253 (0.0007%) rejected as an outlier
+      - outliers with a Wilson probability less than 1e-06
+      - measurements expected to contain fewer than 0.01 bits of information
+
+      H    K    L   reso        Eo^2       sigma probability  wilson low-info
+    -10   52   20   1.52      15.182       0.000   2.549e-07  true   false   
+
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (50) at cycle 3 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1440310.945          -1438478.582              1832.363
+
+   Principal components of anisotropic part of B affecting observed amplitudes:
+     eigenB (A^2)     direction cosines (orthogonal coordinates)
+         2.200             -0.1608   0.0000   0.9870
+        -1.008              0.9870   0.0000   0.1608
+        -1.192              0.0000   1.0000   0.0000
+   Anisotropic deltaB (i.e. range of principal components):   3.392
+
+   Outlier Rejection
+   -----------------
+   No reflections are outliers
+
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (50) at cycle 1 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1438500.437          -1438500.416                 0.021
+
+   Principal components of anisotropic part of B affecting observed amplitudes:
+     eigenB (A^2)     direction cosines (orthogonal coordinates)
+         2.201             -0.1606   0.0000   0.9870
+        -1.007              0.9870   0.0000   0.1606
+        -1.194              0.0000   1.0000   0.0000
+   Anisotropic deltaB (i.e. range of principal components):   3.395
+
+   Outlier Rejection
+   -----------------
+   No reflections are outliers
+
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (50) at cycle 1 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1438500.416          -1438500.416                 0.000
+
+   Principal components of anisotropic part of B affecting observed amplitudes:
+     eigenB (A^2)     direction cosines (orthogonal coordinates)
+         2.201             -0.1606   0.0000   0.9870
+        -1.007              0.9870   0.0000   0.1606
+        -1.194              0.0000   1.0000   0.0000
+   Anisotropic deltaB (i.e. range of principal components):   3.395
+
+   Outlier Rejection
+   -----------------
+   No reflections are outliers
+
+   Refined Anisotropy Parameters
+   -----------------------------
+   Principal components of anisotropic part of B affecting observed amplitudes:
+     eigenB (A^2)     direction cosines (orthogonal coordinates)
+         2.201             -0.1606   0.0000   0.9870
+        -1.007              0.9870   0.0000   0.1606
+        -1.194              0.0000   1.0000   0.0000
+   Anisotropic deltaB (i.e. range of principal components):   3.395
+
+-----------------
+TRANSLATIONAL NCS
+-----------------
+
+   tNCS vector not set
+   Space Group (without translational symmetry):P 1 2 1
+   Patterson Symmetry: P 1 2/m 1
+   Resolution of All Data (Number):        1.40  45.76 (137253)
+   Resolution of Patterson (Number):       5.00   9.98 (2765)
+
+   Raw Patterson Peaks Table
+   -------------------------
+   Sorted by Height
+   Height Vector
+   100.0%:   FRAC -0.0000 +0.0000 +0.0000   (ORTH   -0.0    0.0    0.0)
+    36.3%:   FRAC +0.2116 +0.5000 +0.5086   (ORTH   16.1   45.8   47.6)
+
+   Patterson Top (All) = 36.33%
+      There were 377 peaks
+
+   Patterson Top (Non-origin) = 36.33%
+      Patterson Origin Vector Distance = 15
+      There were 363 non-origin peaks
+
+   Patterson Top (Cutoff) = 36.33%
+      Patterson cutoff = 20%
+      There was 1 non-origin peak over cutoff
+
+   Patterson Top (Large Cell) = 36.33%
+      Unit Cell dimension was not smaller than origin Patterson vector distance
+      There was 1 non-origin and large cell peak over cutoff
+
+   Patterson Top (Analysis) = 36.33%
+      Peaks within minimum Patterson vector distance of one another were deleted
+      There was 1 widely separated non-origin peak over cutoff
+
+   There was 1 non-origin distinct peak (i.e. over 20% of origin peak and more than 15
+   angstroms from the origin)
+
+   Patterson Peaks Table
+   ---------------------
+   Sorted by Height
+   Height Distance   Vector
+    36.3%   64.9 :   FRAC +0.2116 +0.5000 +0.5086   (ORTH   16.1   45.8   47.6)
+
+   Unit Cell:   44.39   91.51   94.50   90.00   82.00   90.00
+
+   Patterson Peaks Expanded by Symmetry
+   ------------------------------------
+   Sorted by distance from origin in unit cell [(0,0,0),(1,1,1)]
+   Height Distance   Vector
+    36.3%  64.9  :   FRAC +0.2116 +0.5000 +0.5086   (ORTH   16.1   45.8   47.6)
+
+   Frequency Top = 0 0 2 height=99.423
+-------------
+NMOL ANALYSIS
+-------------
+
+   Estimate NMOL from Patterson spatial frequency analysis
+   Four measures of reliability of the NMOL estimate are given
+   (1) %Top:
+      Strength of the frequency analysis signal
+         Indicator is strong when %Top > 95
+   (2) tolfrac:
+      The maximum fractional difference (in x, y, or z) between the freq*tNCS-vector and
+      an exact unit cell repeat
+         Indicator is strong when tolfrac < 0.02
+   (3) tolorth:
+      The length of the vector difference between freq*tncs-vector and a unit cell repeat
+      in orthogonal Angstroms
+         Indicator is strong when tolorth < 5
+   (4) complete:
+      Most tNCS vectors in tNCS must be present
+
+   Translational NCS Analysis Table
+   --------------------------------
+   C*=Commensurate Modulation
+   C* NMOL  %Patt tNCS-vector              %Freq Frequencies  tol-orth tol-frac repeat-dist
+   F     2   36.3 +0.2116 +0.5000 +0.5086    --- --- --- ---       ---      ---     67.9A
+
+-------
+RESULTS
+-------
+
+   Strong modulation present
+   NMOL not input
+   NMOL and VECTOR set to values from analysis
+      tNCS vector = 0.21159 0.5 0.508572
+      tNCS NMOL = 2
+
+------------------------------------------------------------------------------------------
+Advisory: NMOL (2) set by analysis. If structure solution fails consider other tNCS
+------------------------------------------------------------------------------------------
+
+----------------------------
+TRANSLATIONAL NCS REFINEMENT
+----------------------------
+
+   Special Position Perturbation
+   -----------------------------
+   NCS translation on special position with M = 2
+      NCS translation vector = 0.21159 0.5 0.508572
+   Starting point for refinement will be shifted from special position.
+   Resolution of All Data (Number):        1.40  45.76 (137253)
+   Resolution of Data (Number):           1.40  45.76 (137253)
+      NCS translation has been perturbed in X
+      NCS translation has been perturbed in Y
+      NCS translation has been perturbed in Z
+      NCS translation perturbed by (orthogonal angstroms): 0.266 0.233 0.231
+   NCS translation has been set to 0.206334 0.49745 0.506103
+
+   Protocol cycle #1 of 3
+   Refinement protocol for this macrocycle:
+   ROTATION:    REFINE
+   TRANSLATION: REFINE
+   VARIANCES:   REFINE
+
+   Protocol cycle #2 of 3
+   Refinement protocol for this macrocycle:
+   ROTATION:    REFINE
+   TRANSLATION: REFINE
+   VARIANCES:   REFINE
+
+   Protocol cycle #3 of 3
+   Refinement protocol for this macrocycle:
+   ROTATION:    REFINE
+   TRANSLATION: REFINE
+   VARIANCES:   REFINE
+
+   There are 5 tncs parameter sets to refine
+   Spreading calculation onto 4 threads.
+   Refining tNCS parameters
+   0% 100%
+   |===| DONE
+
+
+   TNCS REFINEMENT #1 OF 5
+   -----------------------
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (100) at cycle 47 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1451370.688          -1434424.756             16945.932
+
+   Ncs Translation Vector                        =  0.2027  0.4955  0.5082
+   Rotational Deviation of NCS related structure =  0.0000  0.0000  0.0000
+      for effective molecular radius = 22.469
+   D corresponding to RMS deviation of NCS related structure:
+      Range (Resolution 45.755 - 1.400):             0.8258 - 0.1954
+
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (100) at cycle 1 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1434424.756          -1434424.755                 0.000
+
+   Ncs Translation Vector                        =  0.2027  0.4955  0.5082
+   Rotational Deviation of NCS related structure =  0.0000  0.0000  0.0000
+      for effective molecular radius = 22.469
+   D corresponding to RMS deviation of NCS related structure:
+      Range (Resolution 45.755 - 1.400):             0.8258 - 0.1954
+
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (100) at cycle 1 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1434424.755          -1434424.755                 0.000
+
+   Ncs Translation Vector                        =  0.2027  0.4955  0.5082
+   Rotational Deviation of NCS related structure =  0.0000  0.0000  0.0000
+      for effective molecular radius = 22.469
+   D corresponding to RMS deviation of NCS related structure:
+      Range (Resolution 45.755 - 1.400):             0.8258 - 0.1954
+
+   TNCS REFINEMENT #2 OF 5
+   -----------------------
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (100) at cycle 46 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1449739.238          -1434253.649             15485.588
+
+   Ncs Translation Vector                        =  0.2036  0.4958  0.5082
+   Rotational Deviation of NCS related structure =  0.0892 -0.0974 -2.1298
+      for effective molecular radius = 22.469
+   D corresponding to RMS deviation of NCS related structure:
+      Range (Resolution 45.755 - 1.400):             0.8440 - 0.3497
+
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (100) at cycle 1 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1434253.649          -1434253.636                 0.013
+
+   Ncs Translation Vector                        =  0.2036  0.4958  0.5082
+   Rotational Deviation of NCS related structure =  0.0892 -0.0974 -2.1298
+      for effective molecular radius = 22.469
+   D corresponding to RMS deviation of NCS related structure:
+      Range (Resolution 45.755 - 1.400):             0.8440 - 0.3497
+
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (100) at cycle 1 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1434253.636          -1434253.635                 0.001
+
+   Ncs Translation Vector                        =  0.2036  0.4958  0.5082
+   Rotational Deviation of NCS related structure =  0.0892 -0.0974 -2.1298
+      for effective molecular radius = 22.469
+   D corresponding to RMS deviation of NCS related structure:
+      Range (Resolution 45.755 - 1.400):             0.8440 - 0.3497
+
+
+   TNCS REFINEMENT #3 OF 5
+   -----------------------
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (100) at cycle 27 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1449073.502          -1434269.349             14804.153
+
+   Ncs Translation Vector                        =  0.2035  0.4959  0.5082
+   Rotational Deviation of NCS related structure =  0.0469 -0.0622 -2.0600
+      for effective molecular radius = 22.469
+   D corresponding to RMS deviation of NCS related structure:
+      Range (Resolution 45.755 - 1.400):             0.9093 - 0.4500
+
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (100) at cycle 3 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1434269.349          -1434253.435                15.914
+
+   Ncs Translation Vector                        =  0.2035  0.4958  0.5082
+   Rotational Deviation of NCS related structure =  0.0958 -0.1484 -2.0758
+      for effective molecular radius = 22.469
+   D corresponding to RMS deviation of NCS related structure:
+      Range (Resolution 45.755 - 1.400):             0.8487 - 0.3625
+
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (100) at cycle 1 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1434253.435          -1434253.366                 0.069
+
+   Ncs Translation Vector                        =  0.2035  0.4958  0.5082
+   Rotational Deviation of NCS related structure =  0.0958 -0.1484 -2.0758
+      for effective molecular radius = 22.469
+   D corresponding to RMS deviation of NCS related structure:
+      Range (Resolution 45.755 - 1.400):             0.8487 - 0.3625
+
+
+   TNCS REFINEMENT #4 OF 5
+   -----------------------
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (100) at cycle 41 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1447540.425          -1434254.257             13286.168
+
+   Ncs Translation Vector                        =  0.2035  0.4958  0.5082
+   Rotational Deviation of NCS related structure = -0.1261  0.0684  2.0767
+      for effective molecular radius = 22.469
+   D corresponding to RMS deviation of NCS related structure:
+      Range (Resolution 45.755 - 1.400):             0.8559 - 0.3468
+
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (100) at cycle 1 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1434254.257          -1434254.247                 0.010
+
+   Ncs Translation Vector                        =  0.2035  0.4958  0.5082
+   Rotational Deviation of NCS related structure = -0.1261  0.0684  2.0767
+      for effective molecular radius = 22.469
+   D corresponding to RMS deviation of NCS related structure:
+      Range (Resolution 45.755 - 1.400):             0.8559 - 0.3468
+
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (100) at cycle 1 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1434254.247          -1434254.245                 0.003
+
+   Ncs Translation Vector                        =  0.2035  0.4958  0.5082
+   Rotational Deviation of NCS related structure = -0.1261  0.0684  2.0767
+      for effective molecular radius = 22.469
+   D corresponding to RMS deviation of NCS related structure:
+      Range (Resolution 45.755 - 1.400):             0.8559 - 0.3468
+
+
+   TNCS REFINEMENT #5 OF 5
+   -----------------------
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (100) at cycle 29 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1446200.485          -1434259.502             11940.984
+
+   Ncs Translation Vector                        =  0.2034  0.4958  0.5082
+   Rotational Deviation of NCS related structure = -0.0771  0.1573  2.0019
+      for effective molecular radius = 22.469
+   D corresponding to RMS deviation of NCS related structure:
+      Range (Resolution 45.755 - 1.400):             0.8820 - 0.3745
+
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (100) at cycle 2 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1434259.502          -1434253.800                 5.702
+
+   Ncs Translation Vector                        =  0.2034  0.4958  0.5082
+   Rotational Deviation of NCS related structure = -0.0835  0.0958  2.0323
+      for effective molecular radius = 22.469
+   D corresponding to RMS deviation of NCS related structure:
+      Range (Resolution 45.755 - 1.400):             0.8393 - 0.3299
+
+   Performing Optimization...
+      Done
+   --- Convergence before iteration limit (100) at cycle 1 ---
+   Start-this-macrocycle End-this-macrocycle Change-this-macrocycle
+    -1434253.800          -1434253.762                 0.038
+
+   Ncs Translation Vector                        =  0.2034  0.4958  0.5082
+   Rotational Deviation of NCS related structure = -0.0835  0.0958  2.0323
+      for effective molecular radius = 22.469
+   D corresponding to RMS deviation of NCS related structure:
+      Range (Resolution 45.755 - 1.400):             0.8393 - 0.3299
+
+
+   Table of Results of Refinements from Perturbed Starting Rotations
+   -----------------------------------------------------------------
+   #  Initial Rot'n      Refined Rot'n      (Angle) Refined Translation   LLgain     
+   1   +0.00 +0.00 +0.00  +0.00 +0.00 +0.00 ( 0.00) +0.203 +0.496 +0.508   1136.094  
+   2   +0.13 -0.34 -0.25  +0.09 -0.10 -2.13 (-2.13) +0.204 +0.496 +0.508   1307.214  
+   3   +0.13 +0.44 -0.25  +0.10 -0.15 -2.08 (-2.08) +0.204 +0.496 +0.508   1307.483 *
+   4   +0.58 -0.08 +0.48  -0.13 +0.07 +2.08 ( 2.08) +0.203 +0.496 +0.508   1306.604  
+   5   +0.13 +0.69 +0.48  -0.08 +0.10 +2.03 ( 2.04) +0.203 +0.496 +0.508   1307.087  
+   Angle Perturbation Sampling = 0.892418
+   Angle Perturbation Range = 0.981659
+
+   Translational NCS Refinement
+   ----------------------------
+   Test rotation #3
+      Final angle  :  0.0958 -0.1484 -2.0758
+      Final vector :  0.2035  0.4958  0.5082
+      tNCS D-values by resolution (low-high) : 0.8487 0.3625
+
+   Weighted Intensity Moments after tNCS (best) refinement
+   -------------------------------------------------------
+   Inverse variance-weighted 2nd Moment = <wE^4>/<wE^2>^2 == <wJ^2>/<wJ>^2
+                        Untwinned   Perfect Twin
+   2nd Moment  Centric:    3.0          2.0
+   2nd Moment Acentric:    2.0          1.5
+                               Measured
+   2nd Moment  Centric:             2.88
+   2nd Moment Acentric:             1.90
+
+   Resolution for Twin Analysis (85% I/SIGI > 3):  1.94A (HiRes= 1.40A)
+
+   Histogram of Epsilon Factors
+   ----------------------------
+      Minimum EpsFac = 0.1547
+      Maximum EpsFac = 1.8465
+      Mean    EpsFac = 0.9993 for 137253 reflections
+
+   Mid EpsFac Bin Value
+    |    0         7287      14574     21861     29148     36435     
+    V    |         |         |         |         |         |         
+   0.0  
+   0.1  
+   0.2  * (222)
+   0.3  * (514)
+   0.4  *** (1595)
+   0.5  ***** (3139)
+   0.6  ******** (5358)
+   0.7  *********** (7859)
+   0.8  ***************** (11928)
+   0.9  **************************** (19917)
+   1.0  ************************************************** (36439)
+   1.1  **************************** (19890)
+   1.2  ***************** (11880)
+   1.3  *********** (7795)
+   1.4  ******** (5315)
+   1.5  ***** (3099)
+   1.6  *** (1594)
+   1.7  * (505)
+   1.8  * (204)
+   1.9  
+   2.0  
+
+-----------------------------
+EXPERIMENTAL ERROR CORRECTION
+-----------------------------
+
+   Calculate Luzzati D factors accounting for observational error...
+
+   Data have been provided as French-Wilson amplitudes
+
+   Resolution of Data (Selected):    1.400 (1.4)
+   Number of Reflections (Selected): 137253 (137253)
+   eLLG Target: 225
+
+----------
+ENSEMBLING
+----------
+
+   Ensemble: 1eis_A_1
+   ------------------
+   PDB file # 1: 1eis_A_0-82.pdb
+      This file contains 1 model
+      The input RmsD of model #1 with respect to the real structure is 0.877
+
+   Ensemble: 1iqb_B_1
+   ------------------
+   PDB file # 1: 1iqb_B_0-82.pdb
+      This file contains 1 model
+      The input RmsD of model #1 with respect to the real structure is 0.877
+
+   Ensemble: 1mmc_A_1
+   ------------------
+   PDB file # 1: 1mmc_A_7-30.pdb
+      This file contains 1 model
+      The input RmsD of model #1 with respect to the real structure is 0.698
+
+   Ensemble: 1ulk_B_1
+   ------------------
+   PDB file # 1: 1ulk_B_3-120.pdb
+      This file contains 1 model
+      The input RmsD of model #1 with respect to the real structure is 0.776
+
+   Ensemble: 1ulm_B_1
+   ------------------
+   PDB file # 1: 1ulm_B_2-81.pdb
+      This file contains 1 model
+      The input RmsD of model #1 with respect to the real structure is 0.765
+
+   Ensemble: 1zuv_A_1
+   ------------------
+   PDB file # 1: 1zuv_A_7-29.pdb
+      This file contains 1 model
+      The input RmsD of model #1 with respect to the real structure is 0.709
+
+   Ensemble: 2kus_A_1
+   ------------------
+   PDB file # 1: 2kus_A_5-34.pdb
+      This file contains 1 model
+      The input RmsD of model #1 with respect to the real structure is 0.720
+
+   Ensemble: 2lb7_A_1
+   ------------------
+   PDB file # 1: 2lb7_A_1-42.pdb
+      This file contains 1 model
+      The input RmsD of model #1 with respect to the real structure is 0.742
+
+   Ensemble: 2n1s_A_1
+   ------------------
+   PDB file # 1: 2n1s_A_8-30.pdb
+      This file contains 1 model
+      The input RmsD of model #1 with respect to the real structure is 0.667
+
+   Ensemble: 2x3t_C_1
+   ------------------
+   PDB file # 1: 2x3t_C_0-166.pdb
+      This file contains 1 model
+      The input RmsD of model #1 with respect to the real structure is 0.397
+
+   Ensemble: 4mpi_A_1
+   ------------------
+   PDB file # 1: 4mpi_A_2-39.pdb
+      This file contains 1 model
+      The input RmsD of model #1 with respect to the real structure is 0.677
+
+   Ensemble: 4wp4_A_1
+   ------------------
+   PDB file # 1: 4wp4_A_1-40.pdb
+      This file contains 1 model
+      The input RmsD of model #1 with respect to the real structure is 0.637
+
+   Ensemble: 5wuz_A_1
+   ------------------
+   PDB file # 1: 5wuz_A_1-40.pdb
+      This file contains 1 model
+      The input RmsD of model #1 with respect to the real structure is 0.720
+
+   Ensemble: 5xdi_A_1
+   ------------------
+   PDB file # 1: 5xdi_A_1-37.pdb
+      This file contains 1 model
+      The input RmsD of model #1 with respect to the real structure is 0.637
+
+   Guide to eLLG values
+   ---------------------
+   eLLG      Top solution correct?
+   <25       -no 
+   25-36     -unlikely
+   36-49     -possibly
+   49-64     -probably
+   >64       -yes
+
+-----------------
+POLY-ALANINE ELLG
+-----------------
+
+   Resolution = 1.4
+   Default RMSD = 0.1 0.2 0.4 0.8 1.6 3.2
+   Minimum solvent = 20%
+      Maximum number of polyalanine residues = 790 (-full-)
+   Alanine residues for eLLG target = 60
+
+   Table of Alanine Residues for eLLG Target
+   -----------------------------------------
+                  ---RMSD--- 
+   eLLG-target |  0.10  0.20  0.40  0.80  1.60  3.20 
+           225 |    60    68   103   266 -full--full-
+           196 |    56    63    96   249 -full--full-
+           169 |    52    59    89   231 -full--full-
+           144 |    48    54    82   213   740 -full-
+           121 |    44    50    75   195   678 -full-
+           100 |    40    45    68   177   616 -full-
+            81 |    36    41    61   160   555 -full-
+            64 |    32    36    55   142   493 -full-
+            49 |    28    31    48   124   431 -full-
+            36 |    24    27    41   106   370 -full-
+            25 |    20    22    34    88   308 -full-
+            16 |    16    18    27    71   246 -full-
+             9 |    12    13    20    53   185 -full-
+             4 |     8     9    13    35   123 -full-
+             1 |     4     4     6    17    61   405 
+
+--------------
+MONOMERIC ELLG
+--------------
+
+   Expected LLG (eLLG)
+   -------------------
+   eLLG: eLLG of ensemble alone
+       eLLG   RMSD frac-scat  Ensemble
+       39.5  0.877   0.13133  1eis_A_1
+       40.5  0.877   0.13299  1iqb_B_1
+    7.09634  0.698   0.03863  1mmc_A_1
+      133.8  0.776   0.19850  1ulk_B_1
+       67.6  0.765   0.13768  1ulm_B_1
+    6.95745  0.709   0.03917  1zuv_A_1
+    9.34024  0.720   0.04649  2kus_A_1
+       17.0  0.742   0.06582  2lb7_A_1
+    6.25420  0.667   0.03379  2n1s_A_1
+     1378.4  0.397   0.25668  2x3t_C_1
+       18.3  0.677   0.05920  4mpi_A_1
+       27.8  0.637   0.06651  4wp4_A_1
+       18.1  0.720   0.06472  5wuz_A_1
+       20.2  0.637   0.05661  5xdi_A_1
+
+   Resolution for eLLG target
+   --------------------------
+   eLLG-reso: Resolution to achieve target eLLG (225)
+     eLLG-reso  Ensemble
+   > 1.40(all)  1eis_A_1
+   > 1.40(all)  1iqb_B_1
+   > 1.40(all)  1mmc_A_1
+   > 1.40(all)  1ulk_B_1
+   > 1.40(all)  1ulm_B_1
+   > 1.40(all)  1zuv_A_1
+   > 1.40(all)  2kus_A_1
+   > 1.40(all)  2lb7_A_1
+   > 1.40(all)  2n1s_A_1
+         3.304  2x3t_C_1
+   > 1.40(all)  4mpi_A_1
+   > 1.40(all)  4wp4_A_1
+   > 1.40(all)  5wuz_A_1
+   > 1.40(all)  5xdi_A_1
+
+   Resolution for eLLG target: data collection
+   -------------------------------------------
+   eLLG-reso: Resolution to achieve target eLLG (225) with perfect data
+     eLLG-reso  Ensemble
+        >1.2A   1eis_A_1
+        >1.2A   1iqb_B_1
+        >1.2A   1mmc_A_1
+        >1.2A   1ulk_B_1
+        >1.2A   1ulm_B_1
+        >1.2A   1zuv_A_1
+        >1.2A   2kus_A_1
+        >1.2A   2lb7_A_1
+        >1.2A   2n1s_A_1
+         3.505  2x3t_C_1
+        >1.2A   4mpi_A_1
+        >1.2A   4wp4_A_1
+        >1.2A   5wuz_A_1
+        >1.2A   5xdi_A_1
+
+   eLLG indicates that placement of a single copy of ensemble "2x3t_C_1" should be easy
+------------------------------------------------------------------------------------------
+Advisory: 
+eLLG indicates that placement of a single copy of ensemble "1eis_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "1iqb_B_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "1mmc_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "1ulk_B_1" could be difficult
+eLLG indicates that placement of a single copy of ensemble "1ulm_B_1" could be difficult
+eLLG indicates that placement of a single copy of ensemble "1zuv_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "2kus_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "2lb7_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "2n1s_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "4mpi_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "4wp4_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "5wuz_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "5xdi_A_1" will be very
+difficult
+------------------------------------------------------------------------------------------
+
+   Expected LLG (eLLG): Chains
+   ---------------------------
+   eLLG: eLLG of chain alone
+       eLLG   RMSD frac-scat chain  Ensemble
+       39.5  0.877   0.13133  " A"  1eis_A_1
+       40.5  0.877   0.13299  " B"  1iqb_B_1
+    7.09634  0.698   0.03863  " A"  1mmc_A_1
+      133.8  0.776   0.19850  " B"  1ulk_B_1
+       67.6  0.765   0.13768  " B"  1ulm_B_1
+    6.95745  0.709   0.03917  " A"  1zuv_A_1
+    9.34024  0.720   0.04649  " A"  2kus_A_1
+       17.0  0.742   0.06582  " A"  2lb7_A_1
+    6.25420  0.667   0.03379  " A"  2n1s_A_1
+     1378.4  0.397   0.25668  " C"  2x3t_C_1
+       18.3  0.677   0.05920  " A"  4mpi_A_1
+       27.8  0.637   0.06651  " A"  4wp4_A_1
+       18.1  0.720   0.06472  " A"  5wuz_A_1
+       20.2  0.637   0.05661  " A"  5xdi_A_1
+
+   Resolution for eLLG target: Chains
+   ----------------------------------
+   eLLG-reso: Resolution to achieve target eLLG (225)
+     eLLG-reso chain  Ensemble
+   > 1.40(all)  " A"  1eis_A_1
+   > 1.40(all)  " B"  1iqb_B_1
+   > 1.40(all)  " A"  1mmc_A_1
+   > 1.40(all)  " B"  1ulk_B_1
+   > 1.40(all)  " B"  1ulm_B_1
+   > 1.40(all)  " A"  1zuv_A_1
+   > 1.40(all)  " A"  2kus_A_1
+   > 1.40(all)  " A"  2lb7_A_1
+   > 1.40(all)  " A"  2n1s_A_1
+         3.304  " C"  2x3t_C_1
+   > 1.40(all)  " A"  4mpi_A_1
+   > 1.40(all)  " A"  4wp4_A_1
+   > 1.40(all)  " A"  5wuz_A_1
+   > 1.40(all)  " A"  5xdi_A_1
+
+--------------------
+HOMO-OLIGOMERIC ELLG
+--------------------
+
+   Number of copies for eLLG target
+   --------------------------------
+   eLLG-target   RMSD frac-scat-known frac-scat   num-copies  Ensemble
+           225  0.877         0.26266   0.39400            3  1eis_A_1
+           225  0.877         0.26598   0.39896            3  1iqb_B_1
+           225  0.698         0.19316   0.23179            6  1mmc_A_1
+           225  0.776         0.19850   0.39701            2  1ulk_B_1
+           225  0.765         0.13768   0.27536            2  1ulm_B_1
+           225  0.709         0.19587   0.23504            6  1zuv_A_1
+           225  0.720         0.18595   0.23243            5  2kus_A_1
+           225  0.742         0.19745   0.26326            4  2lb7_A_1
+           225  0.667         0.16895   0.20274            6  2n1s_A_1
+           225  0.397         0.00000   0.25668            1  2x3t_C_1
+           225  0.677         0.17761   0.23681            4  4mpi_A_1
+           225  0.637         0.13301   0.19952            3  4wp4_A_1
+           225  0.720         0.19417   0.25890            4  5wuz_A_1
+           225  0.637         0.16983   0.22644            4  5xdi_A_1
+
+CPU Time: 0 days 0 hrs 5 mins 15.29 secs (    315.29 secs)
+Finished: Thu Jun 13 11:18:06 2019
+
+--------
+ADVISORY
+--------
+
+
+eLLG indicates that placement of a single copy of ensemble "1eis_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "1iqb_B_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "1mmc_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "1ulk_B_1" could be difficult
+eLLG indicates that placement of a single copy of ensemble "1ulm_B_1" could be difficult
+eLLG indicates that placement of a single copy of ensemble "1zuv_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "2kus_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "2lb7_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "2n1s_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "4mpi_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "4wp4_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "5wuz_A_1" will be very
+difficult
+eLLG indicates that placement of a single copy of ensemble "5xdi_A_1" will be very
+difficult
+
+NMOL (2) set by analysis. If structure solution fails consider other tNCS
+
+--------------------
+EXIT STATUS: SUCCESS
+--------------------
+
+CPU Time: 0 days 0 hrs 5 mins 15.29 secs (    315.29 secs)
+Finished: Thu Jun 13 11:18:06 2019
+
+</pre>
+</html>
