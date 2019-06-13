@@ -12,10 +12,7 @@ import time
 import zipfile
 
 from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation
-from mrparse.mr_util import now
-
-
-PYTHONVERSION = sys.version_info[0]
+from mrparse.mr_util import now, run_cmd
 
 
 class OutOfTimeException(Exception):
@@ -117,19 +114,7 @@ class TMPred(object):
     
     def submit_job(self, seqin):
         cmd = [self.topcons_script, '-m', 'submit', '-seq', seqin]
-        logger.debug("Running cmd: %s", " ".join(cmd))
-        optd = { 'stderr': subprocess.STDOUT }
-        if PYTHONVERSION > 2:
-            optd['encoding'] = 'utf-8'
-        try:
-            out = subprocess.check_output(cmd, **optd)
-        except Exception as e:
-            logger.debug("Error submitting topcons job: %s", e)
-            logger.debug("Traceback is:", exc_info=sys.exc_info())
-            logger.debug("Output from job is: %s", e.output)
-            raise(e)
-#         out = subprocess.check_output(cmd, **optd)
-        logger.debug("Got output: %s", out)
+        out = run_cmd(out)
         jobid = None
         for line in out.split(os.linesep):
             if line.startswith("You have successfully submitted your job"):
@@ -138,19 +123,13 @@ class TMPred(object):
             raise RuntimeError("Error submitting topcons job: %s" % out)
         return jobid
         
-    
     def job_finished(self, jobid):
         """
         Your job with jobid rst_rUF74H is finished!
         The result file ./rst_rUF74H.zip has been retrieved for jobid rst_rUF74H
         """
         cmd = [self.topcons_script, '-m', 'get', '-jobid', jobid]
-        logger.debug("Running cmd: %s", " ".join(cmd))
-        optd = {}
-        if PYTHONVERSION > 2:
-            optd['encoding'] = 'utf-8'
-        out = subprocess.check_output(cmd, **optd)
-        logger.debug("Got output: %s", out)
+        out = run_cmd(cmd)
         _jobid = None
         for line in out.split(os.linesep):
             if line.endswith("finished!"):

@@ -335,7 +335,7 @@ subcommand 'status' => sub {
 
 	    if ($response->content =~ /finished/) {
 		if ($getResults eq "yes") {
-		    if (!$silent) {print "Will attempt to download results now (using 'wget') from:\n";}
+		    if (!$silent) {print "Will attempt to download results now (using 'curl') from:\n";}
 		    my $arcURL = JPRED4."/results/$id/$id.tar.gz";
 		    if (!$silent) {print "$arcURL\n\n";}
 		    system("mkdir $id");

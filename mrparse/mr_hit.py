@@ -7,9 +7,8 @@ from collections import OrderedDict
 import logging
 import os
 
+from mrparse.mr_util import run_cmd, EXE_EXT
 from mrbump.seq_align.simpleSeqID import simpleSeqID
-from pyjob import cexec
-from pyjob.script import EXE_EXT
 from Bio import SearchIO
 
 PHMMER = 'phmmer'
@@ -157,7 +156,7 @@ def run_phmmer(seq_info, dblvl=95):
            '--domtblout', phmmerDomTblout,
            '-A', alnfile,
            seq_info.sequence_file, seqdb]
-    stdout = cexec(cmd)
+    stdout = run_cmd(cmd)
     with open(logfile, 'w') as f_out:
         f_out.write(stdout)
     return logfile

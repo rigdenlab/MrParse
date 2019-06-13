@@ -27,6 +27,26 @@ def test_submit(test_data):
     assert p.annotation[232] == 'H', p.annotation[232] 
     assert p.annotation[390:397] == 'EEEEEEE', p.annotation[390:397]
 
+
+def test_parse_submission_output():
+    submission_output = """Your job will be submitted with the following parameters:
+file: ../data/Q13586.fasta
+format: seq
+skipPDB: on
+email: jens.thomas@liverpool.ac.uk
+name: jens_test_job
+
+
+Created JPred job with jobid: jp_H_5vG49
+You can check the status of the job using the following URL: http://www.compbio.dundee.ac.uk/jpred4/cgi-bin/chklog?jp_H_5vG49
+...or using 'perl jpredapi status jobid=jp_H_5vG49 getResults=yes checkEvery=60 silent' command
+(Check documentation for more details.)"""
+
+    jobid, status_url = JPred.parse_status_url(submission_output)
+    assert jobid == 'jp_H_5vG49'
+    assert status_url == 'http://www.compbio.dundee.ac.uk/jpred4/cgi-bin/chklog?jp_H_5vG49'
+
+
 if __name__ == '__main__':
     import sys
     import pytest

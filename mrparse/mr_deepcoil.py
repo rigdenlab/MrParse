@@ -8,9 +8,7 @@ import logging
 import os
 import numpy as np
 from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation, NULL_ANNOTATION
-from mrparse.mr_util import now, is_exe
-from pyjob import cexec
-from pyjob.exception import PyJobExecutionError
+from mrparse.mr_util import now, is_exe, run_cmd
 
 
 THRESHOLD_PROBABILITY = 0.6
@@ -77,16 +75,11 @@ def run_deepcoil(seq_info):
     cmd = [DEEPCOIL_SCRIPT,
            '-i',
            input_fasta]
-    try:
-        # Need to sent env so that we don't inherit python2 environment
-        _ = cexec(cmd, env={})
-    except (OSError, PyJobExecutionError) as e:
-        logger.exception("Error running command:%s", cmd)
-        raise(e)
-    os.unlink(input_fasta)
+    run_cmd(cmd)
     out_file = '{}.out'.format(name)
     if not os.path.isfile(out_file):
         logger.debug("Could not find named deepcoil output file: %s", out_file)
+    os.unlink(input_fasta)
     return out_file
 
 

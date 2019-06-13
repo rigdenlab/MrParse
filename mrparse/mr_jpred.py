@@ -5,6 +5,7 @@ Created on 14 Nov 2018
 '''
 import logging
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -12,9 +13,8 @@ import tarfile
 import time
 
 from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation
-from mrparse.mr_util import now
+from mrparse.mr_util import now, run_cmd
 
-PYTHONVERSION = sys.version_info[0]
 JPRED_SUBMISSION_EMAIL = 'jens.thomas@liverpool.ac.uk'
 
 logger = logging.getLogger(__name__)
@@ -72,6 +72,32 @@ class JPred(object):
                 line = f.readline()
         assert ss_pred and cc_28
         return ss_pred, cc_28
+    
+    @staticmethod
+    def parse_status_url(output):
+        """
+Your job will be submitted with the following parameters:
+file: ../data/Q13586.fasta
+format: seq
+skipPDB: on
+email: jens.thomas@liverpool.ac.uk
+name: jens_test_job
+
+
+Created JPred job with jobid: jp_H_5vG49
+You can check the status of the job using the following URL: http://www.compbio.dundee.ac.uk/jpred4/cgi-bin/chklog?jp_H_5vG49
+...or using 'perl jpredapi status jobid=jp_H_5vG49 getResults=yes checkEvery=60 silent' command
+(Check documentation for more details.)
+
+        """
+        jobid, status_url = None, None
+        mregx = 'Created JPred job with jobid: (\S+)\s+You can check the status of the job using the following URL: ?(http?://\S+)'
+        match = re.search(mregx, output)
+        if not match:
+            raise RuntimeError("Cannot parse jobid and status_url from output: {}".format(output))
+        jobid = match.group(1)
+        status_url = match.group(2)
+        return jobid, status_url
 
     @staticmethod
     def create_annotation(annotation):
@@ -121,21 +147,6 @@ class JPred(object):
         return results_dir
     
     def submit_job(self, seqin):
-        """
-Your job will be submitted with the following parameters:
-file: ../data/Q13586.fasta
-format: seq
-skipPDB: on
-email: jens.thomas@liverpool.ac.uk
-name: jens_test_job
-
-
-Created JPred job with jobid: jp_H_5vG49
-You can check the status of the job using the following URL: http://www.compbio.dundee.ac.uk/jpred4/cgi-bin/chklog?jp_H_5vG49
-...or using 'perl jpredapi status jobid=jp_H_5vG49 getResults=yes checkEvery=60 silent' command
-(Check documentation for more details.)
-
-        """
         cmd = [self.jpred_script,
                'submit',
                'file=%s' % seqin,
@@ -144,18 +155,9 @@ You can check the status of the job using the following URL: http://www.compbio.
 #                'email={}'.format(JPRED_SUBMISSION_EMAIL),
                'name=ccp4_mrparse_submission',
                'skipPDB=on']
-        logger.debug("Running cmd: %s", " ".join(cmd))
-        optd = {}
-        if PYTHONVERSION > 2:
-            optd['encoding'] = 'utf-8'
-        out = subprocess.check_output(cmd, **optd)
-        logger.debug("%s got output: %s", self.jpred_script, out)
-        jobid = None
-        for line in out.split(os.linesep):
-            if line.startswith("Created JPred job with jobid:"):
-                jobid = line.split(':')[1].strip()
-        if jobid is None:
-            raise RuntimeError("Error submitting jpred job: %s" % out)
+        out = run_cmd(cmd)
+        jobid, status_url = self.parse_status_url(out)
+        logger.info("*** Submitted JPRED job with id %s - check its progress here: %s", jobid, status_url)
         return jobid
         
     def get_results(self, jobid):
@@ -178,12 +180,7 @@ Job results archive is now available at: jp_H_5vG49/jp_H_5vG49.tar.gz
                'jobid=%s' % jobid,
                'getResults=yes',
                'checkEvery=10']
-        logger.debug("Running cmd: %s", " ".join(cmd))
-        optd = {}
-        if PYTHONVERSION > 2:
-            optd['encoding'] = 'utf-8'
-        out = subprocess.check_output(cmd, **optd)
-        logger.debug("Got output: %s", out)
+        out = run_cmd(cmd)
         _jobid = None
         for line in out.split(os.linesep):
             if line.startswith("Job results archive is now available at:"):
