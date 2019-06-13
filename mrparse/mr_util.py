@@ -39,10 +39,15 @@ def now():
     return datetime.datetime.now().strftime("%d/%m/%y %H:%M:%S")
 
 
-def run_cmd(cmd):
-    """Should replace with pyjob"""
+def run_cmd(cmd, env={'PYTHONPATH':''}):
+    """Should replace with pyjob
+    
+    Always set PYTHONPATH to null so processes don't inherit our environment
+    """
     logger.debug("Running cmd: %s", " ".join(cmd))
     optd = { 'stderr': subprocess.STDOUT }
+    if env:
+        optd['env'] = env
     if PYTHONVERSION > 2:
         optd['encoding'] = 'utf-8'
     try:
