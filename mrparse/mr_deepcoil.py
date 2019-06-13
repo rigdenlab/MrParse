@@ -8,7 +8,7 @@ import logging
 import os
 import numpy as np
 from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation, NULL_ANNOTATION
-from mrparse.mr_util import now
+from mrparse.mr_util import now, is_exe
 from pyjob import cexec
 from pyjob.exception import PyJobExecutionError
 
@@ -38,11 +38,11 @@ class CCPred(object):
     def __init__(self, seq_info):
         self.seq_info = seq_info
         self.prediction = None
-        if not os.path.isfile(DEEPCOIL_SCRIPT):
-            raise RuntimeError("Cannot find required Deepcoil script: {}".format(DEEPCOIL_SCRIPT))
         
     def get_prediction(self):
         logger.debug("CCPred starting prediction at: %s" % now())
+        if not is_exe(DEEPCOIL_SCRIPT):
+            raise RuntimeError("Cannot find or execute required Deepcoil script: {}".format(DEEPCOIL_SCRIPT))
         if self.seq_info.nresidues < DEEPCOIL_MIN_RESIDUES or self.seq_info.nresidues > DEEPCOIL_MAX_RESIDUES:
             raise RuntimeError(
                 "Cannot run Deepcoils as sequence length of {} is outside Deepoil limits of {} < {}".format(

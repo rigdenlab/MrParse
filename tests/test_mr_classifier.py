@@ -16,8 +16,7 @@ def test_generate_null(test_data):
     seq_info = Sequence(test_data.x2uvoA_fasta)
     classifier = MrClassifier(seq_info=seq_info, do_ss_predictor=False, do_tm_predictor=False, do_cc_predictor=False)
     classifier()
-    classification = classifier.classification_prediction
-    assert classification.annotation is None
+    assert classifier.classification_prediction is None
 
 
 if __name__ == '__main__':
