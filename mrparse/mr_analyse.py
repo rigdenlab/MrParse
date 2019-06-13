@@ -40,17 +40,20 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True):
         try:
             search_model_finder()
         except Exception as e:
-            logger.exception('SearchModelFinder failed: %s' % e)
+            logger.critical('SearchModelFinder failed: %s' % e)
+            logger.debug("Traceback is:" , exc_info=sys.exc_info())
         if do_classify:
             try:
                 classifier()
             except Exception as e:
-                logger.exception('MrClassifier failed: %s' % e)
+                logger.critical('MrClassifier failed: %s' % e)
+                logger.debug("Traceback is:" , exc_info=sys.exc_info())
         if hkl_info:
             try:
                 hkl_info()
             except Exception as e:
-                logger.exception('HklInfo failed: %s' % e)
+                logger.critical('HklInfo failed: %s' % e)
+                logger.debug("Traceback is:" , exc_info=sys.exc_info())
     else:
         nproc = 3 if hkl_info else 2
         logger.info("Running on %d processors." % nproc)
@@ -67,17 +70,20 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True):
         try:
             search_model_finder = smf_result.get()
         except Exception as e:
-            logger.exception('SearchModelFinder failed: %s' % e)
+            logger.critical('SearchModelFinder failed: %s' % e)
+            logger.debug("Traceback is:" , exc_info=sys.exc_info())
         if do_classify:
             try:
                 classifier = mrc_result.get()
             except Exception as e:
-                logger.exception('MrClassifier failed: %s' % e)
+                logger.critical('MrClassifier failed: %s' % e)
+                logger.debug("Traceback is:" , exc_info=sys.exc_info())
         if hkl_info:
             try:
                 hkl_info = hklin_result.get()
             except Exception as e:
-                logger.exception('HklInfo failed: %s' % e)
+                logger.critical('HklInfo failed: %s' % e)
+                logger.debug("Traceback is:" , exc_info=sys.exc_info())
 
     results_json = get_results_json(search_model_finder, hkl_info=hkl_info, classifier=classifier)
     js_data = 'const mrparse_data = %s;\n' % results_json

@@ -75,10 +75,12 @@ class MrClassifier(object):
         
         # Handle errors
         if self.do_cc_predictor and cc_thread.exception:
-            logger.critical("Coiled-Coil predictor raised an exception: %s" % cc_thread.exception, exc_info=cc_thread.exc_info)
+            logger.critical("Coiled-Coil predictor raised an exception: %s" % cc_thread.exception)
+            logger.debug("Traceback is:", exc_info=cc_thread.exc_info)
             self.do_cc_predictor = False
         if self.do_tm_predictor and tm_thread.exception:
-            logger.critical("Transmembrane predictor raised an exception: %s" % tm_thread.exception, exc_info=tm_thread.exc_info)
+            logger.critical("Transmembrane predictor raised an exception: %s" % tm_thread.exception)
+            logger.debug("Traceback is:", exc_info=tm_thread.exc_info)
             self.do_tm_predictor = False
         
         # Determine pediction
@@ -91,7 +93,8 @@ class MrClassifier(object):
             
         if self.do_ss_predictor:
             if ss_thread.exception:
-                logger.critical("JPred predictor raised error: %s" % ss_thread.exception, exc_info=ss_thread.exc_info)
+                logger.critical("JPred predictor raised error: %s" % ss_thread.exception)
+                logger.debug("Traceback is:", exc_info=ss_thread.exc_info)
             else:
                 self.ss_prediction = ss_predictor.prediction
     
