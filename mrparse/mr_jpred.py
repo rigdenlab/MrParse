@@ -96,7 +96,7 @@ class JPred(object):
                 logger.critical(e)
                 self.exception = e
                 raise e
-            ss_pred, _ = self.parse_jpred_directory(self.jpred_rundir)
+            ss_pred, _ = self.parse_jpred_directory(jpred_rundir)
         else:
             jpred_rundir = None
             ss_pred, _ = self.parse_jpred_output(self.jpred_output)
