@@ -21,7 +21,8 @@ def get_N_HexCol(N=5):
 
 
 def add_pfam_dict_to_homologs(regions, seqlen):
-    assert len(regions)
+    if not (regions and len(regions)):
+        raise RuntimeError("Need regions argument to contain the search model regions.")
     region_colors = get_N_HexCol(len(regions))
     for region in regions:
         for hit in region.matches:
