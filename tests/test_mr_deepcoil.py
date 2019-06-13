@@ -2,8 +2,11 @@
 import set_mrparse_path
 import conftest
 
+import logging
 from mrparse.mr_sequence import Sequence
 from mrparse.mr_deepcoil import CCPred
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def test_run(test_data):
