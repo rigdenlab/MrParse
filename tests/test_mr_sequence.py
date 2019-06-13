@@ -55,6 +55,11 @@ def test_2uvo_seq_write(test_data):
     os.unlink(filename)
 
 
+def test_5hxg_seq(test_data):
+    seq_info = Sequence(seq_file=test_data.x5hxg_fasta)
+    assert seq_info.nresidues == 351
+    assert seq_info.sequence == data_constants.FIVEHXG_SEQ
+
 
 if __name__ == '__main__':
     import sys

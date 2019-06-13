@@ -13,7 +13,7 @@ from Bio.SeqUtils import molecular_weight
 from Bio.Alphabet import IUPAC
 from Bio.SeqRecord import SeqRecord
 
-SUFFIX_TO_TYPE = { 'fasta' : 'fasta' }
+SUFFIX_TO_TYPE = {'fasta': 'fasta'}
 
 
 class Sequence(object):
@@ -41,8 +41,18 @@ class Sequence(object):
             sequence_type = self._sequence_type_from_filename(seq_file)
             if not sequence_type:
                 raise RuntimeError("Cannot determine sequence type from file: {}".format(seq_file))
-        self._bio_seq_record = SeqIO.read(seq_file, sequence_type, alphabet=IUPAC.protein)
-        self._bio_seq = self._bio_seq_record.seq
+
+        self._bio_seq = ""
+        identifier = []
+        previous_seqs = []
+        for seq in SeqIO.parse(seq_file, sequence_type, alphabet=IUPAC.protein):
+            if seq.seq in previous_seqs:
+                continue
+            self._bio_seq += seq.seq
+            identifier.append(seq.id)
+            previous_seqs.append(seq.seq)
+        self._bio_seq_record = SeqRecord(self._bio_seq)
+        self._bio_seq_record.id = "||".join(identifier)
         
     @staticmethod
     def _sequence_type_from_filename(seq_file):

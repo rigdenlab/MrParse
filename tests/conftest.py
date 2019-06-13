@@ -24,7 +24,8 @@ def test_data():
             'Q13586_fasta': os.path.join(data_dir, 'Q13586.fasta'),
             'topcons_output': os.path.join(data_dir, 'query.result.txt'),
             'jpred_output': os.path.join(data_dir, 'jp_dSDGWMs.concise'),
-            'phaser_log': os.path.join(data_dir, 'phaser1.log')
+            'phaser_log': os.path.join(data_dir, 'phaser1.log'),
+            'x5hxg_fasta': os.path.join(data_dir, '5hxg.fasta')
         }
     nt = namedtuple('TestData', d.keys())
     return nt(**d)
