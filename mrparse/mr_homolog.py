@@ -19,6 +19,7 @@ HOMOLOGS_DIR = 'homologs'
 
 logger = logging.getLogger(__name__)
 
+
 class HomologData(object):
     def __init__(self):
         self.ellg = None
@@ -127,6 +128,7 @@ def prepare_pdb(hit):
     pdb_struct.save(truncated_pdb_path)
     return truncated_pdb_path, float(pdb_struct.molecular_weight)
 
+
 def calculate_ellg(homologs, hkl_info):
     """Run PHASER to calculate the eLLG values and update the homolog data
     
@@ -137,6 +139,7 @@ def calculate_ellg(homologs, hkl_info):
     import phaser
     mrinput = phaser.InputMR_DAT()
     mrinput.setHKLI(hkl_info.hklin)
+    mrinput.setMUTE(True)
     if hkl_info.labels.i and hkl_info.labels.sigi:
         mrinput.setLABI_I_SIGI(hkl_info.labels.i, hkl_info.labels.sigi)
     elif hkl_info.labels.f and hkl_info.labels.sigf:
@@ -152,8 +155,7 @@ def calculate_ellg(homologs, hkl_info):
     ellginput.setSPAC_HALL(datrun.getSpaceGroupHall())
     ellginput.setCELL6(datrun.getUnitCell())
     ellginput.setREFL_DATA(datrun.getDATA())
-    # Can't mute or no logfile!
-    #ellginput.setMUTE(True)
+    ellginput.setMUTE(True)
     
     # Should calculate MW without the search model so that the total MW will be correct when we add the search model
     ellginput.addCOMP_PROT_MW_NUM(hkl_info.molecular_weight, hkl_info.predicted_ncopies)
@@ -168,18 +170,9 @@ def calculate_ellg(homologs, hkl_info):
     ellginput.addSEAR_ENSE_OR_ENSE_NUM(search_models, 1)
     runellg = phaser.runMR_ELLG(ellginput)
     
-    """
-    DIR runellg ['ErrorMessage', 'ErrorName', 'Failed', 'Failure', 'Success',  'concise', 'cpu_time', 
-    'get_ellg_full_resolution', 'get_ellg_target_nres', 'get_map_chain_ellg', 'get_map_ellg_full_resolution', 
-    'get_perfect_data_resolution', 'get_target_resolution', 'get_useful_resolution', 'git_branchname', 'git_commitdatetime', 
-    'git_hash', 'git_rev', 'git_shorthash', 'git_tagname', 'git_totalcommits', 'logfile', 'loggraph', 'output_strings', 'process', 
-    'run_time', 'setLevel', 'setPackageCCP4', 'setPackagePhenix', 'setPhenixCallback', 'setPhenixPackageCallback', 'set_callback', 
-    'set_file_object', 'set_sys_stdout', 'summary', 'svn_revision', 'verbose', 'version_number', 'warnings']
-    """
-    stroutput = runellg.logfile()
     phaser_log = 'phaser1.log'
     with open(phaser_log, 'w') as w:
-        w.write(stroutput)
+        w.write(runellg.summary())
     ellg_data_from_phaser_log(phaser_log, homologs)
 
 

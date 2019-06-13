@@ -12,6 +12,7 @@ from mrparse.mr_util import now
 
 logger = logging.getLogger(__name__)
 
+
 class SearchModelFinder(object):
     def __init__(self, seq_info, hkl_info=None):
         self.seq_info = seq_info

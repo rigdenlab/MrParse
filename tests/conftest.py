@@ -19,14 +19,16 @@ def test_data():
     """
     data_dir = '../data'
     d = {
-            'x2uvoA_fasta' : os.path.join(data_dir, '2uvoA.fasta'),
-            'x2uvo_mtz' : os.path.join(data_dir, '2uvo_pdbredo.mtz'),
-            'Q13586_fasta' : os.path.join(data_dir, 'Q13586.fasta'),
-            'topcons_output' : os.path.join(data_dir, 'query.result.txt'),
-            'jpred_output' : os.path.join(data_dir, 'jp_dSDGWMs.concise')
+            'x2uvoA_fasta': os.path.join(data_dir, '2uvoA.fasta'),
+            'x2uvo_mtz': os.path.join(data_dir, '2uvo_pdbredo.mtz'),
+            'Q13586_fasta': os.path.join(data_dir, 'Q13586.fasta'),
+            'topcons_output': os.path.join(data_dir, 'query.result.txt'),
+            'jpred_output': os.path.join(data_dir, 'jp_dSDGWMs.concise'),
+            'phaser_log': os.path.join(data_dir, 'phaser1.log')
         }
     nt = namedtuple('TestData', d.keys())
     return nt(**d)
+
 
 @pytest.fixture(scope="session")
 def get_2uvo_test_hits():
