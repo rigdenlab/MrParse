@@ -28,6 +28,25 @@ def test_submit(test_data):
     assert p.annotation[390:397] == 'EEEEEEE', p.annotation[390:397]
 
 
+def test_parse_results_output():
+    results_output = """Your job status will be checked with the following parameters:
+JobId: jp_H_5vG49
+getResults: yes
+checkEvery: 10 [sec]
+Thu Nov 29 15:02:01 2018    --->    Job jp_H_5vG49 finished. Results available at the following URL:
+http://www.compbio.dundee.ac.uk/jpred4/results/jp_H_5vG49/jp_H_5vG49.results.html
+
+
+Will attempt to download results now (using 'wget') from:
+http://www.compbio.dundee.ac.uk/jpred4/results/jp_H_5vG49/jp_H_5vG49.tar.gz
+
+Job results archive is now available at: jp_H_5vG49/jp_H_5vG49.tar.gz
+"""
+
+    dpath = JPred.parse_results_output(results_output)
+    assert dpath == 'jp_H_5vG49/jp_H_5vG49.tar.gz'
+
+
 def test_parse_submission_output():
     submission_output = """Your job will be submitted with the following parameters:
 file: ../data/Q13586.fasta

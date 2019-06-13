@@ -72,10 +72,37 @@ class JPred(object):
                 line = f.readline()
         assert ss_pred and cc_28
         return ss_pred, cc_28
-    
+
+    @staticmethod
+    def parse_results_output(output):
+        """Parse directory path of JPRED
+        
+Your job status will be checked with the following parameters:
+JobId: jp_H_5vG49
+getResults: yes
+checkEvery: 10 [sec]
+Thu Nov 29 15:02:01 2018    --->    Job jp_H_5vG49 finished. Results available at the following URL:
+http://www.compbio.dundee.ac.uk/jpred4/results/jp_H_5vG49/jp_H_5vG49.results.html
+
+
+Will attempt to download results now (using 'wget') from:
+http://www.compbio.dundee.ac.uk/jpred4/results/jp_H_5vG49/jp_H_5vG49.tar.gz
+
+Job results archive is now available at: jp_H_5vG49/jp_H_5vG49.tar.gz
+        """
+        dpath = None
+        mregx = 'Job results archive is now available at: ?(\S+/\S+\.tar\.gz)'
+        match = re.search(mregx, output)
+        if not match:
+            raise RuntimeError("Cannot parse directory path from output: {}".format(output))
+        dpath = match.group(1)
+        return dpath
+
+
     @staticmethod
     def parse_status_url(output):
-        """
+        """Parse jobid and status url for JPRED
+        
 Your job will be submitted with the following parameters:
 file: ../data/Q13586.fasta
 format: seq
@@ -161,37 +188,17 @@ You can check the status of the job using the following URL: http://www.compbio.
         return jobid
         
     def get_results(self, jobid):
-        """
-Your job status will be checked with the following parameters:
-JobId: jp_H_5vG49
-getResults: yes
-checkEvery: 10 [sec]
-Thu Nov 29 15:02:01 2018    --->    Job jp_H_5vG49 finished. Results available at the following URL:
-http://www.compbio.dundee.ac.uk/jpred4/results/jp_H_5vG49/jp_H_5vG49.results.html
-
-
-Will attempt to download results now (using 'wget') from:
-http://www.compbio.dundee.ac.uk/jpred4/results/jp_H_5vG49/jp_H_5vG49.tar.gz
-
-Job results archive is now available at: jp_H_5vG49/jp_H_5vG49.tar.gz
-        """
+        """Check results and download from the server"""
         cmd = [self.jpred_script,
                'status',
                'jobid=%s' % jobid,
                'getResults=yes',
                'checkEvery=10']
         out = run_cmd(cmd)
-        _jobid = None
-        for line in out.split(os.linesep):
-            if line.startswith("Job results archive is now available at:"):
-                dpath = line.split(':')[1].strip()
-                _jobid, _ = dpath.split('/')
-                if _jobid != jobid:
-                    raise RuntimeError("Error collecting jpred job: %s" % out)
-                else:
-                    logger.debug("JPred results downloaded to: %s" % dpath)
-                    return dpath
-        return False
+        dpath = self.parse_results_output(out)
+        dpath = os.path.abspath(dpath)
+        logger.debug("JPred results downloaded to: %s" % dpath)
+        return dpath
 
     def unpack_results(self, results_path):
         jobdir, _ = results_path.split('/')
