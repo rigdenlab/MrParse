@@ -133,7 +133,7 @@ You can check the status of the job using the following URL: http://www.compbio.
         ann.scores = [1.0] * len(annotation)
         return ann
 
-    def get_prediction(self, download_tgz=None, jpred_output=None, cleanup=True):
+    def get_prediction(self, download_tgz=None, jpred_output=None, cleanup=False):
         """Calculate SS using the online JPRED server
         
         Parameters
@@ -142,7 +142,8 @@ You can check the status of the job using the following URL: http://www.compbio.
            A results tar.gz file from the JPRED server - FOR RUNNING  UNIT TESTS
         jpred_output : str
            A results file from the JPRED server - FOR RUNNING  UNIT TESTS
-        
+        cleanup : bool
+           Delete the downloaded/unpacked results
         """
         if not (download_tgz or jpred_output): # for testing
             if not os.path.isfile(self.seq_info.sequence_file):

@@ -1,42 +1,31 @@
 #!/usr/bin/env ccp4-python
 # encoding: utf-8
-import os, sys
-from argparse import ArgumentParser
-import logging.config
-import json
+import os
+import sys
+import traceback
 
 # Set up python path so we can do our imports
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 ROOT_DIR = os.path.join(THIS_DIR, '..')
 sys.path.insert(0, ROOT_DIR)
 from mrparse import mr_analyse
-from mrparse import mr_log
+from mrparse import mr_args
 
-logger = mr_log.setup_logging()
 
 if "CCP4" not in os.environ:
     raise RuntimeError("Cannot find CCP4 installation - please make sure CCP4 is installed and the setup scripts have been run!")
 
 
 def main():
-    '''Command line options.'''
-    program_name = os.path.basename(sys.argv[0])
-    logger.info("Starting: %s", program_name)
     try:
-        parser = ArgumentParser()
-        parser.add_argument('--hklin', help='MTZ/CIF Crystal Data file')
-        parser.add_argument('--no_classify', action='store_true', help='Do not run the classifiers - avoids online access')
-        parser.add_argument('--run_serial', action='store_true', help='Run on a single processor')
-        parser.add_argument('--seqin', required=True, help='Sequence file')
-        args = parser.parse_args()
+        args = mr_args.parse_command_line()
         return mr_analyse.run(args.seqin, hklin=args.hklin, run_serial=args.run_serial, do_classify=not(args.no_classify))
     except KeyboardInterrupt:
-        logger.critcal("Interrupted by keyboard!")
+        sys.stderr.write("Interrupted by keyboard!")
         return 0
     except Exception as e:
-        indent = len(program_name) * " "
-        logger.error(program_name + ": " + repr(e) + "\n", exc_info=True)
-        logger.error(indent + "  for help use --help")
+        sys.stderr.write("Error running mrparse: {}\n".format(e))
+        traceback.print_exc(file=sys.stderr)
         return 2
 
 if __name__ == "__main__":

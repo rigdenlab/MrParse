@@ -5,13 +5,13 @@ import os
 import subprocess
 import sys
 
+from mr_log import setup_logging
+from mr_util import make_workdir
 from mr_hkl import HklInfo
 from mr_search_model import SearchModelFinder
 from mr_sequence import Sequence
 from mr_classify import MrClassifier
 
-
-logger = logging.getLogger(__name__)
 
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 HTML_DIR = os.path.join(THIS_DIR, '../html')
@@ -23,13 +23,21 @@ POLL_TIME = 1
 def run(seqin, hklin=None, run_serial=False, do_classify=True):
     if not (seqin and os.path.isfile(seqin)):
         raise RuntimeError("Cannot find seqin file: %s" % seqin)
-    logger.info("mr_analyse running with seqin %s", os.path.abspath(seqin))
+    
+    # Need to make a work directory first as all logs go into there
+    work_dir = make_workdir()
+    os.chdir(work_dir)
+    logger = setup_logging()
+    program_name = os.path.basename(sys.argv[0])
+    logger.info("Starting: %s", program_name)
+    logger.info("Running with seqin %s", os.path.abspath(seqin))
+
     seq_info = Sequence(seqin)
     hkl_info = None
     if hklin:
         if not os.path.isfile(hklin):
             raise RuntimeError("Cannot find hklin file: %s" % hklin)
-        logger.info("mr_analyse running with hklin %s", os.path.abspath(hklin))
+        logger.info("Running with hklin %s", os.path.abspath(hklin))
         hkl_info  = HklInfo(hklin, seq_info=seq_info)
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info)
     classifier = None

@@ -1,6 +1,7 @@
 from enum import Enum
 import json
 import logging
+import logging.config
 import os
 
 class LogColors(Enum):

@@ -9,7 +9,6 @@ import logging
 import os
 import subprocess
 import sys
-
 from pyjob.script import EXE_EXT
 
 
@@ -33,6 +32,38 @@ def is_exe(fpath):
 
     """
     return fpath and os.path.exists(fpath) and os.access(fpath, os.X_OK)
+
+
+def make_workdir(dir_name_stem='mrparse'):
+    """Make a work directory rooted at run_dir and return its path
+
+    Parameters
+    ----------
+    dir_name_stem : str
+       name to use as stem of working directory name
+
+    Returns
+    -------
+    work_dir : str
+       The path to the working directory
+
+    """
+    MAX_WORKDIRS = 100
+    run_dir = os.getcwd()
+    run_inc = 0
+    while True:
+        dname = "{}_{}".format(dir_name_stem, run_inc)
+        work_dir = os.path.join(run_dir, dname)
+        if not os.path.exists(work_dir):
+            break
+        run_inc += 1
+        if run_inc > MAX_WORKDIRS:
+            raise RuntimeError("Too many work directories! {0}".format(work_dir))
+    if os.path.exists(work_dir):
+        raise RuntimeError("There is an existing work directory: {0}\n"
+                           "Please delete/move it aside.".format(work_dir))
+    os.mkdir(work_dir)
+    return work_dir
 
 
 def now():
