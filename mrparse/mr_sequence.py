@@ -84,7 +84,7 @@ class Sequence(object):
            The text to put on the first line of the file if different from that already in the record
         """
         if sequence_type is None:
-            sequence_type = self._sequence_type_from_filename(seq_file)
+            sequence_type = self.sequence_type_from_filename(seq_file)
             if not sequence_type:
                 raise RuntimeError("Cannot determine sequence type from file: {}".format(seq_file))
         if description:
