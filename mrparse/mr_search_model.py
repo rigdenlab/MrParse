@@ -14,9 +14,10 @@ logger = logging.getLogger(__name__)
 
 
 class SearchModelFinder(object):
-    def __init__(self, seq_info, hkl_info=None):
+    def __init__(self, seq_info, hkl_info=None, pdb_download_dir=None):
         self.seq_info = seq_info
         self.hkl_info = hkl_info
+        self.pdb_download_dir = pdb_download_dir
         self.hits = None
         self.regions = None
         self.homologs = None
@@ -43,7 +44,7 @@ class SearchModelFinder(object):
 
     def find_homologs(self):
         assert self.hits and self.regions
-        self.homologs = mr_homolog.homologs_from_hits(self.hits)
+        self.homologs = mr_homolog.homologs_from_hits(self.hits, self.pdb_download_dir)
         if self.hkl_info:
             mr_homolog.calculate_ellg(self.homologs, self.hkl_info)
         return self.homologs

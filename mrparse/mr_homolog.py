@@ -72,9 +72,10 @@ class HomologData(object):
         return out_str
 
 
-def homologs_from_hits(hits):
-    if not os.path.isdir(PDB_DOWNLOAD_DIR):
-        os.mkdir(PDB_DOWNLOAD_DIR)
+def homologs_from_hits(hits, pdb_download_dir=None):
+    pdb_download_dir = pdb_download_dir or PDB_DOWNLOAD_DIR
+    if not os.path.isdir(pdb_download_dir):
+        os.mkdir(pdb_download_dir)
     if not os.path.isdir(HOMOLOGS_DIR):
         os.mkdir(HOMOLOGS_DIR)
     homologs = {}
@@ -92,14 +93,14 @@ def homologs_from_hits(hits):
         
         hlog.pdb_url = PDB_BASE_URL + hit.pdb_id
         try:
-            hlog.pdb_file, hlog.molecular_weight = prepare_pdb(hit)
+            hlog.pdb_file, hlog.molecular_weight = prepare_pdb(hit, pdb_download_dir)
         except ModelDownloadException as e:
             logger.critical("Error processing hit pdb %s", e.message)
         homologs[hlog.name] = hlog
     return homologs
 
 
-def prepare_pdb(hit):
+def prepare_pdb(hit, pdb_download_dir):
     """
     Download pdb or take file from cache
     trucate to required residues
@@ -109,7 +110,7 @@ def prepare_pdb(hit):
     from ample.util.pdb_edit import _select_residues # import on demand as import v slow
 
     pdb_name = "{}_{}.pdb".format(hit.pdb_id, hit.chain_id)
-    pdb_file = os.path.join(PDB_DOWNLOAD_DIR, pdb_name)
+    pdb_file = os.path.join(pdb_download_dir, pdb_name)
     pdb_struct = PdbStructure()
     if os.path.isfile(pdb_file):
         pdb_struct.from_file(pdb_file)

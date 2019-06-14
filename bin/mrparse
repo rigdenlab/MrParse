@@ -19,7 +19,11 @@ if "CCP4" not in os.environ:
 def main():
     try:
         args = mr_args.parse_command_line()
-        return mr_analyse.run(args.seqin, hklin=args.hklin, run_serial=args.run_serial, do_classify=not(args.no_classify))
+        return mr_analyse.run(args.seqin,
+                              hklin=args.hklin,
+                              run_serial=args.run_serial,
+                              do_classify=not(args.no_classify),
+                              pdb_download_dir=args.pdb_dir)
     except KeyboardInterrupt:
         sys.stderr.write("Interrupted by keyboard!")
         return 0
