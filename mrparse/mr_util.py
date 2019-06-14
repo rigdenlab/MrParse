@@ -3,7 +3,7 @@ Created on 14 Dec 2018
 
 @author: jmht
 """
-
+import copy
 import datetime
 import logging
 import os
@@ -70,14 +70,18 @@ def now():
     return datetime.datetime.now().strftime("%d/%m/%y %H:%M:%S")
 
 
-def run_cmd(cmd, env={'PYTHONPATH':''}):
+def run_cmd(cmd):
     """Should replace with pyjob
     
     Always set PYTHONPATH to null so processes don't inherit our environment
+    This needs some thinking about
     """
     logger.debug("Running cmd: %s", " ".join(cmd))
     optd = { 'stderr': subprocess.STDOUT }
-    if env:
+    pythonpath = 'PYTHONPATH'
+    if pythonpath in os.environ:
+        env = copy.copy(os.environ)
+        env.pop(pythonpath)
         optd['env'] = env
     if PYTHONVERSION > 2:
         optd['encoding'] = 'utf-8'
