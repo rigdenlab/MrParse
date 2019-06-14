@@ -5,6 +5,8 @@ import os
 import subprocess
 import sys
 
+from jinja2 import Environment, FileSystemLoader
+
 from mr_log import setup_logging
 from mr_util import make_workdir
 from mr_hkl import HklInfo
@@ -15,9 +17,9 @@ from mr_classify import MrClassifier
 
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 HTML_DIR = os.path.join(THIS_DIR, '../html')
-HTML_OUT = os.path.join(HTML_DIR, 'mrparse.html')
-JS_OUT = os.path.join(HTML_DIR, 'mrparse.js')
-POLL_TIME = 1
+HTML_TEMPLATE = os.path.join(HTML_DIR, 'mrparse.html.jinja2')
+JS_OUT = 'mrparse.js'
+HTML_OUT = 'mrparse.html'
 
 
 def run(seqin, hklin=None, run_serial=False, do_classify=True):
@@ -94,9 +96,7 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True):
                 logger.debug("Traceback is:" , exc_info=sys.exc_info())
 
     results_json = get_results_json(search_model_finder, hkl_info=hkl_info, classifier=classifier)
-    js_data = 'const mrparse_data = %s;\n' % results_json
-    with open(JS_OUT, 'w') as w:
-        w.write(js_data)
+    html_out = write_output_files(results_json)
 
     # Display results in browser
     opencmd = None
@@ -105,8 +105,11 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True):
     elif sys.platform.lower().startswith('darwin'):
         opencmd = 'open'
     if opencmd:
-        subprocess.Popen([opencmd, HTML_OUT])
+        subprocess.Popen([opencmd, html_out])
     return 0
+
+
+
 
 def get_results_json(search_model_finder, hkl_info=None, classifier=None):
     pfam_dict = {}
@@ -118,3 +121,33 @@ def get_results_json(search_model_finder, hkl_info=None, classifier=None):
     if hkl_info:
         data_dict['hkl_info'] = hkl_info.as_dict()
     return json.dumps(data_dict)
+
+
+def write_output_files(results_json):
+    js_data = 'const mrparse_data = %s;\n' % results_json
+    js_out = os.path.abspath(JS_OUT)
+    with open(js_out, 'w') as w:
+        w.write(js_data)
+    html_out = os.path.abspath(HTML_OUT)
+    render_template(HTML_TEMPLATE, html_out, mrparse_html_dir=HTML_DIR)
+    return html_out
+
+
+def render_template(in_file_path, out_file_path, **kwargs):
+    """
+    Templates the given file with the keyword arguments.
+
+    Parameters
+    ----------
+    in_file_path : str
+       The path to the template
+    out_file_path : str
+       The path to output the templated file
+    **kwargs : dict
+       Variables to use in templating
+    """
+    env = Environment(loader=FileSystemLoader(os.path.dirname(in_file_path)), keep_trailing_newline=True)
+    template = env.get_template(os.path.basename(in_file_path))
+    output = template.render(**kwargs)
+    with open(out_file_path, "w") as f:
+        f.write(output)
