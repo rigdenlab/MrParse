@@ -36,22 +36,19 @@ class OutOfTimeException(Exception):
 
 
 class JPred(object):
-    def __init__(self, seq_info=None, jpred_output=None):
+    def __init__(self, seq_info=None):
         self.seq_info = seq_info
-        self.jpred_output = jpred_output
-        self.poll_time = 1
-        self.max_poll_time = 120
         script_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'../scripts')
         self.jpred_script = os.path.join(script_dir, 'jpredapi')
         self.prediction = None
         self.exception = None
 
-    def parse_jpred_directory(self, jpred_rundir):
+    def find_results_file(self, jpred_rundir):
         if not os.path.isdir(jpred_rundir):
             raise RuntimeError("Cannot find directory:%s" % jpred_rundir)
         out_concise = [f for f in os.listdir(jpred_rundir) if f.endswith('.concise')][0]
         out_concise = os.path.join(jpred_rundir, out_concise)
-        return self.parse_jpred_output(out_concise)
+        return out_concise
 
     @staticmethod
     def parse_jpred_output(out_concise):
@@ -136,24 +133,35 @@ You can check the status of the job using the following URL: http://www.compbio.
         ann.scores = [1.0] * len(annotation)
         return ann
 
-    def get_prediction(self):
-        if not self.jpred_output: # for testing
+    def get_prediction(self, download_tgz=None, jpred_output=None, cleanup=True):
+        """Calculate SS using the online JPRED server
+        
+        Parameters
+        ----------
+        download_tgz : str
+           A results tar.gz file from the JPRED server - FOR RUNNING  UNIT TESTS
+        jpred_output : str
+           A results file from the JPRED server - FOR RUNNING  UNIT TESTS
+        
+        """
+        if not (download_tgz or jpred_output): # for testing
             if not os.path.isfile(self.seq_info.sequence_file):
                 msg = "Cannot find JPRED sequence file: %s" % self.seq_info.sequence_file
                 self.exception = msg
                 logger.critical(msg)
                 raise RuntimeError(msg)
             try:
-                jpred_rundir = self.run_jpred(self.seq_info.sequence_file)
+                download_tgz = self.run_jpred(self.seq_info.sequence_file)
             except Exception as e:
                 logger.critical(e)
                 self.exception = e
                 raise e
-            ss_pred, _ = self.parse_jpred_directory(jpred_rundir)
-        else:
-            jpred_rundir = None
-            ss_pred, _ = self.parse_jpred_output(self.jpred_output)
-        self.cleanup(jpred_rundir)
+        if not jpred_output:
+            results_directory = self.unpack_results(download_tgz)
+            jpred_output = self.find_results_file(results_directory)
+        ss_pred, _ = self.parse_jpred_output(jpred_output)
+        if cleanup:
+            self.cleanup(results_directory)
         self.prediction = self.create_annotation(ss_pred)
         logger.debug("JPred finished prediction at: %s" % now())
         return self.prediction
@@ -161,17 +169,8 @@ You can check the status of the job using the following URL: http://www.compbio.
     def run_jpred(self, seqin):
         logger.debug("JPred starting prediction at: %s" % now())
         jobid = self.submit_job(seqin)
-        start = time.time()
-        while True:
-            elapsed_time = time.time() - start
-            if elapsed_time > self.max_poll_time:
-                raise OutOfTimeException("Exceed maximum runtime of: %d" % self.max_poll_time)
-            results_path = self.get_results(jobid)
-            if results_path:
-                break
-            time.sleep(self.poll_time)
-        results_dir = self.unpack_results(results_path)
-        return results_dir
+        download_tgz = self.get_results(jobid)
+        return download_tgz
     
     def submit_job(self, seqin):
         cmd = [self.jpred_script,
@@ -195,21 +194,21 @@ You can check the status of the job using the following URL: http://www.compbio.
                'getResults=yes',
                'checkEvery=10']
         out = run_cmd(cmd)
-        dpath = self.parse_results_output(out)
-        dpath = os.path.abspath(dpath)
-        logger.debug("JPred results downloaded to: %s" % dpath)
-        return dpath
+        download_tgz = self.parse_results_output(out)
+        download_tgz = os.path.abspath(download_tgz)
+        logger.debug("JPred results downloaded to: %s" % download_tgz)
+        return download_tgz
 
-    def unpack_results(self, results_path):
-        jobdir, _ = results_path.split('/')
-        with tarfile.open(results_path, 'r:*') as tf:
+    def unpack_results(self, download_tgz):
+        job_directory = os.path.dirname(download_tgz)
+        with tarfile.open(download_tgz, 'r:*') as tf:
             if not tf.getmembers():
-                raise RuntimeError('Empty archive: %s' % results_path)
-            tf.extractall(path=jobdir)
-        logger.debug('Extracted jpred files to: %s' % jobdir)
-        return jobdir
+                raise RuntimeError('Empty archive: %s' % download_tgz)
+            tf.extractall(path=job_directory)
+        logger.debug('Extracted jpred files to: %s' % job_directory)
+        return job_directory
 
-    def cleanup(self, results_dir):
-        if results_dir and os.path.isdir(results_dir):
-            logger.debug('Removing jpred results directory: %s' % results_dir)
-            shutil.rmtree(results_dir)
+    def cleanup(self, results_directory):
+        if results_directory and os.path.isdir(results_directory):
+            logger.debug('Removing jpred results directory: %s' % results_directory)
+            shutil.rmtree(results_directory)

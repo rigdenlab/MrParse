@@ -3,19 +3,13 @@ import set_mrparse_path
 import conftest
 
 import logging
+import os
+import shutil
 import pytest
 from mrparse.mr_jpred import JPred
 from mrparse.mr_sequence import Sequence
 
 logging.basicConfig(level=logging.DEBUG)
-
-
-def test_parse(test_data):
-    p = JPred(jpred_output=test_data.jpred_output).get_prediction()
-    assert len(p) == 800
-    print(p.annotation)
-    assert p.annotation[19:22] == 'EEE', p.annotation[19:22]
-    assert p.annotation[612:615]  == 'H-H', p.annotation[612:615]
 
 
 @pytest.mark.skip(reason="Skipping querying of JPRED server as this is just a unittest.")
@@ -26,6 +20,25 @@ def test_submit(test_data):
     assert p.annotation[212] == 'H', p.annotation[212] 
     assert p.annotation[232] == 'H', p.annotation[232] 
     assert p.annotation[390:397] == 'EEEEEEE', p.annotation[390:397]
+
+
+def test_get_prediction_local(test_data):
+    p = JPred().get_prediction(jpred_output=test_data.jpred_concise, cleanup=False)
+    assert len(p) == 800
+    assert p.annotation[19:22] == 'EEE', p.annotation[19:22]
+    assert p.annotation[612:615]  == 'H-H', p.annotation[612:615]
+
+
+def test_upack_and_parse(test_data):
+    # Need to setup a directory to run in
+    tgz = os.path.basename(test_data.jpred_tgz)
+    dir_name = tgz.split('.')[0]
+    os.mkdir(dir_name)
+    shutil.copy(test_data.jpred_tgz, dir_name)
+    download_tgz = os.path.join(dir_name ,tgz)
+    p = JPred().get_prediction(download_tgz=download_tgz)
+    assert len(p) == 171
+    assert p.annotation[22:25] == '-E-', p.annotation[19:22]
 
 
 def test_parse_results_output():

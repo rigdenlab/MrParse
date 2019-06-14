@@ -114,7 +114,7 @@ class TMPred(object):
     
     def submit_job(self, seqin):
         cmd = [self.topcons_script, '-m', 'submit', '-seq', seqin]
-        out = run_cmd(out)
+        out = run_cmd(cmd)
         jobid = None
         for line in out.split(os.linesep):
             if line.startswith("You have successfully submitted your job"):

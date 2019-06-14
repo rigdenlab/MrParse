@@ -23,7 +23,8 @@ def test_data():
             'x2uvo_mtz': os.path.join(data_dir, '2uvo_pdbredo.mtz'),
             'Q13586_fasta': os.path.join(data_dir, 'Q13586.fasta'),
             'topcons_output': os.path.join(data_dir, 'query.result.txt'),
-            'jpred_output': os.path.join(data_dir, 'jp_dSDGWMs.concise'),
+            'jpred_concise': os.path.join(data_dir, 'jp_dSDGWMs.concise'),
+            'jpred_tgz': os.path.join(data_dir, 'jp_5or_zBY.tar.gz'),
             'phaser_log': os.path.join(data_dir, 'phaser1.log'),
             'x5hxg_fasta': os.path.join(data_dir, '5hxg.fasta')
         }
