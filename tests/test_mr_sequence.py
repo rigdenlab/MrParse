@@ -3,7 +3,7 @@ import set_mrparse_path
 import conftest
 
 import os
-from mrparse.mr_sequence import Sequence
+from mrparse.mr_sequence import Sequence, merge_multiple_sequences
 from Bio import SeqIO
 from Bio.Alphabet import IUPAC
 import data_constants
@@ -45,7 +45,7 @@ def test_2uvo_seq():
     assert abs(seq_info.molecular_weight - 17131) < 0.1
  
  
-def test_2uvo_seq_write(test_data):
+def test_2uvo_seq_write():
     seq_info = Sequence(sequence=data_constants.TWOUVO_SEQ)
     filename = 'foo.fasta'
     seq_info.write(filename)
@@ -56,10 +56,9 @@ def test_2uvo_seq_write(test_data):
 
 
 def test_5hxg_seq(test_data):
-    seq_info = Sequence(seq_file=test_data.x5hxg_fasta)
+    seq_info = merge_multiple_sequences(seq_file=test_data.x5hxg_fasta)
     assert seq_info.nresidues == 351
     assert seq_info.sequence == data_constants.FIVEHXG_SEQ
-
 
 if __name__ == '__main__':
     import sys
