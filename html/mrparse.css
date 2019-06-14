@@ -1,0 +1,46 @@
+body {
+  padding: 10px;
+}
+
+.container {
+  width: 100%;
+  margin: auto;
+}
+
+.homolog-table {
+  width: 45%;
+  float: left;
+}
+
+.pfam-graphics {
+  margin-left: 45%;
+  /* clear: left; */
+}
+
+table th, td {
+  border: 1px solid black;
+  padding: 2px;
+}
+
+table th {
+  background-color: #d3d3d3;
+  text-align: left;
+}
+
+.homolog-table th > a {
+  text-decoration: none;
+  color: #000000;
+}
+
+.homolog-table th > a:hover {
+  text-decoration: none ! important;
+  /* color: #000000; */
+}
+
+/* responsive structures */
+@media screen and (max-width: 1308px) {
+  .pfam-graphics {
+    margin-left: 0px;
+    clear: left;
+  }
+}
