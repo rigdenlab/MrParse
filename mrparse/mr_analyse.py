@@ -11,9 +11,8 @@ from mr_log import setup_logging
 from mr_util import make_workdir, now
 from mr_hkl import HklInfo
 from mr_search_model import SearchModelFinder
-from mr_sequence import Sequence
+from mr_sequence import Sequence, MultipleSequenceException, merge_multiple_sequences
 from mr_classify import MrClassifier
-
 
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 HTML_DIR = os.path.join(THIS_DIR, '../html')
@@ -34,24 +33,30 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_download_dir=
     logger.info("Starting: %s", program_name)
     logger.info("Program started at: %s", now())
     logger.info("Running from directory: %s", work_dir)
-    
+
     if not (seqin and os.path.isfile(seqin)):
         raise RuntimeError("Cannot find seqin file: %s" % seqin)
     logger.info("Running with seqin %s", os.path.abspath(seqin))
-    seq_info = Sequence(seqin)
-    
+
+    try:
+        seq_info = Sequence(seqin)
+    except MultipleSequenceException:
+        logger.info("Multiple sequences found seqin: %s\n\nAttempting to merge sequences", seqin)
+        seq_info = merge_multiple_sequences(seqin)
+        logger.info("Merged sequence file: %s", seq_info.sequence_file)
+
     hkl_info = None
     if hklin:
         if not os.path.isfile(hklin):
             raise RuntimeError("Cannot find hklin file: %s" % hklin)
         logger.info("Running with hklin %s", os.path.abspath(hklin))
-        hkl_info  = HklInfo(hklin, seq_info=seq_info)
+        hkl_info = HklInfo(hklin, seq_info=seq_info)
 
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_download_dir=pdb_download_dir)
     classifier = None
     if do_classify:
         classifier = MrClassifier(seq_info=seq_info)
-        
+
     if run_serial:
         run_analyse_serial(search_model_finder, classifier, hkl_info, do_classify)
     else:
@@ -74,24 +79,26 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_download_dir=
         subprocess.Popen([opencmd, html_out])
     return 0
 
+
 def run_analyse_serial(search_model_finder, classifier, hkl_info, do_classify):
     try:
         search_model_finder()
     except Exception as e:
         logger.critical('SearchModelFinder failed: %s' % e)
-        logger.debug("Traceback is:" , exc_info=sys.exc_info())
+        logger.debug("Traceback is:", exc_info=sys.exc_info())
     if do_classify:
         try:
             classifier()
         except Exception as e:
             logger.critical('MrClassifier failed: %s' % e)
-            logger.debug("Traceback is:" , exc_info=sys.exc_info())
+            logger.debug("Traceback is:", exc_info=sys.exc_info())
     if hkl_info:
         try:
             hkl_info()
         except Exception as e:
             logger.critical('HklInfo failed: %s' % e)
-            logger.debug("Traceback is:" , exc_info=sys.exc_info())
+            logger.debug("Traceback is:", exc_info=sys.exc_info())
+
 
 def run_analyse_parallel(search_model_finder, classifier, hkl_info, do_classify):
     nproc = 3 if hkl_info else 2
@@ -101,7 +108,7 @@ def run_analyse_parallel(search_model_finder, classifier, hkl_info, do_classify)
     if do_classify:
         mrc_result = pool.apply_async(classifier)
     if hkl_info:
-        hklin_result = pool.apply_async(hkl_info)    
+        hklin_result = pool.apply_async(hkl_info)
     pool.close()
     logger.debug("Pool waiting")
     pool.join()
@@ -110,29 +117,28 @@ def run_analyse_parallel(search_model_finder, classifier, hkl_info, do_classify)
         search_model_finder = smf_result.get()
     except Exception as e:
         logger.critical('SearchModelFinder failed: %s' % e)
-        logger.debug("Traceback is:" , exc_info=sys.exc_info())
+        logger.debug("Traceback is:", exc_info=sys.exc_info())
     if do_classify:
         try:
             classifier = mrc_result.get()
         except Exception as e:
             logger.critical('MrClassifier failed: %s' % e)
-            logger.debug("Traceback is:" , exc_info=sys.exc_info())
+            logger.debug("Traceback is:", exc_info=sys.exc_info())
     if hkl_info:
         try:
             hkl_info = hklin_result.get()
         except Exception as e:
             logger.critical('HklInfo failed: %s' % e)
-            logger.debug("Traceback is:" , exc_info=sys.exc_info())
+            logger.debug("Traceback is:", exc_info=sys.exc_info())
     return search_model_finder, classifier, hkl_info
-    
+
 
 def get_results_json(search_model_finder, hkl_info=None, classifier=None):
     pfam_dict = {}
     pfam_dict.update(search_model_finder.pfam_dict())
     if classifier:
         pfam_dict.update(classifier.pfam_dict())
-    data_dict = {}
-    data_dict['pfam'] = pfam_dict
+    data_dict = {'pfam': pfam_dict}
     if hkl_info:
         data_dict['hkl_info'] = hkl_info.as_dict()
     return json.dumps(data_dict)
