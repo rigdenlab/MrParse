@@ -22,7 +22,7 @@ def main():
         return mr_analyse.run(args.seqin,
                               hklin=args.hklin,
                               run_serial=args.run_serial,
-                              do_classify=not(args.no_classify),
+                              do_classify=args.do_classify,
                               pdb_download_dir=args.pdb_dir)
     except KeyboardInterrupt:
         sys.stderr.write("Interrupted by keyboard!")

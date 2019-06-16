@@ -49,11 +49,16 @@ Vue.component('pfam-graphics', {
   },
   template: `
   <div class="pfam-graphics" ref=pfamgraphics>
-    <h2>Classification</h2>
-    <div id='classification'></div>
-    <pfam-region :id="'ss_pred'" :region="ss_pred"/>
-    <pfam-region :id="'classification'" :region="classification"/>
-    <h2>Regions</h2>
+  	<div v-if="ss_pred || ss_pred" id='classification1'>
+	    <h2>Classification</h2>
+	    <!_- <div id='classification'></div> -->
+	    <pfam-region :id="'ss_pred'" :region="ss_pred"/>
+	    <pfam-region :id="'classification'" :region="classification"/>
+	</div>
+	<div v-else id='classification1'>
+	    <h4>### Classification step omitted ###</h4>
+	</div>
+	<h2>Regions</h2>
     <pfam-region v-for="homolog in homologs" :key="homolog.name" :id="homolog.name" :region="homolog._pfam_json"/>
   </div>
   `
@@ -64,7 +69,6 @@ Vue.component('pfam-region', {
     region: Object
   },
   mounted: function() {
-    console.log("GOT REGION " + JSON.stringify(this.region));
     let residueWidth = Math.max(1.0, this.$parent.$refs.pfamgraphics.clientWidth / this.region.length);
     add_graphic(this.region, this.$refs.cdiv, residueWidth);
   },
@@ -77,7 +81,8 @@ Vue.component('hkl-info-table', {
       hklinfo: this.$root.hklinfo
     }
   },
-  template: `<div id="hkl_info">
+  template: `<div v-if="hklinfo" id="hkl_info">
+<h2>HKL Info</h2>
 <table>
 <thead>
   <tr style="text-align: right;">
@@ -94,11 +99,11 @@ Vue.component('hkl-info-table', {
   <tr>
     <td>{{ hklinfo.name }}</td>
     <td>{{ hklinfo.resolution | decimalPlaces }}</td>
-    <td>{{ hklinfo.space_group}}</td>
-    <td>{{ hklinfo.has_ncs}}</td>
-    <td>{{ hklinfo.has_twinning}}</td>
-    <td>{{ hklinfo.has_anisotropy}}</td>
-    <td>{{ hklinfo.hklin}}</td>
+    <td>{{ hklinfo.space_group }}</td>
+    <td>{{ hklinfo.has_ncs }}</td>
+    <td>{{ hklinfo.has_twinning }}</td>
+    <td>{{ hklinfo.has_anisotropy }}</td>
+    <td>{{ hklinfo.hklin }}</td>
   </tr>
 </tbody>
 </table>
@@ -110,20 +115,32 @@ Vue.component('homolog-table', {
   data: function() {
     return {
       homologs: this.$root.homologs,
-      columns: ['name', 'region_id', 'range', 'length', 'ellg', 'ncopies', 'molecular_weight', 'rmsd', 'seq_ident'],
+      /* Need to write data structure to link columns, titles and tooltips */
+      columns: ['name', 'pdb_id', 'chain_id', 'region_id', 'range', 'length', 'ellg', 'molecular_weight', 'rmsd', 'seq_ident'],
       columnTitles: {
-        'name': 'Protein Name',
+        'name': 'Name of the homolog (<PDB>_<CHAIN_ID>_<NUMBER>',
+        'pdb_id': 'PDB code of homolog',
+        'chain_id': 'Chain ID in PDB',
         'region_id': 'Number of the region',
         'range': 'Start - stop coordinates of the homolog',
         'length': 'Length of the homolog in residues',
         'ellg': 'Computed Log Likelihood Gain',
-        'ncopies': 'Expected number of copies in the ASU',
         'molecular_weight': 'Molecular Weight in Daltons',
         'rmsd': 'RMSD from template',
         'seq_ident': 'Sequence Identity to template'
       },
       sortKey: 'domain',
       order: 'asc',
+  	  attrs_to_column_title: {'name' : 'Name',
+  	                          'pdb_id' : 'PDB',
+							  'chain_id' : 'Chain',
+                              'region_id' : 'Region',
+                              'range' : 'Range',
+                              'length' : 'Length',
+                              'ellg' : 'eLLG',
+                              'molecular_weight' : 'Mol. Wt.',
+                              'rmsd' : 'RMSD',
+                              'seq_ident' : 'Seq. Ident.'},
     }
   },
   methods: {
@@ -154,22 +171,23 @@ Vue.component('homolog-table', {
         <tr>
           <th v-for="column in columns">
             <a href="#" @click="sortBy(column)" v-bind:title="getTitle(column)">
-              {{ column }}
+              {{ attrs_to_column_title[column] }}
             </a>
           </th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="homolog in homologs">
-          <td>{{homolog.name}}</td>
-          <td>{{homolog.region_id}}</td>
-          <td>{{homolog.range}}</td>
-          <td>{{homolog.length}}</td>
-          <td>{{homolog.ellg}}</td>
-          <td>{{homolog.ncopies}}</td>
-          <td>{{homolog.molecular_weight | decimalPlaces}}</td>
-          <td>{{homolog.rmsd}}</td>
-          <td>{{homolog.seq_ident}}</td>
+          <td><a v-bind:href="homolog.pdb_file">{{ homolog.name }}</a></td>
+          <td><a v-bind:href="homolog.pdb_url" target="_blank">{{ homolog.pdb_id }}</a></td>
+          <td>{{ homolog.chain_id }}</td>
+          <td>{{ homolog.region_id }}</td>
+          <td>{{ homolog.range }}</td>
+          <td>{{ homolog.length }}</td>
+          <td>{{ homolog.ellg }}</td>
+          <td>{{ homolog.molecular_weight | decimalPlaces }}</td>
+          <td>{{ homolog.rmsd }}</td>
+          <td>{{ homolog.seq_ident }}</td>
         </tr>
       </tbody>
     </table>
