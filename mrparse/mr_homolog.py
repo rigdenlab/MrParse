@@ -66,7 +66,7 @@ class HomologData(object):
     
     @property
     def seq_ident(self):
-        seq_id = self._get_child_attr('hit', 'length')
+        seq_id = self._get_child_attr('hit', 'local_sequence_identity')
         if seq_id:
             return seq_id / 100.0
         return None
