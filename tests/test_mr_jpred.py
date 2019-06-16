@@ -39,6 +39,7 @@ def test_upack_and_parse(test_data):
     p = JPred().get_prediction(download_tgz=download_tgz)
     assert len(p) == 171
     assert p.annotation[22:25] == '-E-', p.annotation[19:22]
+    shutil.rmtree(dir_name)
 
 
 def test_parse_results_output():

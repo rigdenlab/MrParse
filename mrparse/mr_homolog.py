@@ -21,47 +21,92 @@ logger = logging.getLogger(__name__)
 
 
 class HomologData(object):
+    OBJECT_ATTRIBUTES = ['hit', 'region']
     def __init__(self):
         self.ellg = None
         self.frac_scat = None
-        self.length = None
-        self.seq_ident = None
         self.molecular_weight = None
-        self.name = None
         self.ncopies = None
         self.pdb_url = None
         self.pdb_file = None
-        self.region = None
         self.rmsd = None
-        self.score = None
-        self.seqid_start = None
-        self.seqid_stop = None
         self.total_frac_scat = None
         self.total_frac_scat_known = None
-        self._sequence_hit = None # mr_hit.SequenceHit
+        # OBJECT_ATTRIBUTES - need to remove from static_dict
+        self.hit = None # mr_hit.SequenceHit
+        self.region = None
+ 
+    @property
+    def chain_id(self):
+        return self._get_child_attr('hit', 'chain_id')
         
     @property
-    def range(self):
-        return (self.seqid_start, self.seqid_stop)
-
+    def length(self):
+        return self._get_child_attr('hit', 'length')
+    
     @property
-    def range_as_str(self):
-        return "{}-{}".format(*self.range)
+    def name(self):
+        return self._get_child_attr('hit', 'name')
+    
+    @property
+    def pdb_id(self):
+        return self._get_child_attr('hit', 'pdb_id')
+    
+    @property
+    def range(self):
+        return (self.query_start, self.query_stop)
 
     @property
     def region_id(self):
-        return self.region.id
-
-    def json_dict(self):
-        """Return a representation of ourselves in json""" 
+        return self._get_child_attr('hit', 'region_id')
+    
+    @property
+    def score(self):
+        return self._get_child_attr('hit', 'score')
+    
+    @property
+    def seq_ident(self):
+        seq_id = self._get_child_attr('hit', 'length')
+        if seq_id:
+            return seq_id / 100.0
+        return None
+    
+    @property
+    def query_start(self):
+        return self._get_child_attr('hit', 'query_start')
+    
+    @property
+    def query_stop(self):
+        return self._get_child_attr('hit', 'query_stop')
+    
+    # miscellaneous properties
+    @property
+    def static_dict(self):
+        """Return a self representation with all properties resolved, suitable for JSON""" 
         d = copy.copy(self.__dict__)
-        to_remove = ['_sequence_hit']
         for k in self.__dict__.keys():
-            if k in to_remove:
+            if k in self.OBJECT_ATTRIBUTES:
                 d.pop(k)
+        # Get all properties
+        for name in dir(self.__class__):
+            obj = getattr(self.__class__, name)
+            if name == 'static_dict':
+                # Skip this property to avoid infinite recursion
+                continue
+            if isinstance(obj, property):
+                val = obj.__get__(self, self.__class__)
+                d[name] = val
         # Need to add in properties as these aren't included
-        d['range'] = self.range_as_str
+        # FIX ONCE UPDATED JS TO HANDLE TWO INTS
+        d['range'] = "{}-{}".format(*self.range)
         return d
+    
+    def _get_child_attr(self, child, attr):
+        if hasattr(self, child):
+            child = getattr(self, child)
+            if hasattr(child, attr):
+                return getattr(child, attr)
+        return None
     
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
@@ -81,16 +126,8 @@ def homologs_from_hits(hits, pdb_download_dir=None):
     homologs = {}
     for hit in hits.values():
         hlog = HomologData()
-        hlog._sequence_hit = hit
+        hlog.hit = hit
         hit._homolog = hlog
-        hlog.name = hit.name
-        hlog.score = hit.score
-        hlog.seq_ident = hit.local_sequence_identity / 100.0
-        hlog.region = hit.region_id
-        hlog.length = hit.length
-        hlog.seqid_start = hit.tar_start
-        hlog.seqid_stop = hit.tar_stop
-        
         hlog.pdb_url = PDB_BASE_URL + hit.pdb_id
         try:
             hlog.pdb_file, hlog.molecular_weight = prepare_pdb(hit, pdb_download_dir)
@@ -122,9 +159,9 @@ def prepare_pdb(hit, pdb_download_dir):
     if len(pdb_struct.hierarchy.models()) == 0:
         raise ModelDownloadException("Hierarchy has no models for pdb_name %s" % pdb_name)
     
-    seqid_range = range(hit.tar_start, hit.tar_stop + 1) 
+    seqid_range = range(hit.hit_start, hit.hit_stop + 1) 
     _select_residues(pdb_struct.hierarchy, tokeep_idx=seqid_range)    
-    truncated_pdb_name = "{}_{}_{}-{}.pdb".format(hit.pdb_id, hit.chain_id, hit.tar_start, hit.tar_stop)
+    truncated_pdb_name = "{}_{}_{}-{}.pdb".format(hit.pdb_id, hit.chain_id, hit.hit_start, hit.hit_stop)
     truncated_pdb_path = os.path.join(HOMOLOGS_DIR, truncated_pdb_name)
     pdb_struct.save(truncated_pdb_path)
     return truncated_pdb_path, float(pdb_struct.molecular_weight)

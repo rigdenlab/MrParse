@@ -1,10 +1,13 @@
 #!/usr/bin/env ccp4-python
 import set_mrparse_path
 import pytest
+import logging
 from mrparse.mr_sequence import Sequence
 from mrparse.mr_hkl import HklInfo
 from mrparse.mr_homolog import homologs_from_hits, calculate_ellg, ellg_data_from_phaser_log
 
+
+logging.basicConfig(level=logging.DEBUG)
 
 def test_2uvoA_homologs(get_2uvo_test_hits):
     hits = get_2uvo_test_hits
@@ -12,10 +15,15 @@ def test_2uvoA_homologs(get_2uvo_test_hits):
     h = homologs['1iqb_B_1']
     assert h.length == 77
     assert abs(h.molecular_weight - 8750.78) < 0.001
+    assert h.pdb_id == '1iqb'
+    chain_id = 'B'
+    assert h.chain_id == chain_id
+    d = h.static_dict
+    assert d['chain_id'] == chain_id
     
 
 @pytest.mark.skip(reason="Tests using phaser are currently too slow to run")
-def test_2uvoA_homologs_ellg(test_data, get_2uvo_test_hits):
+def Xest_2uvoA_homologs_ellg(test_data, get_2uvo_test_hits):
     hits = get_2uvo_test_hits
     homologs = homologs_from_hits(hits)
     h = homologs['1iqb_B_1']

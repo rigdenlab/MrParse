@@ -110,10 +110,10 @@ Vue.component('homolog-table', {
   data: function() {
     return {
       homologs: this.$root.homologs,
-      columns: ['name', 'region', 'range', 'length', 'ellg', 'ncopies', 'molecular_weight', 'rmsd', 'seq_ident'],
+      columns: ['name', 'region_id', 'range', 'length', 'ellg', 'ncopies', 'molecular_weight', 'rmsd', 'seq_ident'],
       columnTitles: {
         'name': 'Protein Name',
-        'region': 'Number of the region',
+        'region_id': 'Number of the region',
         'range': 'Start - stop coordinates of the homolog',
         'length': 'Length of the homolog in residues',
         'ellg': 'Computed Log Likelihood Gain',
@@ -162,7 +162,7 @@ Vue.component('homolog-table', {
       <tbody>
         <tr v-for="homolog in homologs">
           <td>{{homolog.name}}</td>
-          <td>{{homolog.region}}</td>
+          <td>{{homolog.region_id}}</td>
           <td>{{homolog.range}}</td>
           <td>{{homolog.length}}</td>
           <td>{{homolog.ellg}}</td>

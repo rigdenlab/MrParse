@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 class SequenceHit:
     def __init__(self):
         self.name = None
-        self.chain_name = None
         self.pdb_id = None
         self.chain_id = None
         self.rank = None
@@ -27,39 +26,55 @@ class SequenceHit:
         self.evalue = 0.0
         self.pvalue = 0.0
         self.score = 0.0
-        self.ndomains = 0
         self.alignment = ""
-        self.aln_start = None # Count from 1
-        self.aln_stop = None
-        self.tar_start = None # Count from 1
-        self.tar_stop = None
-        self.tar_extent = 0
-        self.tar_midpoint = 0.0
-        self.cols = 0
-        self.local_sequence_identity = 0.0
+        self.query_start = None 
+        self.query_stop = None
+        self.hit_start = None
+        self.hit_stop = None
         self.overall_sequence_identity = 0.0
         self.target_alignment = None
         self.alignments = dict([])
+        # pointers to objects
         self.region = None
-        self._homolog = None
-    
-    @property
-    def aln_range(self):
-        return "{}-{}".format(self.aln_start, self.aln_stop)
+        self.homolog = None
     
     @property
     def length(self):
-        return self.aln_stop - self.aln_start
+        return self.query_extent
+    
+    @property
+    def hit_extent(self):
+        """python list indexing so need to subtract 1"""
+        return (self.hit_stop - self.hit_start) - 1
+    
+    @property
+    def hit_range(self):
+        return (self.hit_start, self.hit_stop)
+    
+    @property
+    def query_extent(self):
+        """python list indexing so need to add 1"""
+        return (self.query_stop - self.query_start) - 1
+    
+    @property
+    def query_midpoint(self):
+        return ((float(self.query_stop) - float(self.query_start + 1)) / 2.0) + float(self.query_start + 1)
+    
+    @property
+    def query_range(self):
+        return (self.query_start, self.query_stop)
     
     @property
     def region_id(self):
-        if self.region is not None and hasattr(self.region, 'id'):
-            return self.region.id
-        return None
+        return self._get_child_attr('region', 'id')
 
-    @property
-    def tar_range(self):
-        return "{}-{}".format(self.tar_start, self.tar_stop)
+    # Miscellanous functoins
+    def _get_child_attr(self, child, attr):
+        if hasattr(self, child):
+            child = getattr(self, child)
+            if hasattr(child, attr):
+                return getattr(child, attr)
+        return None
 
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
@@ -103,41 +118,36 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
         rank = i + 1
         for hsp in hit.hsps:
 #             sequence_identity = float(sum([a==b for a, b in zip(*[str(s.upper().seq) for s in hsp.aln.get_all_seqs()])])) / float(hsp.aln_span) 
-            ph = SequenceHit()
-            ph.rank = rank
-            ph.chain_name = hsp.hit_id
+            sh = SequenceHit()
+            sh.rank = rank
             name, chain = hsp.hit_id.split('_')
-            ph.pdb_id = name
-            ph.chain_id = chain
-            #ph.score = hsp.bitscore
-            ph.score = hit.bitscore
-            ph.evalue = hsp.evalue # is i-Evalue - possibly evalue_cond in later BioPython
-            ph.ndomains = len(hit)
+            sh.pdb_id = name
+            sh.chain_id = chain
+            #sh.score = hsp.bitscore
+            sh.score = hit.bitscore
+            sh.evalue = hsp.evalue # is i-Evalue - possibly evalue_cond in later BioPython
             hstart = hsp.hit_start
             hstop = hsp.hit_end
             qstart, qstop = hsp.query_range
-            qstart_p1 = qstart + 1
-            ph.aln_start = qstart_p1
-            ph.aln_stop = qstop
-            ph.tar_start = hstart
-            ph.tar_stop = hstop
-            ph.tar_extent = hstop - hstart        
-            ph.tar_midpoint = ((float(qstop) - float(qstart_p1)) / 2.0) + float(qstart_p1)
+            sh.query_start = qstart
+            sh.query_stop = qstop
+            sh.hit_start = hstart
+            sh.hit_stop = hstop
             target_alignment = "".join(hsp.aln[0].upper()) # assume the first Sequence is always the target
-            ph.target_alignment = target_alignment
+            sh.target_alignment = target_alignment
             alignment = "".join(hsp.aln[1].upper()) # assume the first Sequence is always the target
-            ph.alignment = alignment
+            sh.alignment = alignment
             local, overall = simpleSeqID().getPercent(alignment, target_alignment, target_sequence)
-            ph.local_sequence_identity = local
-            ph.overall_sequence_identity = overall
-            name = hit.id + "_" + str(hsp.domain_index)
-            ph.name = name
-            hitDict[name] = ph
+            sh.local_sequence_identity = local
+            sh.overall_sequence_identity = overall
+            hit_name = hit.id + "_" + str(hsp.domain_index)
+            sh.name = hit_name
+            hitDict[hit_name] = sh
     return hitDict
 
 def sort_hits_by_size(hits, ascending=False):
     reverse = not(ascending)
-    return OrderedDict(sorted(hits.items(), key=lambda x: x[1].tar_extent, reverse=reverse))
+    return OrderedDict(sorted(hits.items(), key=lambda x: x[1].length, reverse=reverse))
 
 def run_phmmer(seq_info, dblvl=95):
     logfile = "phmmer.log"
