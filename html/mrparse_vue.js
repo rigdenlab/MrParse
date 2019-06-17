@@ -24,7 +24,9 @@ function add_graphic(region, parent, residueWidth = 1.0) {
   pg.render();
 }
 
+
 const EventBus = new Vue();
+
 
 Vue.filter("decimalPlaces", (value, num = 2) => {
     if (value == null) {
@@ -33,6 +35,7 @@ Vue.filter("decimalPlaces", (value, num = 2) => {
         return value.toFixed(num);
     }
   });
+
 
 Vue.component('pfam-graphics', {
   data: function() {
@@ -63,6 +66,7 @@ Vue.component('pfam-graphics', {
   </div>
   `
 });
+
 
 Vue.component('pfam-region', {
   props: {
@@ -115,32 +119,38 @@ Vue.component('homolog-table', {
   data: function() {
     return {
       homologs: this.$root.homologs,
-      /* Need to write data structure to link columns, titles and tooltips */
-      columns: ['name', 'pdb_id', 'chain_id', 'region_id', 'range', 'length', 'ellg', 'molecular_weight', 'rmsd', 'seq_ident'],
-      columnTitles: {
-        'name': 'Name of the homolog (<PDB>_<CHAIN_ID>_<NUMBER>',
-        'pdb_id': 'PDB code of homolog',
-        'chain_id': 'Chain ID in PDB',
-        'region_id': 'Number of the region',
-        'range': 'Start - stop coordinates of the homolog',
-        'length': 'Length of the homolog in residues',
-        'ellg': 'Computed Log Likelihood Gain',
-        'molecular_weight': 'Molecular Weight in Daltons',
-        'rmsd': 'RMSD from template',
-        'seq_ident': 'Sequence Identity to template'
-      },
       sortKey: 'domain',
       order: 'asc',
-  	  attrs_to_column_title: {'name' : 'Name',
-  	                          'pdb_id' : 'PDB',
-							  'chain_id' : 'Chain',
-                              'region_id' : 'Region',
-                              'range' : 'Range',
-                              'length' : 'Length',
-                              'ellg' : 'eLLG',
-                              'molecular_weight' : 'Mol. Wt.',
-                              'rmsd' : 'RMSD',
-                              'seq_ident' : 'Seq. Ident.'},
+  	  columns: [ { 'attr':  'name',
+  	               'title': 'Name',
+  	               'popup': 'Name of the homolog (<PDB>_<CHAIN_ID>_<NUMBER>'},
+  	             { 'attr':  'pdb_id',
+  	              'title': 'PDB',
+  	              'popup': 'PDB code of homolog'},   
+  	             { 'attr':  'chain_id',
+  	               'title': 'Chain',
+  	               'popup': 'Chain ID in PDB'},   
+  	             { 'attr':  'region_id',
+  	               'title': 'Region',
+  	               'popup': 'Number of the region'},   
+  	             { 'attr':  'range',
+  	               'title': 'Range',
+  	               'popup': 'Start - stop coordinates of the homolog'},   
+  	             { 'attr':  'length',
+  	               'title': 'Name',
+  	                'popup': 'Length of the homolog in residues'},   
+  	             { 'attr':  'ellg',
+  	               'title': 'eLLG',
+  	               'popup': 'Computed Log Likelihood Gain'},   
+  	             { 'attr':  'molecular_weight',
+  	               'title': 'Mol. Wt.',
+  	               'popup': 'Molecular Weight in Daltons'},   
+  	             { 'attr':  'rmsd',
+  	               'title': 'RMSD',
+  	               'popup': 'RMSD from template'},   
+  	             { 'attr':  'seq_ident',
+  	               'title': 'Seq. Ident.',
+  	               'popup': 'Sequence Identity to template'}],
     }
   },
   methods: {
@@ -157,9 +167,6 @@ Vue.component('homolog-table', {
       EventBus.$emit("sortedData", this.homologs);
       return
     },
-    getTitle: function(column) {
-      return this.columnTitles[column];
-    }
   },
   mounted: function() {
     this.sortBy('region')
@@ -170,8 +177,8 @@ Vue.component('homolog-table', {
       <thead>
         <tr>
           <th v-for="column in columns">
-            <a href="#" @click="sortBy(column)" v-bind:title="getTitle(column)">
-              {{ attrs_to_column_title[column] }}
+            <a href="#" @click="sortBy(column.attr)" v-bind:title="column.popup">
+              {{ column.title }}
             </a>
           </th>
         </tr>
@@ -194,6 +201,7 @@ Vue.component('homolog-table', {
     </div>
     `
 })
+
 
 new Vue({
   el: '#app',
