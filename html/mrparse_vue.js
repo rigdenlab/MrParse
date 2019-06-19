@@ -52,13 +52,12 @@ Vue.component('pfam-graphics', {
   },
   template: `
   <div class="pfam-graphics" ref=pfamgraphics>
-  	<div v-if="ss_pred || ss_pred" id='classification1'>
+  	<div v-if="ss_pred || ss_pred" id='classification'>
 	    <h2>Classification</h2>
-	    <!_- <div id='classification'></div> -->
 	    <pfam-region :id="'ss_pred'" :region="ss_pred"/>
 	    <pfam-region :id="'classification'" :region="classification"/>
 	</div>
-	<div v-else id='classification1'>
+	<div v-else id='classification'>
 	    <h4>### Classification step omitted ###</h4>
 	</div>
 	<h2>Regions</h2>
