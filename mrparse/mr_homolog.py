@@ -10,12 +10,12 @@ import os
 from simbad.util.pdb_util import PdbStructure
 
 
-class ModelDownloadException(Exception):
+class PdbModelException(Exception):
     pass
 
 
 PDB_BASE_URL = 'https://www.rcsb.org/structure/'
-PDB_DOWNLOAD_DIR = 'pdb_downloads'
+PDB_DIR = 'pdb_files'
 HOMOLOGS_DIR = 'homologs'
 
 logger = logging.getLogger(__name__)
@@ -118,10 +118,10 @@ class HomologData(object):
         return out_str
 
 
-def homologs_from_hits(hits, pdb_download_dir=None):
-    pdb_download_dir = pdb_download_dir or PDB_DOWNLOAD_DIR
-    if not os.path.isdir(pdb_download_dir):
-        os.mkdir(pdb_download_dir)
+def homologs_from_hits(hits, pdb_dir=None):
+    pdb_dir = pdb_dir or PDB_DIR
+    if not os.path.isdir(pdb_dir):
+        os.mkdir(pdb_dir)
     if not os.path.isdir(HOMOLOGS_DIR):
         os.mkdir(HOMOLOGS_DIR)
     homologs = OrderedDict()
@@ -131,14 +131,14 @@ def homologs_from_hits(hits, pdb_download_dir=None):
         hit._homolog = hlog
         hlog.pdb_url = PDB_BASE_URL + hit.pdb_id
         try:
-            hlog.pdb_file, hlog.molecular_weight = prepare_pdb(hit, pdb_download_dir)
-        except ModelDownloadException as e:
+            hlog.pdb_file, hlog.molecular_weight = prepare_pdb(hit, pdb_dir)
+        except PdbModelException as e:
             logger.critical("Error processing hit pdb %s", e.message)
         homologs[hlog.name] = hlog
     return homologs
 
 
-def prepare_pdb(hit, pdb_download_dir):
+def prepare_pdb(hit, pdb_dir):
     """
     Download pdb or take file from cache
     trucate to required residues
@@ -147,18 +147,19 @@ def prepare_pdb(hit, pdb_download_dir):
     """
     from ample.util.pdb_edit import _select_residues # import on demand as import v slow
 
-    pdb_name = "{}_{}.pdb".format(hit.pdb_id, hit.chain_id)
-    pdb_file = os.path.join(pdb_download_dir, pdb_name)
+    pdb_name = "{}.pdb".format(hit.pdb_id)
+    pdb_file = os.path.join(pdb_dir, pdb_name)
     pdb_struct = PdbStructure()
     if os.path.isfile(pdb_file):
         pdb_struct.from_file(pdb_file)
     else:
         pdb_struct.from_pdb_code(hit.pdb_id)
-        pdb_struct.standardize()
-        pdb_struct.select_chain_by_id(hit.chain_id)
         pdb_struct.save(pdb_file)
+        
+    pdb_struct.standardize()
+    pdb_struct.select_chain_by_id(hit.chain_id)
     if len(pdb_struct.hierarchy.models()) == 0:
-        raise ModelDownloadException("Hierarchy has no models for pdb_name %s" % pdb_name)
+        raise PdbModelException("Hierarchy has no models for pdb_name %s" % pdb_name)
     
     seqid_range = range(hit.hit_start, hit.hit_stop + 1) 
     _select_residues(pdb_struct.hierarchy, tokeep_idx=seqid_range)    

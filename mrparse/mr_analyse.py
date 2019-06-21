@@ -22,7 +22,7 @@ HOMOLOGS_JS = 'homologs.js'
 logger = None
 
 
-def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_download_dir=None):
+def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None):
     # Need to make a work directory first as all logs go into there
     work_dir = make_workdir()
     os.chdir(work_dir)
@@ -51,7 +51,7 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_download_dir=
         logger.info("Running with hklin %s", os.path.abspath(hklin))
         hkl_info = HklInfo(hklin, seq_info=seq_info)
 
-    search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_download_dir=pdb_download_dir)
+    search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir)
     classifier = None
     if do_classify:
         classifier = MrClassifier(seq_info=seq_info)

@@ -14,8 +14,8 @@ from mrparse.mr_pfam import add_pfam_dict_to_homologs
 def test_homologs(test_data, get_2uvo_test_hits):
     seq_info = Sequence(test_data.x2uvoA_fasta)
     hits = get_2uvo_test_hits
-    regions = RegionFinder().find_regions_from_hits(hits, pdb_download_dir=test_data.pdb_dir)
-    homologs = homologs_from_hits(hits)
+    regions = RegionFinder().find_regions_from_hits(hits)
+    homologs = homologs_from_hits(hits, pdb_dir=test_data.pdb_dir)
     add_pfam_dict_to_homologs(regions, seq_info.nresidues)
     
     homolog = homologs.values()[0]

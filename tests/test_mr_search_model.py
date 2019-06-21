@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 def test_SearchModelFinder2uvoOnlySequence(test_data):
     seq_info =  Sequence(test_data.x2uvoA_fasta)
-    smf = SearchModelFinder(seq_info, pdb_download_dir=test_data.pdb_dir)
+    smf = SearchModelFinder(seq_info, pdb_dir=test_data.pdb_dir)
     smf()
     nregions = len(smf.regions)
     assert nregions == 5, "Incorrect number of regions: {}".format(nregions)
@@ -27,7 +27,7 @@ def test_SearchModelFinder2uvo(test_data):
     seq_info =  Sequence(test_data.x2uvoA_fasta)
     hklin = test_data.x2uvo_mtz
     hkl_info = HklInfo(hklin, seq_info=seq_info)
-    smf = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_download_dir=test_data.pdb_dir)
+    smf = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=test_data.pdb_dir)
     smf()
     nregions = len(smf.regions)
     assert nregions == 6, "Incorrect number of regions: {}".format(nregions)
