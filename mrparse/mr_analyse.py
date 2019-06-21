@@ -1,4 +1,3 @@
-import logging
 import json
 import multiprocessing
 import os
@@ -17,8 +16,8 @@ from mr_classify import MrClassifier
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 HTML_DIR = os.path.join(THIS_DIR, '../html')
 HTML_TEMPLATE = os.path.join(HTML_DIR, 'mrparse.html.jinja2')
-JS_OUT = 'mrparse.js'
 HTML_OUT = 'mrparse.html'
+HOMOLOGS_JS = 'homologs.js'
 
 logger = None
 
@@ -65,8 +64,9 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_download_dir=
                                                                          hkl_info,
                                                                          do_classify)
 
-    results_json = get_results_json(search_model_finder, hkl_info=hkl_info, classifier=classifier)
-    html_out = write_output_files(results_json)
+#     results_json = get_results_json(search_model_finder, hkl_info=hkl_info, classifier=classifier)
+#     html_out = write_output_files(results_json)
+    html_out = write_output_files(search_model_finder, hkl_info=hkl_info, classifier=classifier)
     logger.info("Wrote MrParse output file: %s", html_out)
 
     # Display results in browser
@@ -133,24 +133,25 @@ def run_analyse_parallel(search_model_finder, classifier, hkl_info, do_classify)
     return search_model_finder, classifier, hkl_info
 
 
-def get_results_json(search_model_finder, hkl_info=None, classifier=None):
-    pfam_dict = {}
-    pfam_dict.update(search_model_finder.pfam_dict())
+def write_output_files(search_model_finder, hkl_info=None, classifier=None):
+    # write out homologs for CCP4cloud
+    homologs = search_model_finder.homologs_with_graphics()
+    homologs_js_out = os.path.abspath(HOMOLOGS_JS)
+    with open(homologs_js_out, 'w') as w:
+        w.write(json.dumps(homologs))
+        
+    results_dict = { 'pfam' : {'homologs' : homologs} } 
     if classifier:
-        pfam_dict.update(classifier.pfam_dict())
-    data_dict = {'pfam': pfam_dict}
+        results_dict['pfam'].update(classifier.pfam_dict())
     if hkl_info:
-        data_dict['hkl_info'] = hkl_info.as_dict()
-    return json.dumps(data_dict)
-
-
-def write_output_files(results_json):
-    js_data = 'const mrparse_data = %s;\n' % results_json
-    js_out = os.path.abspath(JS_OUT)
-    with open(js_out, 'w') as w:
-        w.write(js_data)
+        results_dict['hkl_info'] = hkl_info.as_dict()
+    results_json = json.dumps(results_dict)
+    
     html_out = os.path.abspath(HTML_OUT)
-    render_template(HTML_TEMPLATE, html_out, mrparse_html_dir=HTML_DIR)
+    render_template(HTML_TEMPLATE, html_out,
+                    # kwargs appear as variables in the template
+                    mrparse_html_dir=HTML_DIR,
+                    results_json=results_json)
     return html_out
 
 

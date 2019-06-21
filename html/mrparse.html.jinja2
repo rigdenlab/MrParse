@@ -3,8 +3,9 @@
 
 <head>
   <title>MrParse Search Model Finder</title>
-  <!-- jmht - our data - need a better way to access this -->
-  <script type="text/javascript" src="mrparse.js"></script>
+  <script>
+      const mrparse_data = {{ results_json | safe }};
+  </script>
   
   <!-- <script src="https://unpkg.com/vue"></script> -->
   <script type="text/javascript" src="{{ mrparse_html_dir }}/vue.js"></script>

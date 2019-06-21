@@ -26,7 +26,8 @@ def test_data():
             'jpred_concise': os.path.join(data_dir, 'jp_dSDGWMs.concise'),
             'jpred_tgz': os.path.join(data_dir, 'jp_5or_zBY.tar.gz'),
             'phaser_log': os.path.join(data_dir, 'phaser1.log'),
-            'x5hxg_fasta': os.path.join(data_dir, '5hxg.fasta')
+            'x5hxg_fasta': os.path.join(data_dir, '5hxg.fasta'),
+            'pdb_dir': os.path.join(data_dir, 'pdbs')
         }
     nt = namedtuple('TestData', d.keys())
     return nt(**d)

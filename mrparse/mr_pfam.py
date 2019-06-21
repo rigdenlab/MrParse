@@ -41,8 +41,7 @@ def add_pfam_dict_to_homologs(regions, seqlen):
                   'metadata' : { "description" : "Homolog {} from region #{}".format(name, region.id),
                                  "database" : "PHMMER search",
                                  "start" : start,
-                                 "end" : stop,
-                                  }
+                                 "end" : stop}
                   }            
             jdict = {'length' : seqlen,
                      'regions' : [d]}

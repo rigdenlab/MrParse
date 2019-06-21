@@ -3,6 +3,7 @@ Created on 18 Oct 2018
 
 @author: jmht
 '''
+from collections import OrderedDict
 import copy
 import logging
 import os
@@ -123,7 +124,7 @@ def homologs_from_hits(hits, pdb_download_dir=None):
         os.mkdir(pdb_download_dir)
     if not os.path.isdir(HOMOLOGS_DIR):
         os.mkdir(HOMOLOGS_DIR)
-    homologs = {}
+    homologs = OrderedDict()
     for hit in hits.values():
         hlog = HomologData()
         hlog.hit = hit
