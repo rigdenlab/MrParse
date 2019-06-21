@@ -17,7 +17,7 @@ THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 HTML_DIR = os.path.join(THIS_DIR, '../html')
 HTML_TEMPLATE = os.path.join(HTML_DIR, 'mrparse.html.jinja2')
 HTML_OUT = 'mrparse.html'
-HOMOLOGS_JS = 'homologs.js'
+HOMOLOGS_JS = 'homologs.json'
 
 logger = None
 
