@@ -106,7 +106,7 @@ Vue.component('hkl-info-table', {
     <td>{{ hklinfo.has_ncs }}</td>
     <td>{{ hklinfo.has_twinning }}</td>
     <td>{{ hklinfo.has_anisotropy }}</td>
-    <td>{{ hklinfo.hklin }}</td>
+    <td><a v-bind:href="hklinfo.hklin">{{ hklinfo.hklin}}</a></td>
   </tr>
 </tbody>
 </table>
