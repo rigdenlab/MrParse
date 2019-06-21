@@ -62,6 +62,10 @@ class HomologData(object):
         return self._get_child_attr('hit', 'region_id')
     
     @property
+    def region_index(self):
+        return self._get_child_attr('hit', 'region_index')
+    
+    @property
     def score(self):
         return self._get_child_attr('hit', 'score')
     

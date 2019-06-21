@@ -67,8 +67,12 @@ class SequenceHit:
     @property
     def region_id(self):
         return self._get_child_attr('region', 'id')
+    
+    @property
+    def region_index(self):
+        return self._get_child_attr('region', 'index')
 
-    # Miscellanous functoins
+    # Non-property methods
     def _get_child_attr(self, child, attr):
         if hasattr(self, child):
             child = getattr(self, child)

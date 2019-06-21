@@ -168,7 +168,7 @@ Vue.component('homolog-table', {
     },
   },
   mounted: function() {
-    this.sortBy('region')
+    this.sortBy('region_id')
   },
   template: `
   <div class="homolog-table">

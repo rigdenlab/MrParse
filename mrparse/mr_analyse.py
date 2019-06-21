@@ -135,12 +135,14 @@ def run_analyse_parallel(search_model_finder, classifier, hkl_info, do_classify)
 
 def write_output_files(search_model_finder, hkl_info=None, classifier=None):
     # write out homologs for CCP4cloud
-    homologs = search_model_finder.homologs_with_graphics()
+    # This code should be updated to separate the storing of homologs from the PFAM directives
+    homologs = search_model_finder.homologs_as_dicts()
     homologs_js_out = os.path.abspath(HOMOLOGS_JS)
     with open(homologs_js_out, 'w') as w:
         w.write(json.dumps(homologs))
+    homologs_pfam = search_model_finder.homologs_with_graphics()
         
-    results_dict = { 'pfam' : {'homologs' : homologs} } 
+    results_dict = { 'pfam' : {'homologs' : homologs_pfam} } 
     if classifier:
         results_dict['pfam'].update(classifier.pfam_dict())
     if hkl_info:
