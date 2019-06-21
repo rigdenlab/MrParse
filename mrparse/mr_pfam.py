@@ -20,35 +20,6 @@ def get_N_HexCol(N=5):
     return ['#' + h for h in hex_out]
 
 
-def Xadd_pfam_dict_to_homologs(regions, seqlen):
-    if not (regions and len(regions)):
-        raise RuntimeError("Need regions argument to contain the search model regions.")
-    region_colors = get_N_HexCol(len(regions))
-    for region in regions:
-        for hit in region.matches:
-            homolog = hit._homolog
-            start = hit.query_start
-            stop = hit.query_stop
-            name = homolog.name
-            d = { 'startStyle': "curved",
-                  'endStyle': "curved",
-                  'start': start,
-                  'end': stop,
-                  'aliStart': start,
-                  'aliEnd': stop,
-                  'colour': region_colors[region.index],
-                  'text': name,
-                  'metadata' : { "description" : "Homolog {} from region #{}".format(name, region.id),
-                                 "database" : "PHMMER search",
-                                 "start" : start,
-                                 "end" : stop}
-                  }            
-            jdict = {'length' : seqlen,
-                     'regions' : [d]}
-            homolog._pfam_json = jdict
-    return
-
-
 def add_pfam_dict_to_homologs(homologs, sequence_length):
     # Need a better way of getting the number of regions
     nregions = len(set([h.region_id for h in homologs.values()]))
