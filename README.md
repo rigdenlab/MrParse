@@ -8,7 +8,7 @@ It also attempts to classify the sequence according to its secondary structure, 
 Results are currently displayed in a simple HTML webpage that is rendered using [VUE](https://vuejs.org). The sequence graphics are created using the [PFAM graphics library](https://pfam.xfam.org/generate_graphic), a copy of which is distributed with this code.
 
 ## Notes
-### General
+### Installation
 The current Biopython shipped with CCP4 is out of date and contains an error that prevents PHMMER log files being parsed correctly. To update the version of Biopython within CCP4, run the command:
 ```bash
 ccp4-python -m pip install --upgrade biopython
@@ -20,6 +20,8 @@ git clone https://github.com/rigdenlab/ample.git
 ample.git/bin/ample_into_ccp4.sh
 ```
 
+To run mrparse, check out this repository, make sure CCP4 is sourced, and then run the file `bin/mrparse`.
+
 ### Search Model Finder
 The search model finder currently uses [PHMMER](http://hmmer.org/) (distributed with [CCP4](http://www.ccp4.ac.uk)) to search for homologs. The facility to use [HHSEARCH](https://github.com/soedinglab/hh-suite) is almost complete, but is waiting on the HHSEARCH parsing functionality implemented in the GitHub [pull request](https://github.com/biopython/biopython/pull/1965) to be incorporated into the [BioPython](https://biopython.org) release.
 
@@ -27,4 +29,3 @@ The search model finder currently uses [PHMMER](http://hmmer.org/) (distributed 
 * secondary structure classification is currently carried by submitting jobs to the [JPRED](http://www.compbio.dundee.ac.uk/jpred/) server 
 * Coiled-Coil classification is carried out with [Deepcoil](https://github.com/labstructbioinf/DeepCoil). This needs to be installed locally.
 * Transmembrane classification is carried out with [Topcons2](https://github.com/ElofssonLab/TOPCONS2). This functionality is currently broken as the WSDL description file for their online server http://topcons.net/ appears to be missing.
-
