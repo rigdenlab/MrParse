@@ -42,7 +42,7 @@ def test_phaser_log_ellg(test_data, get_2uvo_test_hits):
     ellg_data = ellg_data_from_phaser_log(test_data.phaser_log, homologs)
     assert ellg_data['2x3t_C_1'].ellg == 1378.4
     assert ellg_data['2x3t_C_1'].length == 168
-    assert ellg_data['2x3t_C_1'].molecular_weight == pytest.approx(16678.6458)
+    assert ellg_data['2x3t_C_1'].molecular_weight == pytest.approx(16472.49)
 
 if __name__ == '__main__':
     import sys
