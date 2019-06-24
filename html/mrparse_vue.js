@@ -52,13 +52,13 @@ Vue.component('pfam-graphics', {
   },
   template: `
   <div class="pfam-graphics" ref=pfamgraphics>
-  	<div v-if="ss_pred || ss_pred" id='classification'>
+  	<div v-if="ss_pred || classification" id='classification'>
 	    <h2>Sequence Based Predictions</h2>
 	    <pfam-region :id="'ss_pred'" :region="ss_pred"/>
 	    <pfam-region :id="'classification'" :region="classification"/>
 	</div>
 	<div v-else id='classification'>
-	    <h4>### Sequence Based Prediction step omitted ###</h4>
+	    <h3>** Sequence Based Prediction step was skipped: append <tt>--do_classify</tt> argument to run **</h3>
 	</div>
 	<h2>Regions</h2>
     <pfam-region v-for="homolog in homologs" :key="homolog.name" :id="homolog.name" :region="homolog._pfam_json"/>
