@@ -124,6 +124,9 @@ Vue.component('homolog-table', {
   	             { 'attr': 'pdb_id',
   	              'title': 'PDB',
   	              'popup': 'PDB code of homolog'},   
+  	             { 'attr': 'resolution',
+  	              'title': 'Resolution',
+  	              'popup': 'Highest resolution of Xtal data for PDB'},   
   	             { 'attr': 'region_id',
   	               'title': 'Region',
   	               'popup': 'Number of the region'},   
@@ -181,6 +184,7 @@ Vue.component('homolog-table', {
         <tr v-for="homolog in homologs">
           <td><a v-bind:href="homolog.pdb_file">{{ homolog.name }}</a></td>
           <td><a v-bind:href="homolog.pdb_url" target="_blank">{{ homolog.pdb_id }}</a></td>
+          <td>{{ homolog.resolution  | decimalPlaces }}</td>
           <td>{{ homolog.region_id }}</td>
           <td>{{ homolog.range }}</td>
           <td>{{ homolog.length }}</td>

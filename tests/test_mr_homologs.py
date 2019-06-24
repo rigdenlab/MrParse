@@ -16,6 +16,7 @@ def test_2uvoA_homologs(test_data, get_2uvo_test_hits):
     assert h.length == 77
     assert abs(h.molecular_weight - 8750.78) < 0.001
     assert h.pdb_id == '1iqb'
+    assert h.resolution == 1.90
     chain_id = 'B'
     assert h.chain_id == chain_id
     d = h.static_dict

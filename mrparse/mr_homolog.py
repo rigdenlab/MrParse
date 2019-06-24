@@ -30,6 +30,7 @@ class HomologData(object):
         self.ncopies = None
         self.pdb_url = None
         self.pdb_file = None
+        self.resolution = None
         self.rmsd = None
         self.total_frac_scat = None
         self.total_frac_scat_known = None
@@ -135,7 +136,7 @@ def homologs_from_hits(hits, pdb_dir=None):
         hit._homolog = hlog
         hlog.pdb_url = PDB_BASE_URL + hit.pdb_id
         try:
-            hlog.pdb_file, hlog.molecular_weight = prepare_pdb(hit, pdb_dir)
+            hlog.pdb_file, hlog.molecular_weight, hlog.resolution = prepare_pdb(hit, pdb_dir)
         except PdbModelException as e:
             logger.critical("Error processing hit pdb %s", e.message)
         homologs[hlog.name] = hlog
@@ -158,7 +159,10 @@ def prepare_pdb(hit, pdb_dir):
         pdb_struct.from_file(pdb_file)
     else:
         pdb_struct.from_pdb_code(hit.pdb_id)
-        pdb_struct.save(pdb_file)
+        _write_pdb_file(pdb_struct, pdb_file)
+        #pdb_struct.save(pdb_file)
+    
+    resolution = pdb_struct.pdb_input.resolution()
         
     pdb_struct.standardize()
     pdb_struct.select_chain_by_id(hit.chain_id)
@@ -170,7 +174,19 @@ def prepare_pdb(hit, pdb_dir):
     truncated_pdb_name = "{}_{}_{}-{}.pdb".format(hit.pdb_id, hit.chain_id, hit.hit_start, hit.hit_stop)
     truncated_pdb_path = os.path.join(HOMOLOGS_DIR, truncated_pdb_name)
     pdb_struct.save(truncated_pdb_path)
-    return truncated_pdb_path, float(pdb_struct.molecular_weight)
+    return truncated_pdb_path, float(pdb_struct.molecular_weight), resolution
+
+def _write_pdb_file(pdb_struct, pdb_file):
+    """Horrible hack to write out the PDB file in a way that keeps the TITLE and REMARK records.
+    We really just want to save the original PDB but there doesn't seem to be an easy way to do that."""
+    pdb_str = ""
+    for  s in pdb_struct.pdb_input.title_section():
+        pdb_str += s + "\n"
+    for  s in pdb_struct.pdb_input.remark_section():
+        pdb_str += s + "\n"
+    pdb_str += pdb_struct.pdb_input.as_pdb_string()
+    with open(pdb_file, 'w') as w:
+        w.write(pdb_str)
 
 
 def calculate_ellg(homologs, hkl_info):
