@@ -7,10 +7,7 @@ import logging
 import os
 import re
 import shutil
-import subprocess
-import sys
 import tarfile
-import time
 
 from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation
 from mrparse.mr_util import now, run_cmd
@@ -27,8 +24,8 @@ HELIX.name = 'helix'
 
 SHEET = AnnotationSymbol()
 SHEET.symbol = 'E'
-SHEET.stype = 'B-strand'
-SHEET.name = 'b-strand'
+SHEET.stype = 'Strand'
+SHEET.name = 'strand'
 
 
 class OutOfTimeException(Exception):

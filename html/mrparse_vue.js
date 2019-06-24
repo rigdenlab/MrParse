@@ -53,12 +53,12 @@ Vue.component('pfam-graphics', {
   template: `
   <div class="pfam-graphics" ref=pfamgraphics>
   	<div v-if="ss_pred || ss_pred" id='classification'>
-	    <h2>Classification</h2>
+	    <h2>Sequence Based Predictions</h2>
 	    <pfam-region :id="'ss_pred'" :region="ss_pred"/>
 	    <pfam-region :id="'classification'" :region="classification"/>
 	</div>
 	<div v-else id='classification'>
-	    <h4>### Classification step omitted ###</h4>
+	    <h4>### Sequence Based Prediction step omitted ###</h4>
 	</div>
 	<h2>Regions</h2>
     <pfam-region v-for="homolog in homologs" :key="homolog.name" :id="homolog.name" :region="homolog._pfam_json"/>
@@ -89,24 +89,22 @@ Vue.component('hkl-info-table', {
 <table>
 <thead>
   <tr style="text-align: right;">
-    <th>name</th>
-    <th>Resolution</th>
-    <th>Space Group</th>
-    <th>Has NCS?</th>
-    <th>Has Twinning?</th>
-    <th>Has Anisotropy?</th>
-    <th>File Path</th>
+    <th title='Name of, and link to, the file crystallographic data file.'>name</th>
+    <th title='Highest resolution of the crystallographic data'>Resolution</th>
+    <th title='The space group of the crystallographic data'>Space Group</th>
+    <th title='Indicates the presences of Non-Crystallographic Symmetry (as calcualted by CTRUNCATE)'>Has NCS?</th>
+    <th title='Indicates the presences of Twinning (as calcualted by CTRUNCATE)'>Has Twinning?</th>
+    <th title='Indicates the presences of Anisotropy (as calcualted by CTRUNCATE)'>Has Anisotropy?</th>
   </tr>
 </thead>
 <tbody>
   <tr>
-    <td>{{ hklinfo.name }}</td>
+    <td><a v-bind:href="hklinfo.hklin">{{ hklinfo.name }}</a></td>
     <td>{{ hklinfo.resolution | decimalPlaces }}</td>
     <td>{{ hklinfo.space_group }}</td>
     <td>{{ hklinfo.has_ncs }}</td>
     <td>{{ hklinfo.has_twinning }}</td>
     <td>{{ hklinfo.has_anisotropy }}</td>
-    <td><a v-bind:href="hklinfo.hklin">{{ hklinfo.hklin}}</a></td>
   </tr>
 </tbody>
 </table>
@@ -126,9 +124,6 @@ Vue.component('homolog-table', {
   	             { 'attr': 'pdb_id',
   	              'title': 'PDB',
   	              'popup': 'PDB code of homolog'},   
-  	             { 'attr': 'chain_id',
-  	               'title': 'Chain',
-  	               'popup': 'Chain ID in PDB'},   
   	             { 'attr': 'region_id',
   	               'title': 'Region',
   	               'popup': 'Number of the region'},   
@@ -145,8 +140,8 @@ Vue.component('homolog-table', {
   	               'title': 'Mol. Wt.',
   	               'popup': 'Molecular Weight in Daltons'},   
   	             { 'attr': 'rmsd',
-  	               'title': 'RMSD',
-  	               'popup': 'RMSD from template'},   
+  	               'title': 'eRMSD',
+  	               'popup': 'Estimated RMSD from template'},   
   	             { 'attr': 'seq_ident',
   	               'title': 'Seq. Ident.',
   	               'popup': 'Sequence Identity to template'}],
@@ -186,7 +181,6 @@ Vue.component('homolog-table', {
         <tr v-for="homolog in homologs">
           <td><a v-bind:href="homolog.pdb_file">{{ homolog.name }}</a></td>
           <td><a v-bind:href="homolog.pdb_url" target="_blank">{{ homolog.pdb_id }}</a></td>
-          <td>{{ homolog.chain_id }}</td>
           <td>{{ homolog.region_id }}</td>
           <td>{{ homolog.range }}</td>
           <td>{{ homolog.length }}</td>
