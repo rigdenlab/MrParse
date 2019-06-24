@@ -92,9 +92,9 @@ Vue.component('hkl-info-table', {
     <th title='Name of, and link to, the file crystallographic data file.'>name</th>
     <th title='Highest resolution of the crystallographic data'>Resolution</th>
     <th title='The space group of the crystallographic data'>Space Group</th>
-    <th title='Indicates the presences of Non-Crystallographic Symmetry (as calcualted by CTRUNCATE)'>Has NCS?</th>
-    <th title='Indicates the presences of Twinning (as calcualted by CTRUNCATE)'>Has Twinning?</th>
-    <th title='Indicates the presences of Anisotropy (as calcualted by CTRUNCATE)'>Has Anisotropy?</th>
+    <th title='Indicates the presences of Non-Crystallographic Symmetry (as calculated by CTRUNCATE)'>Has NCS?</th>
+    <th title='Indicates the presences of Twinning (as calculated by CTRUNCATE)'>Has Twinning?</th>
+    <th title='Indicates the presences of Anisotropy (as calculated by CTRUNCATE)'>Has Anisotropy?</th>
   </tr>
 </thead>
 <tbody>
