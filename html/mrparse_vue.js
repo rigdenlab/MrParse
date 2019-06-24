@@ -24,7 +24,7 @@ function add_graphic(region, parent, residueWidth = 1.0) {
   pg.render();
 }
 
-
+/* EventBus is used to pass changes between components */
 const EventBus = new Vue();
 
 
@@ -45,6 +45,8 @@ Vue.component('pfam-graphics', {
       classification: this.$root.classification
     }
   },
+  /* When the homolog table has been sorted, the homologs are put on the EventBus so we set this components
+     homologs to be the sorted set from the EventBus */
   created: function() {
     EventBus.$on("sortedData", sortedData => {
       this.homologs = sortedData;
@@ -161,6 +163,7 @@ Vue.component('homolog-table', {
       }
       this.sortKey = sortKey;
       this.homologs = _.orderBy(this.homologs, this.sortKey, this.order);
+      /* We've sorted the homlogs, so put them on the EventBus so that the graphics will be updated */
       EventBus.$emit("sortedData", this.homologs);
       return
     },
@@ -202,7 +205,6 @@ Vue.component('homolog-table', {
 
 new Vue({
   el: '#app',
-  /* Check hkl_info undefined */
   data: {
     homologs: mrparse_data.pfam.homologs,
     ss_pred: mrparse_data.pfam.ss_pred,
