@@ -162,6 +162,7 @@ Vue.component('homolog-table', {
         }
       }
       this.sortKey = sortKey;
+      /* sorting is done using _.orderBy from the loadsh libary */
       this.homologs = _.orderBy(this.homologs, this.sortKey, this.order);
       /* We've sorted the homlogs, so put them on the EventBus so that the graphics will be updated */
       EventBus.$emit("sortedData", this.homologs);
