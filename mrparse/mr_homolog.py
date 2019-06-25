@@ -158,7 +158,11 @@ def prepare_pdb(hit, pdb_dir):
     if os.path.isfile(pdb_file):
         pdb_struct.from_file(pdb_file)
     else:
-        pdb_struct.from_pdb_code(hit.pdb_id)
+        try:
+            pdb_struct.from_pdb_code(hit.pdb_id)
+        except RuntimeError:
+            # SIMBAD currently raises an empty RuntimeError for download problems.
+            raise PdbModelException("Error downloading PDB file for: {}".format(hit.pdb_id))
         _write_pdb_file(pdb_struct, pdb_file)
         #pdb_struct.save(pdb_file)
     
