@@ -12,6 +12,7 @@ from mr_hkl import HklInfo
 from mr_search_model import SearchModelFinder
 from mr_sequence import Sequence, MultipleSequenceException, merge_multiple_sequences
 from mr_classify import MrClassifier
+from mr_version import __version__
 
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 HTML_DIR = os.path.join(THIS_DIR, '../html')
@@ -29,7 +30,8 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None):
     global logger
     logger = setup_logging()
     program_name = os.path.basename(sys.argv[0])
-    logger.info("Starting: %s", program_name)
+    logger.info("Running: %s", program_name)
+    logger.info("Version: %s", __version__)
     logger.info("Program started at: %s", now())
     logger.info("Running from directory: %s", work_dir)
 
@@ -153,7 +155,8 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None):
     render_template(HTML_TEMPLATE, html_out,
                     # kwargs appear as variables in the template
                     mrparse_html_dir=HTML_DIR,
-                    results_json=results_json)
+                    results_json=results_json,
+                    version=__version__)
     return html_out
 
 
