@@ -6,7 +6,6 @@ Created on 18 Oct 2018
 '''
 import logging
 import os
-import numpy as np
 from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation, NULL_ANNOTATION
 from mrparse.mr_util import now, is_exe, run_cmd
 
@@ -87,4 +86,4 @@ def parse_deepcoil(outfile):
     with open(outfile) as fh:
         tuples = [line.split() for line in fh.readlines()]
     aa, vals = zip(*tuples)
-    return np.array(aa), np.array(vals, dtype=np.float)
+    return aa, vals
