@@ -35,7 +35,7 @@ class TMPred(object):
     def __init__(self, seq_info):
         self.seq_info = seq_info
         self.prediction = None
-        script_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'../scripts')
+        script_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'scripts')
         self.topcons_script = os.path.join(script_dir, 'topcons2_wsdl.py')
         self.poll_time = POLL_TIME
         self.max_poll_time = MAX_POLL_TIME

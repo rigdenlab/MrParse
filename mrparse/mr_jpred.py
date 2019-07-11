@@ -35,7 +35,7 @@ class OutOfTimeException(Exception):
 class JPred(object):
     def __init__(self, seq_info=None):
         self.seq_info = seq_info
-        script_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'../scripts')
+        script_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'scripts')
         self.jpred_script = os.path.join(script_dir, 'jpredapi')
         self.prediction = None
         self.exception = None
