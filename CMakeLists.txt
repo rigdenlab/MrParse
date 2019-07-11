@@ -10,7 +10,14 @@ install(
 
 install(
     DIRECTORY
-        html data tests
+        data tests
+    DESTINATION
+        share/mrparse
+)
+
+install(
+    FILES
+        CHANGELOG.rst CONTRIB.rst LICENSE README.md
     DESTINATION
         share/mrparse
 )
