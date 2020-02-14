@@ -156,10 +156,10 @@ def prepare_pdb(hit, pdb_dir):
     pdb_file = os.path.join(pdb_dir, pdb_name)
     pdb_struct = PdbStructure()
     if os.path.isfile(pdb_file):
-        pdb_struct.from_file(pdb_file)
+        pdb_struct = pdb_struct.from_file(pdb_file)
     else:
         try:
-            pdb_struct.from_pdb_code(hit.pdb_id)
+            pdb_struct = pdb_struct.from_pdb_code(hit.pdb_id)
         except RuntimeError:
             # SIMBAD currently raises an empty RuntimeError for download problems.
             raise PdbModelException("Error downloading PDB file for: {}".format(hit.pdb_id))
@@ -179,6 +179,7 @@ def prepare_pdb(hit, pdb_dir):
     truncated_pdb_path = os.path.join(HOMOLOGS_DIR, truncated_pdb_name)
     pdb_struct.save(truncated_pdb_path)
     return truncated_pdb_path, float(pdb_struct.molecular_weight), resolution
+
 
 def _write_pdb_file(pdb_struct, pdb_file):
     """Horrible hack to write out the PDB file in a way that keeps the TITLE and REMARK records.
