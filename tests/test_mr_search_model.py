@@ -15,9 +15,9 @@ def test_SearchModelFinder2uvoOnlySequence(test_data):
     smf = SearchModelFinder(seq_info, pdb_dir=test_data.pdb_dir)
     smf()
     nregions = len(smf.regions)
-    assert nregions == 5, "Incorrect number of regions: {}".format(nregions)
+    assert nregions == 6, "Incorrect number of regions: {}".format(nregions)
     nhomologs = len(smf.homologs)
-    assert nhomologs == 14, "Incorrect number of homologs: {}".format(nhomologs)
+    assert nhomologs == 10, "Incorrect number of homologs: {}".format(nhomologs)
     assert abs(smf.homologs['1iqb_B_1'].molecular_weight-8750.8) < 0.1, \
     "Incorrect MW: {}".format(smf.homologs['1iqb_B_1'].molecular_weight)
 

@@ -3,11 +3,12 @@ import set_mrparse_path
 from mrparse.mr_sequence import Sequence
 from mrparse.mr_hit import find_hits, sort_hits_by_size
 
+
 def test_hit_2uvoA(test_data):
     seq_info = Sequence(test_data.x2uvoA_fasta)
     hits = find_hits(seq_info)
     hit_names = hits.keys()
-    ref_hits = ['2x3t_C_1', '1ulk_B_1', '1ulm_B_1', '4wp4_A_1', '1iqb_B_1', '5wuz_A_1', '5xdi_A_1', '2lb7_A_1', '1mmc_A_1', '2kus_A_1', '2n1s_A_1']
+    ref_hits = ['2uvo_F_1']
     # hits could change as new sequences are added so we just check for inclusion
     assert set(ref_hits).issubset(set(hit_names)), "Incorrect hit_names: %s" % hit_names
         
