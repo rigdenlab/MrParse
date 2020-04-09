@@ -25,7 +25,7 @@ install(
 if (WIN32)
   install(
       PROGRAMS 
-          bin/mrparse 
+          bin/mrparse.bat bin/mrparse 
       DESTINATION 
           bin
   )
