@@ -171,6 +171,10 @@ def run_phmmer(seq_info, dblvl=95):
            '-A', alnfile,
            seq_info.sequence_file, seqdb]
     stdout = run_cmd(cmd)
+    if os.name == 'nt':
+        lines = stdout.split('\r\n')
+        lines[0] = "# phmmer :: search a protein sequence against a protein database"
+        stdout = "\n".join(lines)
     with open(logfile, 'w') as f_out:
         f_out.write(stdout)
     return logfile
