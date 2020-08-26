@@ -18,7 +18,7 @@ def test_SearchModelFinder2uvoOnlySequence(test_data):
     assert nregions == 6, "Incorrect number of regions: {}".format(nregions)
     nhomologs = len(smf.homologs)
     assert nhomologs == 10, "Incorrect number of homologs: {}".format(nhomologs)
-    assert abs(smf.homologs['1iqb_B_1'].molecular_weight-8750.8) < 0.1, \
+    assert abs(smf.homologs['1iqb_B_1'].molecular_weight-8601.5597) < 0.1, \
     "Incorrect MW: {}".format(smf.homologs['1iqb_B_1'].molecular_weight)
 
 
@@ -33,7 +33,7 @@ def test_SearchModelFinder2uvo(test_data):
     assert nregions == 6, "Incorrect number of regions: {}".format(nregions)
     nhomologs = len(smf.homologs)
     assert nhomologs == 14, "Incorrect number of homologs: {}".format(nhomologs)
-    assert abs(smf.homologs['1iqb_B_1'].molecular_weight-8750.8) < 0.1, \
+    assert abs(smf.homologs['1iqb_B_1'].molecular_weight-8601.5597) < 0.1, \
     "Incorrect MW: {}".format(smf.homologs['1iqb_B_1'].molecular_weight)
 
 

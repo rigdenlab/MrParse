@@ -167,9 +167,6 @@ def prepare_pdb(hit, pdb_dir):
         
     pdb_struct.standardize()
     pdb_struct.select_chain_by_id(hit.chain_id)
-
-    # if not pdb_struct.assert_structure():
-    #     raise PdbModelException("Structure has no atoms for pdb_name %s" % pdb_name)
     
     seqid_range = range(hit.hit_start, hit.hit_stop + 1)
     pdb_struct.select_residues(to_keep_idx=seqid_range)
