@@ -1,8 +1,8 @@
-'''
+"""
 Created on 18 Oct 2018
 
 @author: jmht
-'''
+"""
 from collections import OrderedDict
 import copy
 import logging
@@ -150,8 +150,6 @@ def prepare_pdb(hit, pdb_dir):
     calculate the MW
 
     """
-    from ample.util.pdb_edit import _select_residues # import on demand as import v slow
-
     pdb_name = "{}.pdb".format(hit.pdb_id)
     pdb_file = os.path.join(pdb_dir, pdb_name)
     pdb_struct = PdbStructure()
@@ -163,35 +161,22 @@ def prepare_pdb(hit, pdb_dir):
         except RuntimeError:
             # SIMBAD currently raises an empty RuntimeError for download problems.
             raise PdbModelException("Error downloading PDB file for: {}".format(hit.pdb_id))
-        _write_pdb_file(pdb_struct, pdb_file)
-        #pdb_struct.save(pdb_file)
+        pdb_struct.save(pdb_file, remarks=[pdb_struct.structure.make_pdb_headers()])
     
-    resolution = pdb_struct.pdb_input.resolution()
+    resolution = pdb_struct.structure.resolution
         
     pdb_struct.standardize()
     pdb_struct.select_chain_by_id(hit.chain_id)
-    if len(pdb_struct.hierarchy.models()) == 0:
-        raise PdbModelException("Hierarchy has no models for pdb_name %s" % pdb_name)
+
+    # if not pdb_struct.assert_structure():
+    #     raise PdbModelException("Structure has no atoms for pdb_name %s" % pdb_name)
     
-    seqid_range = range(hit.hit_start, hit.hit_stop + 1) 
-    _select_residues(pdb_struct.hierarchy, tokeep_idx=seqid_range)    
+    seqid_range = range(hit.hit_start, hit.hit_stop + 1)
+    pdb_struct.select_residues(to_keep_idx=seqid_range)
     truncated_pdb_name = "{}_{}_{}-{}.pdb".format(hit.pdb_id, hit.chain_id, hit.hit_start, hit.hit_stop)
     truncated_pdb_path = os.path.join(HOMOLOGS_DIR, truncated_pdb_name)
     pdb_struct.save(truncated_pdb_path)
     return truncated_pdb_path, float(pdb_struct.molecular_weight), resolution
-
-
-def _write_pdb_file(pdb_struct, pdb_file):
-    """Horrible hack to write out the PDB file in a way that keeps the TITLE and REMARK records.
-    We really just want to save the original PDB but there doesn't seem to be an easy way to do that."""
-    pdb_str = ""
-    for  s in pdb_struct.pdb_input.title_section():
-        pdb_str += s + "\n"
-    for  s in pdb_struct.pdb_input.remark_section():
-        pdb_str += s + "\n"
-    pdb_str += pdb_struct.pdb_input.as_pdb_string()
-    with open(pdb_file, 'w') as w:
-        w.write(pdb_str)
 
 
 def calculate_ellg(homologs, hkl_info):
