@@ -1,5 +1,5 @@
 import json
-import multiprocessing as mp
+import multiprocessing
 import os
 import subprocess
 import sys
@@ -103,26 +103,32 @@ def run_analyse_serial(search_model_finder, classifier, hkl_info, do_classify):
 
 
 def run_analyse_parallel(search_model_finder, classifier, hkl_info, do_classify):
+    nproc = 3 if hkl_info else 2
+    logger.info("Running on %d processors." % nproc)
+    pool = multiprocessing.Pool(nproc)
+    smf_result = pool.apply_async(search_model_finder)
+    if do_classify:
+        mrc_result = pool.apply_async(classifier)
+    if hkl_info:
+        hklin_result = pool.apply_async(hkl_info)
+    pool.close()
+    logger.debug("Pool waiting")
+    pool.join()
+    logger.debug("Pool finished")
     try:
-        smf_result = mp.Process(target=search_model_finder())
-        smf_result.start()
-        smf_result.join()
+        search_model_finder = smf_result.get()
     except Exception as e:
         logger.critical('SearchModelFinder failed: %s' % e)
         logger.debug("Traceback is:", exc_info=sys.exc_info())
     if do_classify:
         try:
-            mrc_result = mp.Process(target=classifier())
-            mrc_result.start()
-            mrc_result.join()
+            classifier = mrc_result.get()
         except Exception as e:
             logger.critical('MrClassifier failed: %s' % e)
             logger.debug("Traceback is:", exc_info=sys.exc_info())
     if hkl_info:
         try:
-            hklin_result = mp.Process(target=hkl_info())
-            hklin_result.start()
-            hklin_result.join()
+            hkl_info = hklin_result.get()
         except Exception as e:
             logger.critical('HklInfo failed: %s' % e)
             logger.debug("Traceback is:", exc_info=sys.exc_info())
