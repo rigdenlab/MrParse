@@ -1,5 +1,13 @@
+#header {
+  width:85%;
+}
+
 body {
   padding: 10px;
+}
+
+body, h1, h2, h3, h4, h5, h6 {
+  font-family:'Lato', sans-serif;;
 }
 
 .container {
@@ -7,34 +15,81 @@ body {
   margin: auto;
 }
 
+.hkl-table {
+  width: 47%;
+  float: center;
+}
+
 .homolog-table {
-  width: 45%;
+  width: 47%;
+  float: left;
+}
+
+.model-table {
+  width: 47%;
   float: left;
 }
 
 .pfam-graphics {
-  margin-left: 45%;
+  margin-left: 47%;
   /* clear: left; */
 }
 
-table th, td {
-  border: 1px solid black;
-  padding: 2px;
+table {
+  width: 98%;
+  text-align: center;
+  border-collapse:collapse;
+  line-height: 22px;
 }
 
-table th {
-  background-color: #d3d3d3;
-  text-align: left;
+td, th {
+  border: 0px solid #AAAAAA;
+  padding: 2px 0px;
+}
+tbody td {
+  font-size: 14px;
+}
+
+thead {
+    border-bottom: 1px solid #444444;
+}
+thead th {
+  font-size: 15px;
+  font-weight: normal;
+  font-family:'Lato';
+  background-color: #ffffff;
+  text-align: center;
+}
+
+.hkl-table th > a {
+  text-decoration: none;
+  color: #3b3b3dff;
+}
+
+.hkl-table th > a:hover {
+  text-decoration: none ! important;
 }
 
 .homolog-table th > a {
   text-decoration: none;
-  color: #000000;
+  color: #3b3b3dff;
 }
 
 .homolog-table th > a:hover {
   text-decoration: none ! important;
-  /* color: #000000; */
+}
+
+.homolog-table tr:nth-child(even) {
+  background: #efefef;
+}
+
+.model-table th > a {
+  text-decoration: none;
+  color: #3b3b3dff;
+}
+
+.model-table th > a:hover {
+  text-decoration: none ! important;
 }
 
 /* responsive structures */

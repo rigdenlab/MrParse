@@ -54,16 +54,17 @@ Vue.component('pfam-graphics', {
   },
   template: `
   <div class="pfam-graphics" ref=pfamgraphics>
-  	<div v-if="ss_pred || classification" id='classification'>
-	    <h2>Sequence Based Predictions</h2>
-	    <pfam-region :id="'ss_pred'" :region="ss_pred"/>
-	    <pfam-region :id="'classification'" :region="classification"/>
-	</div>
 	<div v-else id='classification'>
 	    <h3>** Sequence Based Prediction step was skipped: append <tt>--do_classify</tt> argument to run **</h3>
 	</div>
-	<h2>Regions</h2>
+<!--	<p style="font-size:14px;color:#3b3b3dff">Visualisation of Regions</p>-->
+	<h2 style="font-size:15px;color:#3b3b3dff;font-weight:normal;">Visualisation of Regions</h2>
     <pfam-region v-for="homolog in homologs" :key="homolog.name" :id="homolog.name" :region="homolog._pfam_json"/>
+    <div v-if="ss_pred || classification" id    ='classification'>
+	    <h2 style="font-size:15px;color:#3b3b3dff;font-weight:normal;">Sequence Based Predictions</h2>
+	    <pfam-region :id="'ss_pred'" :region="ss_pred"/>
+	    <pfam-region :id="'classification'" :region="classification"/>
+	</div>
   </div>
   `
 });
@@ -88,10 +89,11 @@ Vue.component('hkl-info-table', {
   },
   template: `<div v-if="hklinfo" id="hkl_info">
 <h2>HKL Info</h2>
+<div class="hkl-table">
 <table>
 <thead>
   <tr style="text-align: right;">
-    <th title='Name of, and link to, the file crystallographic data file.'>name</th>
+    <th title='Name of, and link to, the file crystallographic data file.'>Name</th>
     <th title='Highest resolution of the crystallographic data'>Resolution</th>
     <th title='The space group of the crystallographic data'>Space Group</th>
     <th title='Indicates the presences of Non-Crystallographic Symmetry (as calculated by CTRUNCATE)'>Has NCS?</th>
@@ -110,6 +112,7 @@ Vue.component('hkl-info-table', {
   </tr>
 </tbody>
 </table>
+</div>
 </div>`
 });
 
@@ -203,6 +206,62 @@ Vue.component('homolog-table', {
     `
 })
 
+Vue.component('model-table', {
+  data: function() {
+    return {
+      models: this.$root.models,
+      sortKey: 'domain',
+      order: 'asc',
+  	  columns: [ { 'attr':  'model_identifier',
+  	               'title': 'Model Identifier',
+  	               'popup': 'Name of the model'},
+                 { 'attr': 'coordinates_url',
+  	               'title': 'Coordinates url',
+  	               'popup': 'location of the model'},
+  	             { 'attr': 'provider',
+  	              'title': 'Provider',
+  	              'popup': 'Provider of the model'},
+  	             { 'attr': 'created',
+  	              'title': 'Created',
+  	              'popup': 'Date the model was created'},
+                 { 'attr': 'seq_ident',
+  	               'title': 'Seq. Ident.',
+  	               'popup': 'Sequence Identity to template'},
+  	             { 'attr': 'coverage',
+  	               'title': 'Coverage',
+  	               'popup': 'Coverage of target sequence'},
+  	             { 'attr': 'qmean_avg_local_score',
+  	               'title': 'Qmean Average Local Score',
+  	               'popup': 'Qmean Average Local Score'}],
+    }
+  },
+  template: `
+  <div class="model-table">
+  <table id="models">
+      <thead>
+        <tr>
+          <th v-for="column in columns">
+            <a href="#" @click="sortBy(column.attr)" v-bind:title="column.popup">
+              {{ column.title }}
+            </a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="model in models">
+          <td>{{ model.model_identifier }}</td>
+          <td><a v-bind:href="model.coordinates_url">{{ model.model_identifier }}</a></td>
+          <td>{{ model.provider }}</td>
+          <td>{{ model.created }}</td>
+          <td>{{ model.seq_ident }}</td>
+          <td>{{ model.coverage }}</td>
+          <td>{{ model.qmean_avg_local_score }}</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    `
+})
 
 new Vue({
   el: '#app',
@@ -210,6 +269,7 @@ new Vue({
     homologs: mrparse_data.pfam.homologs,
     ss_pred: mrparse_data.pfam.ss_pred,
     classification: mrparse_data.pfam.classification,
-    hklinfo: mrparse_data.hkl_info
+    hklinfo: mrparse_data.hkl_info,
+    models: mrparse_data.models,
   },
 })
