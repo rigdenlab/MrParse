@@ -35,6 +35,11 @@ body, h1, h2, h3, h4, h5, h6 {
   /* clear: left; */
 }
 
+.model-pfam-graphics {
+  margin-left: 47%;
+  /* clear: left; */
+}
+
 table {
   width: 98%;
   text-align: center;
@@ -92,9 +97,17 @@ thead th {
   text-decoration: none ! important;
 }
 
+.model-table tr:nth-child(even) {
+  background: #efefef;
+}
+
 /* responsive structures */
 @media screen and (max-width: 1308px) {
   .pfam-graphics {
+    margin-left: 0px;
+    clear: left;
+  }
+  .model-pfam-graphics {
     margin-left: 0px;
     clear: left;
   }
