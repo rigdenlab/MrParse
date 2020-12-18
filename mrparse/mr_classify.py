@@ -1,20 +1,22 @@
-'''
+"""
 Created on 18 Oct 2018
 
 @author: jmht
-'''
+"""
 import logging
 import threading
 import sys
 
 
 from mrparse.mr_deepcoil import CCPred
-from mrparse.mr_topcons import TMPred
+# from mrparse.mr_topcons import TMPred
+from mrparse.mr_tmhmm import TMPred
 from mrparse.mr_jpred import JPred
 from mrparse.mr_pfam import pfam_dict_from_annotation
 
 
 logger = logging.getLogger(__name__)
+
 
 class PredictorThread(threading.Thread):
     def __init__(self, classifier):
