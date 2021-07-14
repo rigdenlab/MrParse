@@ -25,7 +25,8 @@ function add_graphic(region, parent, residueWidth = 1.0) {
 }
 
 /* EventBus is used to pass changes between components */
-const EventBus = new Vue();
+const EventBus1 = new Vue();
+const EventBus2 = new Vue();
 
 
 Vue.filter("decimalPlaces", (value, num = 2) => {
@@ -48,26 +49,46 @@ Vue.component('pfam-graphics', {
   /* When the homolog table has been sorted, the homologs are put on the EventBus so we set this components
      homologs to be the sorted set from the EventBus */
   created: function() {
-    EventBus.$on("sortedData", sortedData => {
+    EventBus1.$on("sortedData1", sortedData => {
       this.homologs = sortedData;
     })
   },
   template: `
   <div class="pfam-graphics" ref=pfamgraphics>
-  	<div v-if="ss_pred || classification" id='classification'>
-	    <h2>Sequence Based Predictions</h2>
+	<h2 style="font-size:15px;color:#3b3b3dff;font-weight:normal;">Visualisation of Regions</h2>
+    <pfam-region v-for="homolog in homologs" :key="homolog.name" :id="homolog.name" :region="homolog._pfam_json"/>
+    <div v-if="ss_pred || classification" id    ='classification'>
+	    <h2 style="font-size:15px;color:#3b3b3dff;font-weight:normal;">Sequence Based Predictions</h2>
 	    <pfam-region :id="'ss_pred'" :region="ss_pred"/>
 	    <pfam-region :id="'classification'" :region="classification"/>
 	</div>
 	<div v-else id='classification'>
 	    <h3>** Sequence Based Prediction step was skipped: append <tt>--do_classify</tt> argument to run **</h3>
 	</div>
-	<h2>Regions</h2>
-    <pfam-region v-for="homolog in homologs" :key="homolog.name" :id="homolog.name" :region="homolog._pfam_json"/>
   </div>
   `
 });
 
+Vue.component('model-pfam-graphics', {
+  data: function() {
+    return {
+      models: this.$root.models,
+    }
+  },
+  /* When the model table has been sorted, the models are put on the EventBus so we set this components
+     models to be the sorted set from the EventBus */
+  created: function() {
+    EventBus2.$on("sortedData2", sortedData => {
+      this.models = sortedData;
+    })
+  },
+  template: `
+  <div class="model-pfam-graphics" ref=modelpfamgraphics>
+	<h2 style="font-size:15px;color:#3b3b3dff;font-weight:normal;">Visualisation of Regions</h2>
+    <model-pfam-region v-for="model in models" :key="model.model_identifier" :id="model.model_identifier" :region="model._pfam_json"/>
+  </div>
+  `
+});
 
 Vue.component('pfam-region', {
   props: {
@@ -75,10 +96,22 @@ Vue.component('pfam-region', {
   },
   mounted: function() {
     let residueWidth = Math.max(1.0, this.$parent.$refs.pfamgraphics.clientWidth / this.region.length);
-    add_graphic(this.region, this.$refs.cdiv, residueWidth);
+    add_graphic(this.region, this.$refs.cdiv1, residueWidth);
   },
-  template: '<div id=id ref=cdiv></div>'
+  template: '<div id=id ref=cdiv1></div>'
 });
+
+Vue.component('model-pfam-region', {
+  props: {
+    region: Object
+  },
+  mounted: function() {
+    let residueWidth = Math.max(1.0, this.$parent.$refs.modelpfamgraphics.clientWidth / this.region.length);
+    add_graphic(this.region, this.$refs.cdiv2, residueWidth);
+  },
+  template: '<div id=id ref=cdiv2></div>'
+});
+
 
 Vue.component('hkl-info-table', {
   data: function() {
@@ -88,10 +121,11 @@ Vue.component('hkl-info-table', {
   },
   template: `<div v-if="hklinfo" id="hkl_info">
 <h2>HKL Info</h2>
+<div class="hkl-table">
 <table>
 <thead>
   <tr style="text-align: right;">
-    <th title='Name of, and link to, the file crystallographic data file.'>name</th>
+    <th title='Name of, and link to, the file crystallographic data file.'>Name</th>
     <th title='Highest resolution of the crystallographic data'>Resolution</th>
     <th title='The space group of the crystallographic data'>Space Group</th>
     <th title='Indicates the presences of Non-Crystallographic Symmetry (as calculated by CTRUNCATE)'>Has NCS?</th>
@@ -110,6 +144,7 @@ Vue.component('hkl-info-table', {
   </tr>
 </tbody>
 </table>
+</div>
 </div>`
 });
 
@@ -165,7 +200,7 @@ Vue.component('homolog-table', {
       /* sorting is done using _.orderBy from the loadsh libary */
       this.homologs = _.orderBy(this.homologs, this.sortKey, this.order);
       /* We've sorted the homlogs, so put them on the EventBus so that the graphics will be updated */
-      EventBus.$emit("sortedData", this.homologs);
+      EventBus1.$emit("sortedData1", this.homologs);
       return
     },
   },
@@ -203,6 +238,83 @@ Vue.component('homolog-table', {
     `
 })
 
+Vue.component('model-table', {
+  data: function() {
+    return {
+      models: this.$root.models,
+      sortKey: 'domain',
+      order: 'desc',
+  	  columns: [ { 'attr':  'model_identifier',
+  	               'title': 'Model Identifier',
+  	               'popup': 'Name of the model'},
+                 { 'attr': 'coordinates_url',
+  	               'title': 'Coordinates url',
+  	               'popup': 'location of the model'},
+  	             { 'attr': 'provider',
+  	              'title': 'Provider',
+  	              'popup': 'Provider of the model'},
+  	             { 'attr': 'created',
+  	              'title': 'Created',
+  	              'popup': 'Date the model was created'},
+                 { 'attr': 'seq_ident',
+  	               'title': 'Seq. Ident.',
+  	               'popup': 'Sequence Identity to template'},
+  	             { 'attr': 'coverage',
+  	               'title': 'Coverage',
+  	               'popup': 'Coverage of target sequence'},
+  	             { 'attr': 'qmean_avg_local_score',
+  	               'title': 'Qmean Average Local Score',
+  	               'popup': 'Qmean Average Local Score'}],
+    }
+  },
+
+    methods: {
+    sortBy: function(sortKey) {
+      if (this.sortKey == sortKey) {
+        if (this.order == 'asc') {
+          this.order = 'desc';
+        } else {
+          this.order = 'asc';
+        }
+      }
+      this.sortKey = sortKey;
+      /* sorting is done using _.orderBy from the loadsh libary */
+      this.models = _.orderBy(this.models, this.sortKey, this.order);
+      /* We've sorted the models, so put them on the EventBus so that the graphics will be updated */
+      EventBus2.$emit("sortedData2", this.models);
+      return
+    },
+    },
+  mounted: function() {
+    this.sortBy('qmean_avg_local_score')
+  },
+  template: `
+  <div class="model-table">
+  <table id="models">
+      <thead>
+        <tr>
+          <th v-for="column in columns">
+            <a href="#" @click="sortBy(column.attr)" v-bind:title="column.popup">
+              {{ column.title }}
+            </a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="model in models">
+          <td>{{ model.model_identifier }}</td>
+          <td><a v-bind:href="model.coordinates_url">{{ model.model_identifier }}</a></td>
+          <td>{{ model.provider }}</td>
+          <td>{{ model.created }}</td>
+          <td>{{ model.seq_ident }}</td>
+          <td>{{ model.coverage }}</td>
+          <td>{{ model.qmean_avg_local_score }}</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    `
+})
 
 new Vue({
   el: '#app',
@@ -210,6 +322,7 @@ new Vue({
     homologs: mrparse_data.pfam.homologs,
     ss_pred: mrparse_data.pfam.ss_pred,
     classification: mrparse_data.pfam.classification,
-    hklinfo: mrparse_data.hkl_info
+    hklinfo: mrparse_data.hkl_info,
+    models: mrparse_data.models,
   },
 })
