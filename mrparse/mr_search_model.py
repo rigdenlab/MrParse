@@ -6,7 +6,7 @@ Created on 18 Oct 2018
 import logging
 from mrparse import mr_homolog 
 from mrparse import mr_hit
-from mr_region import RegionFinder
+from mrparse.mr_region import RegionFinder
 from mrparse import mr_pfam
 from mrparse.mr_util import now
 
