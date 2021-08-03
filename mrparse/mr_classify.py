@@ -51,15 +51,15 @@ class MrClassifier(object):
         return self
         
     def get_prediction(self):
-        if  self.do_cc_predictor:
+        if self.do_cc_predictor:
             cc_predictor = CCPred(self.seq_info)
             cc_thread = PredictorThread(cc_predictor)
             cc_thread.start()
-        if  self.do_tm_predictor:
+        if self.do_tm_predictor:
             tm_predictor = TMPred(self.seq_info)
             tm_thread = PredictorThread(tm_predictor)
             tm_thread.start()
-        if  self.do_ss_predictor:
+        if self.do_ss_predictor:
             ss_predictor = JPred(seq_info=self.seq_info)
             ss_thread = PredictorThread(ss_predictor)
             ss_thread.start()
@@ -71,7 +71,7 @@ class MrClassifier(object):
         if self.do_tm_predictor:
             tm_thread.join()
             logger.info('TM predictor finished')
-        if  self.do_ss_predictor:
+        if self.do_ss_predictor:
             ss_thread.join()
             logger.info('SS predictor finished')
         
@@ -99,8 +99,9 @@ class MrClassifier(object):
                 logger.debug("Traceback is:", exc_info=ss_thread.exc_info)
             else:
                 self.ss_prediction = ss_predictor.prediction
-    
-    def generate_consensus_classification(self, annotations):
+
+    @staticmethod
+    def generate_consensus_classification(annotations):
         lengths = [len(a) for a in annotations]
         assert lengths.count(lengths[0]) == len(lengths), "Annotations have different lengths: %s" % lengths
         for i, a in enumerate(annotations):

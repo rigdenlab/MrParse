@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 def test_SearchModelFinder2uvoOnlySequence(test_data):
-    seq_info =  Sequence(test_data.x2uvoA_fasta)
+    seq_info = Sequence(test_data.x2uvoA_fasta)
     smf = SearchModelFinder(seq_info, pdb_dir=test_data.pdb_dir)
     smf()
     nregions = len(smf.regions)

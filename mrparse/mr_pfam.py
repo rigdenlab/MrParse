@@ -1,8 +1,8 @@
-'''
+"""
 Created on 16 Nov 2018
 
 @author: jmht
-'''
+"""
 
 from mrparse.mr_topcons import TM
 from mrparse.mr_deepcoil import CC
@@ -11,11 +11,12 @@ from mrparse.mr_annotation import get_annotation_chunks
 
 import colorsys
 
+
 def get_N_HexCol(N=5):
-    HSV_tuples = [(x*1.0/N, 0.5, 0.5) for x in xrange(N)]
+    HSV_tuples = [(x * 1.0 / N, 0.5, 0.5) for x in xrange(N)]
     hex_out = []
     for rgb in HSV_tuples:
-        rgb = map(lambda x: int(x*255),colorsys.hsv_to_rgb(*rgb))
+        rgb = map(lambda x: int(x * 255), colorsys.hsv_to_rgb(*rgb))
         hex_out.append("".join(map(lambda x: chr(x).encode('hex'), rgb)))
     return ['#' + h for h in hex_out]
 
@@ -28,22 +29,47 @@ def add_pfam_dict_to_homologs(homologs, sequence_length):
         start = h.query_start
         stop = h.query_stop
         name = h.name
-        d = { 'startStyle': "curved",
-              'endStyle': "curved",
-              'start': start,
-              'end': stop,
-              'aliStart': start,
-              'aliEnd': stop,
-              'colour': region_colors[h.region_index],
-              'text': name,
-              'metadata' : { "description" : "Homolog {} from region #{}".format(name, h.region_id),
-                             "database" : "PHMMER search",
-                             "start" : start,
-                             "end" : stop}
-              }            
-        jdict = {'length' : sequence_length,
-                 'regions' : [d]}
+        d = {'startStyle': "curved",
+             'endStyle': "curved",
+             'start': start,
+             'end': stop,
+             'aliStart': start,
+             'aliEnd': stop,
+             'colour': region_colors[h.region_index],
+             'text': name,
+             'metadata': {"description": "Homolog {} from region #{}".format(name, h.region_id),
+                          "database": "PHMMER search",
+                          "start": start,
+                          "end": stop}
+             }
+        jdict = {'length': sequence_length,
+                 'regions': [d]}
         h._pfam_json = jdict
+    return
+
+
+def add_pfam_dict_to_models(models, sequence_length):
+    # Need a better way of getting the number of regions
+    for m in models.values():
+        start = m.query_start
+        stop = m.query_stop
+        name = m.name
+        d = {'startStyle': "curved",
+             'endStyle': "curved",
+             'start': start,
+             'end': stop,
+             'aliStart': start,
+             'aliEnd': stop,
+             'colour': '#193f90',
+             'text': name,
+             'metadata': {"description": "Model {} from region #{}".format(name, m.region_id),
+                          "database": "EBI AlphaFold database",
+                          "start": start,
+                          "end": stop}
+             }
+        jdict = {'length': sequence_length,
+                 'regions': [d]}
+        m._pfam_json = jdict
     return
 
 
@@ -66,7 +92,7 @@ def pfam_dict_from_chunks(chunk_data, seqlen):
             colour = "#aaaaaa"
             text = TM.name
             meta_desc = "Transmembrane region #%d" % idx
-        elif chunk.annotation ==  HELIX:
+        elif chunk.annotation == HELIX:
             colour = "#ff0000"
             text = HELIX.name
             meta_desc = "Helix region #%d" % idx
@@ -74,22 +100,21 @@ def pfam_dict_from_chunks(chunk_data, seqlen):
             colour = "#0000ff"
             text = SHEET.name
             meta_desc = "Beta strand region #%d" % idx
-        d = { 'startStyle': "straight",
-              'endStyle': "straight",
-              'start': chunk.start,
-              'end': chunk.end,
-              'aliStart': chunk.start,
-              'aliEnd': chunk.end,
-              'colour': colour,
-              'text': text,
-              'metadata' : { "description" : meta_desc,
-                             "database" : chunk.annotation.source,
-                             "start" : chunk.start,
-                             "end" : chunk.end,
-                              }
-              }
-        regions.append(d)       
-    vis_data = {'length' : seqlen,
-                'regions' :regions}
+        d = {'startStyle': "straight",
+             'endStyle': "straight",
+             'start': chunk.start,
+             'end': chunk.end,
+             'aliStart': chunk.start,
+             'aliEnd': chunk.end,
+             'colour': colour,
+             'text': text,
+             'metadata': {"description": meta_desc,
+                          "database": chunk.annotation.source,
+                          "start": chunk.start,
+                          "end": chunk.end,
+                          }
+             }
+        regions.append(d)
+    vis_data = {'length': seqlen,
+                'regions': regions}
     return vis_data
-

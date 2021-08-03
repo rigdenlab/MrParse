@@ -1,9 +1,9 @@
-'''
+"""
 Created on 18 Oct 2018
 
 @author: jmht
 
-'''
+"""
 import logging
 import os
 from mrparse.mr_annotation import AnnotationSymbol, SequenceAnnotation, NULL_ANNOTATION
@@ -11,7 +11,8 @@ from mrparse.mr_util import now, is_exe, run_cmd
 
 
 THRESHOLD_PROBABILITY = 0.6
-DEEPCOIL_SCRIPT = '/opt/DeepCoil/deepcoil.py'
+# DEEPCOIL_SCRIPT = '/opt/DeepCoil/deepcoil.py'
+DEEPCOIL_SCRIPT = '/Users/adamsimpkin/opt/DeepCoil-5385315/deepcoil.py'
 DEEPCOIL_MIN_RESIDUES = 30
 DEEPCOIL_MAX_RESIDUES = 500
 
@@ -49,7 +50,8 @@ class CCPred(object):
         ann.source = 'Deepcoil localhost'
         ann.library_add_annotation(CC)
         ann.scores = scores
-        ann.annotation = "".join([CC.symbol if p > THRESHOLD_PROBABILITY else NULL_ANNOTATION.symbol for p in scores])
+        ann.annotation = "".join([CC.symbol if float(p) > THRESHOLD_PROBABILITY else NULL_ANNOTATION.symbol
+                                  for p in scores])
         logger.debug("CCPred finished prediction at: %s" % now())
         self.prediction = ann
 

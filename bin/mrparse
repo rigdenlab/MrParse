@@ -24,7 +24,8 @@ def main():
                               hklin=args.hklin,
                               run_serial=args.run_serial,
                               do_classify=args.do_classify,
-                              pdb_dir=args.pdb_dir)
+                              pdb_dir=args.pdb_dir,
+                              db_lvl=args.db_lvl)
     except KeyboardInterrupt:
         sys.stderr.write("Interrupted by keyboard!")
         return 0

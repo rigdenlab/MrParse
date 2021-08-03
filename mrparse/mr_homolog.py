@@ -173,7 +173,7 @@ def prepare_pdb(hit, pdb_dir):
     truncated_pdb_name = "{}_{}_{}-{}.pdb".format(hit.pdb_id, hit.chain_id, hit.hit_start, hit.hit_stop)
     truncated_pdb_path = os.path.join(HOMOLOGS_DIR, truncated_pdb_name)
     pdb_struct.save(truncated_pdb_path)
-    return truncated_pdb_path, float(pdb_struct.molecular_weight), resolution
+    return truncated_pdb_path, int(pdb_struct.molecular_weight), resolution
 
 
 def calculate_ellg(homologs, hkl_info):
