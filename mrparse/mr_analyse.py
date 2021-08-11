@@ -24,7 +24,8 @@ MODELS_JS = 'models.json'
 logger = None
 
 
-def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None, db_lvl=None):
+def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None, db_lvl=None, tmhmm_exe=None,
+        deepcoil_exe=None):
     # Need to make a work directory first as all logs go into there
     work_dir = make_workdir()
     os.chdir(work_dir)
@@ -58,7 +59,7 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None, db_
 
     classifier = None
     if do_classify:
-        classifier = MrClassifier(seq_info=seq_info)
+        classifier = MrClassifier(seq_info=seq_info, tmhmm_exe=tmhmm_exe, deepcoil_exe=deepcoil_exe)
 
     if run_serial:
         run_analyse_serial(search_model_finder, classifier, hkl_info, do_classify)
