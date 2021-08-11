@@ -32,7 +32,7 @@ class ModelData(object):
         self.date_made = None
         self.molecular_weight = None
         self.model_url = None
-        self.model_file = None
+        self.pdb_file = None
         self.h_score = None
         self.rmsd = None
         self.hit = None
@@ -144,8 +144,6 @@ def models_from_hits(hits, pdb_dir=None):
 def download_model(pdb_name):
     """Download AlphaFold2 model"""
     url = 'https://alphafold.ebi.ac.uk/files/' + pdb_name
-    print(url)
-
     query = requests.get(url)
     return query.text
 
