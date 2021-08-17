@@ -125,11 +125,11 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
             #             sequence_identity = float(sum([a==b for a, b in zip(*[str(s.upper().seq) for s in hsp.aln.get_all_seqs()])])) / float(hsp.aln_span)
             sh = SequenceHit()
             sh.rank = rank
-            try:
+            if "_" in hsp.hit_id:
                 name, chain = hsp.hit_id.split('_')
                 sh.pdb_id = name
                 sh.chain_id = chain
-            except ValueError:
+            else:
                 sh.pdb_id = hsp.hit_id
                 sh.chain_id = "A"
     #sh.score = hsp.bitscore

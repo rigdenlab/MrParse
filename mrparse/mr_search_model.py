@@ -33,20 +33,14 @@ class SearchModelFinder(object):
         https://stackoverflow.com/questions/1816958/cant-pickle-type-instancemethod-when-using-multiprocessing-pool-map/6975654#6975654
         """
         logger.debug('SearchModelFinder started at %s' % now())
-        try:
-            self.find_homolog_regions()
-            logger.debug('SearchModelFinder homolog regions done at %s' % now())
-            self.prepare_homologs()
-            logger.debug('SearchModelFinder homologs done at %s' % now())
-        except AssertionError:
-            pass
-        try:
-            self.find_model_regions()
-            logger.debug('SearchModelFinder model regions done at %s' % now())
-            self.prepare_models()
-            logger.debug('SearchModelFinder models done at %s' % now())
-        except AssertionError:
-            pass
+        self.find_homolog_regions()
+        logger.debug('SearchModelFinder homolog regions done at %s' % now())
+        self.prepare_homologs()
+        logger.debug('SearchModelFinder homologs done at %s' % now())
+        self.find_model_regions()
+        logger.debug('SearchModelFinder model regions done at %s' % now())
+        self.prepare_models()
+        logger.debug('SearchModelFinder models done at %s' % now())
         return self
     
     def find_homolog_regions(self):
@@ -66,14 +60,16 @@ class SearchModelFinder(object):
         return self.model_regions
 
     def prepare_homologs(self):
-        assert self.hits and self.regions
+        if not self.hits and self.regions:
+            return None
         self.homologs = mr_homolog.homologs_from_hits(self.hits, self.pdb_dir)
         if self.hkl_info:
             mr_homolog.calculate_ellg(self.homologs, self.hkl_info)
         return self.homologs
 
     def prepare_models(self):
-        assert self.model_hits and self.model_regions
+        if not self.model_hits and self.model_regions:
+            return None
         self.models = mr_alphafold.models_from_hits(self.model_hits, self.pdb_dir)
         return self.models
 

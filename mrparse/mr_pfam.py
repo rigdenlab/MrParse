@@ -29,6 +29,7 @@ def add_pfam_dict_to_homologs(homologs, sequence_length):
         start = h.query_start
         stop = h.query_stop
         name = h.name
+        region_id = h.region_id
         d = {'startStyle': "curved",
              'endStyle': "curved",
              'start': start,
@@ -37,7 +38,7 @@ def add_pfam_dict_to_homologs(homologs, sequence_length):
              'aliEnd': stop,
              'colour': region_colors[h.region_index],
              'text': name,
-             'metadata': {"description": "Homolog {} from region #{}".format(name, h.region_id),
+             'metadata': {"description": "Homolog {} from region #{}".format(name, region_id),
                           "database": "PHMMER search",
                           "start": start,
                           "end": stop}
@@ -45,7 +46,6 @@ def add_pfam_dict_to_homologs(homologs, sequence_length):
         jdict = {'length': sequence_length,
                  'regions': [d]}
         h._pfam_json = jdict
-    return
 
 
 def add_pfam_dict_to_models(models, sequence_length):
@@ -54,6 +54,7 @@ def add_pfam_dict_to_models(models, sequence_length):
         start = m.query_start
         stop = m.query_stop
         name = m.name
+        region_id = m.region_id
         d = {'startStyle': "curved",
              'endStyle': "curved",
              'start': start,
@@ -62,7 +63,7 @@ def add_pfam_dict_to_models(models, sequence_length):
              'aliEnd': stop,
              'colour': '#193f90',
              'text': name,
-             'metadata': {"description": "Model {} from region #{}".format(name, m.region_id),
+             'metadata': {"description": "Model {} from region #{}".format(name, region_id),
                           "database": "EBI AlphaFold database",
                           "start": start,
                           "end": stop}
@@ -70,7 +71,6 @@ def add_pfam_dict_to_models(models, sequence_length):
         jdict = {'length': sequence_length,
                  'regions': [d]}
         m._pfam_json = jdict
-    return
 
 
 def pfam_dict_from_annotation(annotation):

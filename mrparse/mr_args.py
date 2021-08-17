@@ -45,10 +45,10 @@ def parse_command_line():
 
     # Add tmhmm & deepcoil exe to config file so that it only needs to be specified once
     update_config = False
-    if args.tmhmm_exe != "tmhmm":
+    if args.tmhmm_exe != defaults['tmhmm_exe']:
         config.set('Executables', 'tmhmm_exe', args.tmhmm_exe)
         update_config = True
-    if args.deepcoil_exe != "deepcoil":
+    if args.deepcoil_exe != defaults['deepcoil_exe']:
         config.set('Executables', 'deepcoil_exe', args.deepcoil_exe)
         update_config = True
     if update_config:

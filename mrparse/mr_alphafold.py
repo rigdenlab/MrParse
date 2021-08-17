@@ -86,17 +86,11 @@ class ModelData(object):
     @property
     def static_dict(self):
         """Return a self representation with all properties resolved, suitable for JSON"""
-        d = copy.copy(self.__dict__)
-        for k in self.__dict__.keys():
-            if k in self.OBJECT_ATTRIBUTES:
-                d.pop(k)
+        d = {k: self.__dict__[k] for k in self.__dict__.keys() if k not in self.OBJECT_ATTRIBUTES}
         # Get all properties
         for name in dir(self.__class__):
             obj = getattr(self.__class__, name)
-            if name == 'static_dict':
-                # Skip this property to avoid infinite recursion
-                continue
-            if isinstance(obj, property):
+            if name != 'static_dict' and isinstance(obj, property):
                 val = obj.__get__(self, self.__class__)
                 d[name] = val
         # Need to add in properties as these aren't included
@@ -113,10 +107,10 @@ class ModelData(object):
 
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
-        INDENT = "  "
+        line_template = "  {} : {}\n"
         out_str = "Class: {}\nData:\n".format(self.__class__)
         for a in sorted(attrs):
-            out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
+            out_str += line_template.format(a, self.__dict__[a])
         return out_str
 
 
@@ -196,9 +190,10 @@ def calculate_quality_threshold(struct, plddt_threshold=70):
 
 def calculate_quality_h_score(struct):
     score = 0
-    for i in range(1, 101):
+    for i in reversed(range(1, 101)):
         if calculate_quality_threshold(struct, plddt_threshold=i) >= i:
             score = i
+            break
     return score
 
 
