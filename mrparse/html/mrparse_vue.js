@@ -85,7 +85,7 @@ Vue.component('model-pfam-graphics', {
   template: `
   <div class="model-pfam-graphics" ref=modelpfamgraphics>
 	<h2 style="font-size:15px;color:#3b3b3dff;font-weight:normal;">Visualisation of Regions</h2>
-    <model-pfam-region v-for="model in models" :key="model.model_identifier" :id="model.model_identifier" :region="model._pfam_json"/>
+    <model-pfam-region v-for="model in models" :key="model.name" :id="model.name" :region="model._pfam_json"/>
   </div>
   `
 });
@@ -228,7 +228,7 @@ Vue.component('homolog-table', {
           <td>{{ homolog.range }}</td>
           <td>{{ homolog.length }}</td>
           <td>{{ homolog.ellg }}</td>
-          <td>{{ homolog.molecular_weight | decimalPlaces }}</td>
+          <td>{{ homolog.molecular_weight }}</td>
           <td>{{ homolog.rmsd }}</td>
           <td>{{ homolog.seq_ident }}</td>
         </tr>
@@ -244,27 +244,33 @@ Vue.component('model-table', {
       models: this.$root.models,
       sortKey: 'domain',
       order: 'desc',
-  	  columns: [ { 'attr':  'model_identifier',
-  	               'title': 'Model Identifier',
+      columns: [ { 'attr':  'name',
+  	               'title': 'Name',
   	               'popup': 'Name of the model'},
-                 { 'attr': 'coordinates_url',
-  	               'title': 'Coordinates url',
-  	               'popup': 'location of the model'},
-  	             { 'attr': 'provider',
-  	              'title': 'Provider',
-  	              'popup': 'Provider of the model'},
-  	             { 'attr': 'created',
-  	              'title': 'Created',
-  	              'popup': 'Date the model was created'},
-                 { 'attr': 'seq_ident',
+  	             { 'attr': 'model_id',
+  	              'title': 'model',
+  	              'popup': 'Code of model'},
+                 { 'attr': 'date_made',
+  	              'title': 'Date Made',
+  	              'popup': 'The date the model was made (or released)'},
+  	             { 'attr': 'region_id',
+  	               'title': 'Region',
+  	               'popup': 'Number of the region'},
+  	             { 'attr': 'range',
+  	               'title': 'Range',
+  	               'popup': 'Start - stop coordinates of the model'},
+  	             { 'attr': 'length',
+  	               'title': 'Length',
+  	                'popup': 'Length of the model in residues'},
+                 { 'attr': 'avg_plddt',
+  	               'title': 'Avg. pLDDT',
+  	               'popup': 'The average pLDDT score in the model'},
+  	             { 'attr': 'h_score',
+  	               'title': 'H-score',
+  	               'popup': 'H-index style quality score measuring percentage of model vs pLDDT'},
+  	             { 'attr': 'seq_ident',
   	               'title': 'Seq. Ident.',
-  	               'popup': 'Sequence Identity to template'},
-  	             { 'attr': 'coverage',
-  	               'title': 'Coverage',
-  	               'popup': 'Coverage of target sequence'},
-  	             { 'attr': 'qmean_avg_local_score',
-  	               'title': 'Qmean Average Local Score',
-  	               'popup': 'Qmean Average Local Score'}],
+  	               'popup': 'Sequence Identity to template'}],
     }
   },
 
@@ -286,7 +292,7 @@ Vue.component('model-table', {
     },
     },
   mounted: function() {
-    this.sortBy('qmean_avg_local_score')
+    this.sortBy('h_score')
   },
   template: `
   <div class="model-table">
@@ -302,13 +308,15 @@ Vue.component('model-table', {
       </thead>
       <tbody>
         <tr v-for="model in models">
-          <td>{{ model.model_identifier }}</td>
-          <td><a v-bind:href="model.coordinates_url">{{ model.model_identifier }}</a></td>
-          <td>{{ model.provider }}</td>
-          <td>{{ model.created }}</td>
+          <td><a v-bind:href="model.pdb_file">{{ model.name }}</a></td>
+          <td><a v-bind:href="model.model_url" target="_blank">{{ model.model_id }}</a></td>
+          <td>{{ model.date_made }}</td>
+          <td>{{ model.region_id }}</td>
+          <td>{{ model.range }}</td>
+          <td>{{ model.length }}</td>
+          <td>{{ model.avg_plddt | decimalPlaces }}</td>
+          <td>{{ model.h_score }}</td>
           <td>{{ model.seq_ident }}</td>
-          <td>{{ model.coverage }}</td>
-          <td>{{ model.qmean_avg_local_score }}</td>
         </tr>
       </tbody>
     </table>
@@ -323,6 +331,6 @@ new Vue({
     ss_pred: mrparse_data.pfam.ss_pred,
     classification: mrparse_data.pfam.classification,
     hklinfo: mrparse_data.hkl_info,
-    models: mrparse_data.models,
+    models: mrparse_data.pfam.models,
   },
 })

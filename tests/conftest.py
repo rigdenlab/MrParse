@@ -43,6 +43,15 @@ def get_2uvo_test_hits():
                       target_sequence=data_constants.TWOUVO_SEQ)
     os.unlink(phmmer_logfile)
     return hits
-     
-    
-    
+
+
+@pytest.fixture(scope="session")
+def get_2uvo_alphafold_test_hits():
+    phmmer_logfile = 'phmmer_test.log'
+    with open(phmmer_logfile, 'w') as w:
+        w.write(data_constants.PHMMER_AF_LOG_TXT)
+    hits = _find_hits(logfile=phmmer_logfile,
+                      searchio_type='hmmer3-text',
+                      target_sequence=data_constants.TWOUVO_SEQ)
+    os.unlink(phmmer_logfile)
+    return hits

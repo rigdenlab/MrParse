@@ -19,11 +19,13 @@ HTML_DIR = os.path.join(THIS_DIR, 'html')
 HTML_TEMPLATE = os.path.join(HTML_DIR, 'mrparse.html.jinja2')
 HTML_OUT = 'mrparse.html'
 HOMOLOGS_JS = 'homologs.json'
+MODELS_JS = 'models.json'
 
 logger = None
 
 
-def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None):
+def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None, db_lvl=None, tmhmm_exe=None,
+        deepcoil_exe=None):
     # Need to make a work directory first as all logs go into there
     work_dir = make_workdir()
     os.chdir(work_dir)
@@ -53,10 +55,11 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None):
         logger.info("Running with hklin %s", os.path.abspath(hklin))
         hkl_info = HklInfo(hklin, seq_info=seq_info)
 
-    search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir)
+    search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir, db_lvl=db_lvl)
+
     classifier = None
     if do_classify:
-        classifier = MrClassifier(seq_info=seq_info)
+        classifier = MrClassifier(seq_info=seq_info, tmhmm_exe=tmhmm_exe, deepcoil_exe=deepcoil_exe)
 
     if run_serial:
         run_analyse_serial(search_model_finder, classifier, hkl_info, do_classify)
@@ -66,8 +69,8 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None):
                                                                          hkl_info,
                                                                          do_classify)
 
-#     results_json = get_results_json(search_model_finder, hkl_info=hkl_info, classifier=classifier)
-#     html_out = write_output_files(results_json)
+    #     results_json = get_results_json(search_model_finder, hkl_info=hkl_info, classifier=classifier)
+    #     html_out = write_output_files(results_json)
     html_out = write_output_files(search_model_finder, hkl_info=hkl_info, classifier=classifier)
     logger.info("Wrote MrParse output file: %s", html_out)
 
@@ -107,6 +110,7 @@ def run_analyse_parallel(search_model_finder, classifier, hkl_info, do_classify)
     logger.info("Running on %d processors." % nproc)
     pool = multiprocessing.Pool(nproc)
     smf_result = pool.apply_async(search_model_finder)
+
     if do_classify:
         mrc_result = pool.apply_async(classifier)
     if hkl_info:
@@ -138,19 +142,34 @@ def run_analyse_parallel(search_model_finder, classifier, hkl_info, do_classify)
 def write_output_files(search_model_finder, hkl_info=None, classifier=None):
     # write out homologs for CCP4cloud
     # This code should be updated to separate the storing of homologs from the PFAM directives
-    homologs = search_model_finder.homologs_as_dicts()
-    homologs_js_out = os.path.abspath(HOMOLOGS_JS)
-    with open(homologs_js_out, 'w') as w:
-        w.write(json.dumps(homologs))
-    homologs_pfam = search_model_finder.homologs_with_graphics()
-        
-    results_dict = { 'pfam' : {'homologs' : homologs_pfam} } 
+
+    homologs_pfam = {}
+    try:
+        homologs = search_model_finder.homologs_as_dicts()
+        homologs_js_out = os.path.abspath(HOMOLOGS_JS)
+        with open(homologs_js_out, 'w') as w:
+            w.write(json.dumps(homologs))
+        homologs_pfam = search_model_finder.homologs_with_graphics()
+    except RuntimeError:
+        logger.debug('No homologues found')
+
+    models_pfam = {}
+    try:
+        models = search_model_finder.models_as_dicts()
+        models_js_out = os.path.abspath(MODELS_JS)
+        with open(models_js_out, 'w') as w:
+            w.write(json.dumps(models))
+        models_pfam = search_model_finder.models_with_graphics()
+    except RuntimeError:
+        logger.debug('No models found')
+
+    results_dict = {'pfam': {'homologs': homologs_pfam, 'models': models_pfam}}
     if classifier:
         results_dict['pfam'].update(classifier.pfam_dict())
     if hkl_info:
         results_dict['hkl_info'] = hkl_info.as_dict()
     results_json = json.dumps(results_dict)
-    
+
     html_out = os.path.abspath(HTML_OUT)
     render_template(HTML_TEMPLATE, html_out,
                     # kwargs appear as variables in the template

@@ -34,11 +34,14 @@ class PredictorThread(threading.Thread):
 
 
 class MrClassifier(object):
-    def __init__(self, seq_info, do_ss_predictor=True, do_cc_predictor=True, do_tm_predictor=True):
+    def __init__(self, seq_info, do_ss_predictor=True, do_cc_predictor=True, do_tm_predictor=True, tmhmm_exe=None,
+                 deepcoil_exe=None):
         self.seq_info = seq_info
         self.do_ss_predictor = do_ss_predictor
         self.do_cc_predictor = do_cc_predictor
         self.do_tm_predictor = do_tm_predictor
+        self.tmhmm_exe = tmhmm_exe
+        self.deepcoil_exe = deepcoil_exe
         self.ss_prediction = None
         self.classification_prediction = None
     
@@ -51,15 +54,15 @@ class MrClassifier(object):
         return self
         
     def get_prediction(self):
-        if  self.do_cc_predictor:
-            cc_predictor = CCPred(self.seq_info)
+        if self.do_cc_predictor:
+            cc_predictor = CCPred(self.seq_info, self.deepcoil_exe)
             cc_thread = PredictorThread(cc_predictor)
             cc_thread.start()
-        if  self.do_tm_predictor:
-            tm_predictor = TMPred(self.seq_info)
+        if self.do_tm_predictor:
+            tm_predictor = TMPred(self.seq_info, self.tmhmm_exe)
             tm_thread = PredictorThread(tm_predictor)
             tm_thread.start()
-        if  self.do_ss_predictor:
+        if self.do_ss_predictor:
             ss_predictor = JPred(seq_info=self.seq_info)
             ss_thread = PredictorThread(ss_predictor)
             ss_thread.start()
@@ -71,7 +74,7 @@ class MrClassifier(object):
         if self.do_tm_predictor:
             tm_thread.join()
             logger.info('TM predictor finished')
-        if  self.do_ss_predictor:
+        if self.do_ss_predictor:
             ss_thread.join()
             logger.info('SS predictor finished')
         
@@ -99,8 +102,9 @@ class MrClassifier(object):
                 logger.debug("Traceback is:", exc_info=ss_thread.exc_info)
             else:
                 self.ss_prediction = ss_predictor.prediction
-    
-    def generate_consensus_classification(self, annotations):
+
+    @staticmethod
+    def generate_consensus_classification(annotations):
         lengths = [len(a) for a in annotations]
         assert lengths.count(lengths[0]) == len(lengths), "Annotations have different lengths: %s" % lengths
         for i, a in enumerate(annotations):

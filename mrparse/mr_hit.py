@@ -1,8 +1,8 @@
-'''
+"""
 Created on 18 Oct 2018
 
 @author: jmht
-'''
+"""
 from collections import OrderedDict
 import logging
 import os
@@ -15,6 +15,7 @@ PHMMER = 'phmmer'
 HHSEARCH = 'hhsearch'
 
 logger = logging.getLogger(__name__)
+
 
 class SequenceHit:
     def __init__(self):
@@ -89,9 +90,9 @@ class SequenceHit:
         return out_str
 
 
-def find_hits(seq_info, search_engine=PHMMER):
+def find_hits(seq_info, search_engine=PHMMER, dblvl=95):
     if search_engine == PHMMER:
-        logfile = run_phmmer(seq_info)
+        logfile = run_phmmer(seq_info, dblvl=dblvl)
         searchio_type = 'hmmer3-text'
     elif search_engine == HHSEARCH:
         searchio_type = 'hhsuite2-text'
@@ -114,20 +115,24 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
     except:
         logger.exception("Unexpected error while running Biopython")
         raise
-        
+
     included = io.hit_filter(lambda x: x.is_included)
     hitDict = OrderedDict()
     rank = 0
     for i, hit in enumerate(included):
         rank = i + 1
         for hsp in hit.hsps:
-#             sequence_identity = float(sum([a==b for a, b in zip(*[str(s.upper().seq) for s in hsp.aln.get_all_seqs()])])) / float(hsp.aln_span) 
+            #             sequence_identity = float(sum([a==b for a, b in zip(*[str(s.upper().seq) for s in hsp.aln.get_all_seqs()])])) / float(hsp.aln_span)
             sh = SequenceHit()
             sh.rank = rank
-            name, chain = hsp.hit_id.split('_')
-            sh.pdb_id = name
-            sh.chain_id = chain
-            #sh.score = hsp.bitscore
+            if "_" in hsp.hit_id:
+                name, chain = hsp.hit_id.split('_')
+                sh.pdb_id = name
+                sh.chain_id = chain
+            else:
+                sh.pdb_id = hsp.hit_id
+                sh.chain_id = "A"
+    #sh.score = hsp.bitscore
             sh.score = hit.bitscore
             sh.evalue = hsp.evalue # is i-Evalue - possibly evalue_cond in later BioPython
             hstart = hsp.hit_start
@@ -149,21 +154,24 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
             hitDict[hit_name] = sh
     return hitDict
 
+
 def sort_hits_by_size(hits, ascending=False):
     reverse = not(ascending)
     return OrderedDict(sorted(hits.items(), key=lambda x: x[1].length, reverse=reverse))
 
+
 def run_phmmer(seq_info, dblvl=95):
-    logfile = "phmmer.log"
-    alnfile = "phmmerAlignment.log"
-    phmmerTblout = "phmmerTblout.log"
-    phmmerDomTblout = "phmmerDomTblout.log"
+    logfile = "phmmer_{}.log".format(dblvl)
+    alnfile = "phmmerAlignment_{}.log".format(dblvl)
+    phmmerTblout = "phmmerTblout_{}.log".format(dblvl)
+    phmmerDomTblout = "phmmerDomTblout_{}.log".format(dblvl)
     phmmerEXE = os.path.join(os.environ["CCP4"], "libexec", "phmmer")
     if dblvl == 95:
-        pfile = "pdb95.txt"
+        seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "pdb95.txt")
+    elif dblvl == "af2":
+        seqdb = os.path.join(os.environ["CCP4"], "share", "mrparse", "data", "af2_sequences.fasta")
     else:
-        pfile = "pdb100.txt"
-    seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", pfile)
+        seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "pdb100.txt")
     cmd = [phmmerEXE + EXE_EXT,
            '--notextw',
            '--tblout', phmmerTblout,
@@ -178,6 +186,7 @@ def run_phmmer(seq_info, dblvl=95):
     with open(logfile, 'w') as f_out:
         f_out.write(stdout)
     return logfile
+
 
 def run_hhsearch(seq_info):
     raise NotImplementedError("{} search needs to be implemented".format(HHSEARCH))

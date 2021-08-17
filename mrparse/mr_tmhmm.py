@@ -20,8 +20,9 @@ logger = logging.getLogger(__name__)
 
 
 class TMPred(object):
-    def __init__(self, seq_info):
+    def __init__(self, seq_info, tmhmm_exe="tmhmm"):
         self.seq_info = seq_info
+        self.tmhmm_exe = tmhmm_exe
         self.prediction = None
         script_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'scripts')
         self.tmhmm_model = os.path.join(script_dir, 'TMHMM2.0.model')
@@ -83,7 +84,7 @@ class TMPred(object):
         return ann
 
     def run_job(self, seqin):
-        cmd = ['tmhmm', '-f', seqin, '-m', self.tmhmm_model]
+        cmd = [self.tmhmm_exe, '-f', seqin, '-m', self.tmhmm_model]
         cexec(cmd)
         return
 
