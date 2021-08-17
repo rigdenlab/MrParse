@@ -233,7 +233,7 @@ def _convert_plddt_to_bfactor(plddt):
         rmsd_est = 5.0
     else:
         rmsd_est = (0.6/(lddt ** 3))
-    bfactor = ((8 * (np.pi ** 2)) / 3,0) * (rmsd_est**2)
+    bfactor = ((8 * (np.pi ** 2)) / 3.0) * (rmsd_est**2)
     if bfactor > 999.99:
         return 999.99
     return bfactor
