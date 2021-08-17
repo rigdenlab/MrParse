@@ -197,17 +197,19 @@ def calculate_quality_h_score(struct):
     return score
 
 
-def calculate_avg_plddt(struct):
+def get_plddt(struct):
     plddt_values = []
     for chain in struct[0]:
         for residue in chain:
             plddt_values.append(residue[0].b_iso)
+    return plddt_values
+
+
+def calculate_avg_plddt(struct):
+    plddt_values = get_plddt(struct)
     return sum(plddt_values) / len(plddt_values)
 
 
 def calculate_sum_plddt(struct):
-    plddt_values = []
-    for chain in struct[0]:
-        for residue in chain:
-            plddt_values.append(residue[0].b_iso)
+    plddt_values = get_plddt(struct)
     return sum(plddt_values)
