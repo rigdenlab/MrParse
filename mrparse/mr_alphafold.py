@@ -4,10 +4,10 @@ Created on 23 Jul 2021
 @author: hlasimpk
 """
 from collections import OrderedDict
-import copy
 import gemmi
 import logging
 import os
+import numpy as np
 import requests
 from simbad.util.pdb_util import PdbStructure
 
@@ -230,11 +230,12 @@ def convert_plddt_to_bfactor(struct):
 def _convert_plddt_to_bfactor(plddt):
     lddt = plddt/100
     if lddt <= 0.5:
-        return 5.0
+        rmsd_est = 5.0
     else:
-        bfactor = (0.6/(lddt ** 3))
-        if bfactor > 999.99:
-            return 999.99
+        rmsd_est = (0.6/(lddt ** 3))
+    bfactor = ((8 * (np.pi ** 2)) / 3,0) * (rmsd_est**2)
+    if bfactor > 999.99:
+        return 999.99
     return bfactor
 
 
