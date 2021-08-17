@@ -172,6 +172,9 @@ def prepare_pdb(hit, pdb_dir):
     sum_plddt = calculate_sum_plddt(pdb_struct.structure)
     h_score = calculate_quality_h_score(pdb_struct.structure)
 
+    # Convert plddt to bfactor score
+    pdb_struct.structure = convert_plddt_to_bfactor(pdb_struct.structure)
+
     truncated_pdb_name = "{}_{}_{}-{}.pdb".format(hit.pdb_id, hit.chain_id, hit.hit_start, hit.hit_stop)
     truncated_pdb_path = os.path.join(MODELS_DIR, truncated_pdb_name)
     pdb_struct.save(truncated_pdb_path)
@@ -213,3 +216,27 @@ def calculate_avg_plddt(struct):
 def calculate_sum_plddt(struct):
     plddt_values = get_plddt(struct)
     return sum(plddt_values)
+
+
+def convert_plddt_to_bfactor(struct):
+    for chain in struct[0]:
+        for residue in chain:
+            for atom in residue:
+                plddt_value = atom.b_iso
+                atom.b_iso = _convert_plddt_to_bfactor(plddt_value)
+    return struct
+
+
+def _convert_plddt_to_bfactor(plddt):
+    lddt = plddt/100
+    if lddt <= 0.5:
+        return 5.0
+    else:
+        bfactor = (0.6/(lddt ** 3))
+        if bfactor > 999.99:
+            return 999.99
+    return bfactor
+
+
+
+
