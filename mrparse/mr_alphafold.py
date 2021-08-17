@@ -228,16 +228,11 @@ def convert_plddt_to_bfactor(struct):
 
 
 def _convert_plddt_to_bfactor(plddt):
-    lddt = plddt/100
+    lddt = plddt / 100
     if lddt <= 0.5:
-        rmsd_est = 5.0
-    else:
-        rmsd_est = (0.6/(lddt ** 3))
-    bfactor = ((8 * (np.pi ** 2)) / 3.0) * (rmsd_est**2)
+        return 657.97  # Same as the b-factor value with an rmsd estimate of 5.0
+    rmsd_est = (0.6 / (lddt ** 3))
+    bfactor = ((8 * (np.pi ** 2)) / 3.0) * (rmsd_est ** 2)
     if bfactor > 999.99:
         return 999.99
     return bfactor
-
-
-
-
