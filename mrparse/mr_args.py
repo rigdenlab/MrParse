@@ -40,6 +40,7 @@ def parse_command_line():
                         help="Location of TMHMM executable for transmembrane classification")
     parser.add_argument('--deepcoil_exe', action=FilePathAction,
                         help="Location of Deepcoil executable for coiled-coil classification")
+    parser.add_argument('--ccp4cloud', action='store_true', help="specify running through CCP4Cloud")
     parser.add_argument('-v', '--version', action='version', version='%(prog)s version: ' + __version__)
     args = parser.parse_args()
 

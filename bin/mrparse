@@ -27,7 +27,8 @@ def main():
                               pdb_dir=args.pdb_dir,
                               db_lvl=args.db_lvl,
                               tmhmm_exe=args.tmhmm_exe,
-                              deepcoil_exe=args.deepcoil_exe)
+                              deepcoil_exe=args.deepcoil_exe,
+                              ccp4cloud=args.ccp4cloud)
     except KeyboardInterrupt:
         sys.stderr.write("Interrupted by keyboard!")
         return 0
