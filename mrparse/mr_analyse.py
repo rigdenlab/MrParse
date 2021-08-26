@@ -1,6 +1,7 @@
 import json
 import multiprocessing
 import os
+import shutil
 import subprocess
 import sys
 
@@ -74,8 +75,10 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None, db_
     html_out = write_output_files(search_model_finder, hkl_info=hkl_info, classifier=classifier, ccp4cloud=ccp4cloud)
     logger.info("Wrote MrParse output file: %s", html_out)
 
-    # Display results in browser
-    if not ccp4cloud:
+    # Clean up files and don't open HTML out if CCP4 cloud
+    if ccp4cloud:
+        shutil.rmtree(pdb_dir)
+    else:
         opencmd = None
         if sys.platform.lower().startswith('linux'):
             opencmd = 'xdg-open'
@@ -175,6 +178,8 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4
         results_dict['pfam'].update(classifier.pfam_dict())
     if hkl_info:
         results_dict['hkl_info'] = hkl_info.as_dict()
+        if ccp4cloud:
+            del results_dict['hkl_info']['hklin']
     results_json = json.dumps(results_dict)
 
     html_out = os.path.abspath(HTML_OUT)
