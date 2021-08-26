@@ -1,8 +1,8 @@
-'''
+"""
 Created on 23 Nov 2018
 
 @author: jmht
-'''
+"""
 import copy
 
 
@@ -42,7 +42,6 @@ NULL_ANNOTATION.score = 0.0
 NULL_ANNOTATION.source = 'null'
 
 
-
 class SequenceAnnotation(object):
     def __init__(self, null_symbol=NULL_ANNOTATION.symbol):
         __slots__ = ('source', 'scores', 'annotation', 'annotation_library', 'null_symbol')
@@ -51,24 +50,24 @@ class SequenceAnnotation(object):
         self.annotation = '' # list of annotation symbols
         self.annotation_library = dict()
         self.null_symbol = null_symbol
-    
+
     def add_annotation(self, annotation):
         if annotation != NULL_ANNOTATION:
             assert self.annotation_is_significant(annotation), "Cannot find: %s" % annotation
         self.annotation += annotation.symbol
         self.scores.append(annotation.score)
-    
+
     def annotation_is_significant(self, annotation):
         return annotation is not NULL_ANNOTATION and annotation in self.annotation_library.values()
-    
+
     def has_annotation_symbol(self, symbol):
         return symbol in self.annotation_library
-    
+
     def library_add_annotation(self, annotation):
         assert isinstance(annotation, AnnotationSymbol)
         annotation.source = self.source
         self.annotation_library[annotation.symbol] = annotation
-        
+
     def __getitem__(self, idx):
         symbol = self.annotation[idx]
         if self.has_annotation_symbol(symbol):
@@ -85,11 +84,11 @@ class SequenceAnnotation(object):
             raise TypeError(other)
         assert len(self) == len(other)
         ca = self.__class__() # Class holding consensus annotation
-        
+
         # Combine annotation_libraries - is it worth removing those entries that aren't
         # included in the consensus?
         ca.annotation_library = dict(self.annotation_library, **other.annotation_library)
-        
+
         # For now just use prediction and leave probabiltiies
         for i in range(len(self)):
             if self.annotation_is_significant(self[i]) and other.annotation_is_significant(other[i]):
@@ -100,7 +99,7 @@ class SequenceAnnotation(object):
                 ca.add_annotation(other[i])
             else:
                 ca.add_annotation(NULL_ANNOTATION)
-        return ca        
+        return ca
 
     def __len__(self):
         return len(self.annotation)
@@ -112,14 +111,14 @@ class SequenceAnnotation(object):
         for a in sorted(attrs):
             out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
         return out_str
-        
+
 
 class AnnotationChunk(object):
     def __init__(self, start=None, end=None, annotation=None):
         self.start = start
         self.end = end
         self.annotation = annotation
-    
+
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
         INDENT = "  "
@@ -127,8 +126,8 @@ class AnnotationChunk(object):
         for a in sorted(attrs):
             out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
         return out_str
-    
-    
+
+
 def get_annotation_chunks(annotation):
     if annotation is None:
         return None

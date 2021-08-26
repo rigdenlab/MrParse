@@ -37,6 +37,7 @@ class ModelData(object):
         self.rmsd = None
         self.hit = None
         self.region = None
+        self.plddt_regions = None
 
     @property
     def length(self):
@@ -128,7 +129,7 @@ def models_from_hits(hits, pdb_dir=None):
         mlog.model_url = AF_BASE_URL + hit.pdb_id.split('-')[1]
         try:
             mlog.pdb_file, mlog.molecular_weight, \
-            mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, mlog.date_made = prepare_pdb(hit, pdb_dir)
+            mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, mlog.date_made, mlog.plddt_regions = prepare_pdb(hit, pdb_dir)
         except PdbModelException as e:
             logger.critical("Error processing hit pdb %s", e.message)
         models[mlog.name] = mlog
@@ -163,7 +164,7 @@ def prepare_pdb(hit, pdb_dir):
         # SIMBAD currently raises an empty RuntimeError for download problems.
         raise PdbModelException("Error downloading PDB file for: {}".format(hit.pdb_id))
     pdb_file = os.path.join(pdb_dir, pdb_name)
-    pdb_struct.save(pdb_file, remarks=[pdb_struct.structure.make_pdb_headers()])
+    pdb_struct.save(pdb_file)
 
     seqid_range = range(hit.hit_start, hit.hit_stop + 1)
     pdb_struct.select_residues(to_keep_idx=seqid_range)
@@ -171,14 +172,16 @@ def prepare_pdb(hit, pdb_dir):
     avg_plddt = calculate_avg_plddt(pdb_struct.structure)
     sum_plddt = calculate_sum_plddt(pdb_struct.structure)
     h_score = calculate_quality_h_score(pdb_struct.structure)
+    plddt_regions = get_plddt_regions(pdb_struct.structure, hit.seq_ali)
 
     # Convert plddt to bfactor score
     pdb_struct.structure = convert_plddt_to_bfactor(pdb_struct.structure)
 
     truncated_pdb_name = "{}_{}_{}-{}.pdb".format(hit.pdb_id, hit.chain_id, hit.hit_start, hit.hit_stop)
     truncated_pdb_path = os.path.join(MODELS_DIR, truncated_pdb_name)
-    pdb_struct.save(truncated_pdb_path)
-    return truncated_pdb_path, int(pdb_struct.molecular_weight), avg_plddt, sum_plddt, h_score, date_made
+    pdb_struct.save(truncated_pdb_path,
+                    remarks=["PHASER ENSEMBLE MODEL 1 ID {}".format(hit.local_sequence_identity)])
+    return truncated_pdb_path, int(pdb_struct.molecular_weight), avg_plddt, sum_plddt, h_score, date_made, plddt_regions
 
 
 def calculate_quality_threshold(struct, plddt_threshold=70):
@@ -206,6 +209,53 @@ def get_plddt(struct):
         for residue in chain:
             plddt_values.append(residue[0].b_iso)
     return plddt_values
+
+
+def get_plddt_regions(struct, seqid_range):
+    regions = {}
+    plddt_values = get_plddt(struct)
+    residues = zip(seqid_range, plddt_values)
+
+    v_low = []
+    low = []
+    confident = []
+    v_high = []
+
+    for i, plddt in residues:
+        if plddt < 50:
+            v_low.append(i)
+        elif 70 > plddt > 50:
+            low.append(i)
+        elif 90 > plddt > 70:
+            confident.append(i)
+        elif plddt > 90:
+            v_high.append(i)
+
+    regions['v_low'] = _get_regions(v_low)
+    regions['low'] = _get_regions(low)
+    regions['confident'] = _get_regions(confident)
+    regions['v_high'] = _get_regions(v_high)
+
+    return regions
+
+
+def _get_regions(residues):
+    regions = []
+    start = finish = None
+    for i in residues:
+        if start:
+            if i - 1 == finish:
+                finish = i
+            else:
+                regions.append([start, finish])
+                start = i
+                finish = i
+        else:
+            start = i
+            finish = i
+    if start:
+        regions.append([start, finish])
+    return regions
 
 
 def calculate_avg_plddt(struct):

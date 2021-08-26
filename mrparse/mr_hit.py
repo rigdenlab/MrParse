@@ -27,6 +27,7 @@ class SequenceHit:
         self.evalue = 0.0
         self.pvalue = 0.0
         self.score = 0.0
+        self.seq_ali = None
         self.alignment = ""
         self.query_start = None 
         self.query_stop = None
@@ -138,6 +139,8 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
             hstart = hsp.hit_start
             hstop = hsp.hit_end
             qstart, qstop = hsp.query_range
+            seq_ali = zip(range(qstart, qstop), hsp.hit.seq)
+            sh.seq_ali = [x[0] for x in seq_ali if x[1] != '-']
             sh.query_start = qstart
             sh.query_stop = qstop
             sh.hit_start = hstart
