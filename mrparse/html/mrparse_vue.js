@@ -135,7 +135,10 @@ Vue.component('hkl-info-table', {
 </thead>
 <tbody>
   <tr>
-    <td><a v-bind:href="hklinfo.hklin">{{ hklinfo.name }}</a></td>
+    <td>
+    <a v-if="hklinfo.hklin" :href="hklinfo.hklin">{{ hklinfo.name }}</a>
+    <a v-else>{{ hklinfo.name }}</a>
+    </td>
     <td>{{ hklinfo.resolution | decimalPlaces }}</td>
     <td>{{ hklinfo.space_group }}</td>
     <td>{{ hklinfo.has_ncs }}</td>
