@@ -14,7 +14,9 @@ from Bio.Alphabet import generic_protein
 from Bio.SeqRecord import SeqRecord
 
 SUFFIX_TO_TYPE = {'fasta': 'fasta',
-                  'pir': 'pir'}
+                  'pir': 'pir',
+                  'seq': 'fasta',
+                  'fastq': 'fastq'}
 
 
 class MultipleSequenceException(Exception):
