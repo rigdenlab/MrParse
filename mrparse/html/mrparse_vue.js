@@ -135,7 +135,10 @@ Vue.component('hkl-info-table', {
 </thead>
 <tbody>
   <tr>
-    <td><a v-bind:href="hklinfo.hklin">{{ hklinfo.name }}</a></td>
+    <td>
+    <a v-if="hklinfo.hklin" :href="hklinfo.hklin">{{ hklinfo.name }}</a>
+    <a v-else>{{ hklinfo.name }}</a>
+    </td>
     <td>{{ hklinfo.resolution | decimalPlaces }}</td>
     <td>{{ hklinfo.space_group }}</td>
     <td>{{ hklinfo.has_ncs }}</td>
@@ -221,7 +224,10 @@ Vue.component('homolog-table', {
       </thead>
       <tbody>
         <tr v-for="homolog in homologs">
-          <td><a v-bind:href="homolog.pdb_file">{{ homolog.name }}</a></td>
+          <td>
+          <a v-if="homolog.pdb_file" :href="homolog.pdb_file">{{ homolog.name }}</a>
+          <a v-else>{{ homolog.name }}</a>
+          </td>
           <td><a v-bind:href="homolog.pdb_url" target="_blank">{{ homolog.pdb_id }}</a></td>
           <td>{{ homolog.resolution  | decimalPlaces }}</td>
           <td>{{ homolog.region_id }}</td>
@@ -308,7 +314,10 @@ Vue.component('model-table', {
       </thead>
       <tbody>
         <tr v-for="model in models">
-          <td><a v-bind:href="model.pdb_file">{{ model.name }}</a></td>
+          <td>
+          <a v-if="model.pdb_file" :href="model.pdb_file">{{ model.name }}</a>
+          <a v-else>{{ model.name }}</a>
+          </td>
           <td><a v-bind:href="model.model_url" target="_blank">{{ model.model_id }}</a></td>
           <td>{{ model.date_made }}</td>
           <td>{{ model.region_id }}</td>

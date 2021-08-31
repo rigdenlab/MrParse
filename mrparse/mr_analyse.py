@@ -1,6 +1,7 @@
 import json
 import multiprocessing
 import os
+import shutil
 import subprocess
 import sys
 
@@ -25,7 +26,7 @@ logger = None
 
 
 def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None, db_lvl=None, tmhmm_exe=None,
-        deepcoil_exe=None):
+        deepcoil_exe=None, ccp4cloud=None):
     # Need to make a work directory first as all logs go into there
     work_dir = make_workdir()
     os.chdir(work_dir)
@@ -71,17 +72,20 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None, db_
 
     #     results_json = get_results_json(search_model_finder, hkl_info=hkl_info, classifier=classifier)
     #     html_out = write_output_files(results_json)
-    html_out = write_output_files(search_model_finder, hkl_info=hkl_info, classifier=classifier)
+    html_out = write_output_files(search_model_finder, hkl_info=hkl_info, classifier=classifier, ccp4cloud=ccp4cloud)
     logger.info("Wrote MrParse output file: %s", html_out)
 
-    # Display results in browser
-    opencmd = None
-    if sys.platform.lower().startswith('linux'):
-        opencmd = 'xdg-open'
-    elif sys.platform.lower().startswith('darwin'):
-        opencmd = 'open'
-    if opencmd:
-        subprocess.Popen([opencmd, html_out])
+    # Clean up files and don't open HTML out if CCP4 cloud
+    if ccp4cloud:
+        shutil.rmtree(pdb_dir)
+    else:
+        opencmd = None
+        if sys.platform.lower().startswith('linux'):
+            opencmd = 'xdg-open'
+        elif sys.platform.lower().startswith('darwin'):
+            opencmd = 'open'
+        if opencmd:
+            subprocess.Popen([opencmd, html_out])
     return 0
 
 
@@ -139,7 +143,7 @@ def run_analyse_parallel(search_model_finder, classifier, hkl_info, do_classify)
     return search_model_finder, classifier, hkl_info
 
 
-def write_output_files(search_model_finder, hkl_info=None, classifier=None):
+def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4cloud=None):
     # write out homologs for CCP4cloud
     # This code should be updated to separate the storing of homologs from the PFAM directives
 
@@ -150,6 +154,9 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None):
         with open(homologs_js_out, 'w') as w:
             w.write(json.dumps(homologs))
         homologs_pfam = search_model_finder.homologs_with_graphics()
+        if ccp4cloud:
+            for homolog in homologs_pfam:
+                del homolog['pdb_file']
     except RuntimeError:
         logger.debug('No homologues found')
 
@@ -160,6 +167,9 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None):
         with open(models_js_out, 'w') as w:
             w.write(json.dumps(models))
         models_pfam = search_model_finder.models_with_graphics()
+        if ccp4cloud:
+            for model in models_pfam:
+                del model['pdb_file']
     except RuntimeError:
         logger.debug('No models found')
 
@@ -168,6 +178,8 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None):
         results_dict['pfam'].update(classifier.pfam_dict())
     if hkl_info:
         results_dict['hkl_info'] = hkl_info.as_dict()
+        if ccp4cloud:
+            del results_dict['hkl_info']['hklin']
     results_json = json.dumps(results_dict)
 
     html_out = os.path.abspath(HTML_OUT)

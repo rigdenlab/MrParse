@@ -52,24 +52,49 @@ def add_pfam_dict_to_models(models, sequence_length):
     # Need a better way of getting the number of regions
     for m in models.values():
         start = m.query_start
-        stop = m.query_stop
+        stop = m.query_stop + 1
         name = m.name
         region_id = m.region_id
+        plddt_regions = m.plddt_regions
+        # 'colour': '#193f90'
         d = {'startStyle': "curved",
              'endStyle': "curved",
              'start': start,
              'end': stop,
              'aliStart': start,
              'aliEnd': stop,
-             'colour': '#193f90',
-             'text': name,
+             'colour': '#d3d3d3',
+             'text': "",
              'metadata': {"description": "Model {} from region #{}".format(name, region_id),
                           "database": "EBI AlphaFold database",
                           "start": start,
                           "end": stop}
              }
+        motifs = []
+        colors = {'v_low': "ff7d45",
+                  "low": "ffdb13",
+                  "confident": "65cbf3",
+                  "v_high": "0053d6"}
+        for quality in plddt_regions.keys():
+            for plddt_region in plddt_regions[quality]:
+                plddt_region_start, plddt_region_end = plddt_region
+                md = {'colour': colors[quality],
+                      'metadata': {"description": quality,
+                                   "database": "EBI AlphaFold database",
+                                   "type": "Quality",
+                                   "end": plddt_region_end,
+                                   "start": plddt_region_start},
+                      "type": "pLDDT",
+                      "display": "true",
+                      "end": plddt_region_end,
+                      "start": plddt_region_start
+                      }
+                motifs.append(md)
+
         jdict = {'length': sequence_length,
-                 'regions': [d]}
+                 'regions': [d],
+                 'motifs': motifs
+                 }
         m._pfam_json = jdict
 
 

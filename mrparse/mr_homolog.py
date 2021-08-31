@@ -161,7 +161,7 @@ def prepare_pdb(hit, pdb_dir):
         except RuntimeError:
             # SIMBAD currently raises an empty RuntimeError for download problems.
             raise PdbModelException("Error downloading PDB file for: {}".format(hit.pdb_id))
-        pdb_struct.save(pdb_file, remarks=[pdb_struct.structure.make_pdb_headers()])
+        pdb_struct.save(pdb_file)
     
     resolution = pdb_struct.structure.resolution
         
@@ -172,7 +172,8 @@ def prepare_pdb(hit, pdb_dir):
     pdb_struct.select_residues(to_keep_idx=seqid_range)
     truncated_pdb_name = "{}_{}_{}-{}.pdb".format(hit.pdb_id, hit.chain_id, hit.hit_start, hit.hit_stop)
     truncated_pdb_path = os.path.join(HOMOLOGS_DIR, truncated_pdb_name)
-    pdb_struct.save(truncated_pdb_path)
+    pdb_struct.save(truncated_pdb_path,
+                    remarks=["PHASER ENSEMBLE MODEL 1 ID {}".format(hit.local_sequence_identity)])
     return truncated_pdb_path, int(round(pdb_struct.molecular_weight)), resolution
 
 

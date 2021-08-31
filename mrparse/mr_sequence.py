@@ -10,10 +10,11 @@ import os
 from Bio.Seq import Seq
 from Bio import SeqIO
 from Bio.SeqUtils import molecular_weight
-from Bio.Alphabet import IUPAC
+from Bio.Alphabet import generic_protein
 from Bio.SeqRecord import SeqRecord
 
-SUFFIX_TO_TYPE = {'fasta': 'fasta'}
+SUFFIX_TO_TYPE = {'fasta': 'fasta',
+                  'pir': 'pir'}
 
 
 class MultipleSequenceException(Exception):
@@ -30,7 +31,7 @@ class Sequence(object):
         if seq_file:
             self._read_sequence_file(seq_file, sequence_type)
         elif sequence:
-            self._bio_seq = Seq(sequence, IUPAC.protein)
+            self._bio_seq = Seq(sequence, generic_protein)
             self._bio_seq_record = SeqRecord(self._bio_seq)
         self.nresidues = len(self._bio_seq)
         self.sequence = str(self._bio_seq)
@@ -48,7 +49,7 @@ class Sequence(object):
                 raise RuntimeError("Cannot determine sequence type from file: {}".format(seq_file))
 
         try:
-            self._bio_seq_record = SeqIO.read(seq_file, sequence_type, alphabet=IUPAC.protein)
+            self._bio_seq_record = SeqIO.read(seq_file, sequence_type, alphabet=generic_protein)
             self._bio_seq = self._bio_seq_record.seq
         except ValueError:
             raise MultipleSequenceException
@@ -122,7 +123,7 @@ def merge_multiple_sequences(seq_file):
     sequence = ""
     identifier = []
     previous_seqs = []
-    for seq in SeqIO.parse(seq_file, sequence_type, alphabet=IUPAC.protein):
+    for seq in SeqIO.parse(seq_file, sequence_type, alphabet=generic_protein):
         if seq.seq in previous_seqs:
             continue
         sequence += seq.seq
