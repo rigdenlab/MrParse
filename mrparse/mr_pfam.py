@@ -77,8 +77,7 @@ def add_pfam_dict_to_models(models, sequence_length):
                   "v_high": "0053d6"}
         for quality in plddt_regions.keys():
             for plddt_region in plddt_regions[quality]:
-                plddt_region_start = plddt_region[0]
-                plddt_region_end = plddt_region[1]
+                plddt_region_start, plddt_region_end = plddt_region
                 md = {'colour': colors[quality],
                       'metadata': {"description": quality,
                                    "database": "EBI AlphaFold database",

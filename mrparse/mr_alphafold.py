@@ -5,7 +5,9 @@ Created on 23 Jul 2021
 """
 from collections import OrderedDict
 import gemmi
+from itertools import groupby
 import logging
+from operator import itemgetter
 import os
 import numpy as np
 import requests
@@ -224,11 +226,11 @@ def get_plddt_regions(struct, seqid_range):
     for i, plddt in residues:
         if plddt < 50:
             v_low.append(i)
-        elif 70 > plddt > 50:
+        elif 70 > plddt >= 50:
             low.append(i)
-        elif 90 > plddt > 70:
+        elif 90 > plddt >= 70:
             confident.append(i)
-        elif plddt > 90:
+        elif plddt >= 90:
             v_high.append(i)
 
     regions['v_low'] = _get_regions(v_low)
@@ -241,20 +243,10 @@ def get_plddt_regions(struct, seqid_range):
 
 def _get_regions(residues):
     regions = []
-    start = finish = None
-    for i in residues:
-        if start:
-            if i - 1 == finish:
-                finish = i
-            else:
-                regions.append([start, finish])
-                start = i
-                finish = i
-        else:
-            start = i
-            finish = i
-    if start:
-        regions.append([start, finish])
+    for k, g in groupby(enumerate(residues), lambda x: x[0] - x[1]):
+        group = (map(itemgetter(1), g))
+        group = list(map(int, group))
+        regions.append((group[0], group[-1]))
     return regions
 
 
