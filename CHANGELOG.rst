@@ -1,3 +1,10 @@
+**[0.2.2]**
+
+*Added*
+
+- Changed how --pdb_dir argument got pdbs from localled installed pdb directory
+- Implemented HHsearch feature - requires biopython 1.74 or later to work
+
 **[0.2.1]**
 
 *Added*
