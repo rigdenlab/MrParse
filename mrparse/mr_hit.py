@@ -28,6 +28,7 @@ class SequenceHit:
         self.pvalue = 0.0
         self.score = 0.0
         self.seq_ali = None
+        self.search_engine = None
         self.alignment = ""
         self.query_start = None 
         self.query_stop = None
@@ -154,9 +155,11 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
             if searchio_type == "hmmer3-text":
                 sh.score = hit.bitscore
                 hit_name = hit.id + "_" + str(hsp.domain_index)
+                sh.search_engine = "phmmer"
             else:
                 sh.score = hit.score
                 hit_name = hit.id + "_" + str(hsp.output_index)
+                sh.search_engine = "hhsearch"
             sh.name = hit_name
             hitDict[hit_name] = sh
     return hitDict

@@ -30,6 +30,7 @@ def add_pfam_dict_to_homologs(homologs, sequence_length):
         stop = h.query_stop
         name = h.name
         region_id = h.region_id
+        search_engine = h.hit.search_engine
         d = {'startStyle': "curved",
              'endStyle': "curved",
              'start': start,
@@ -39,7 +40,7 @@ def add_pfam_dict_to_homologs(homologs, sequence_length):
              'colour': region_colors[h.region_index],
              'text': name,
              'metadata': {"description": "Homolog {} from region #{}".format(name, region_id),
-                          "database": "PHMMER search",
+                          "database": "{} search".format(search_engine.upper()),
                           "start": start,
                           "end": stop}
              }
