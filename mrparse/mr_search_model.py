@@ -15,11 +15,15 @@ logger = logging.getLogger(__name__)
 
 
 class SearchModelFinder(object):
-    def __init__(self, seq_info, hkl_info=None, pdb_dir=None, db_lvl=None):
+    def __init__(self, seq_info, hkl_info=None, pdb_dir=None, search_engine=None, phmmer_dblvl=None,
+                 hhsearch_exe=None, hhsearch_db=None):
         self.seq_info = seq_info
         self.hkl_info = hkl_info
         self.pdb_dir = pdb_dir
-        self.db_lvl = db_lvl
+        self.search_engine = search_engine
+        self.phmmer_dblvl = phmmer_dblvl
+        self.hhsearch_exe = hhsearch_exe
+        self.hhsearch_db = hhsearch_db
         self.hits = None
         self.model_hits = None
         self.regions = None
@@ -44,7 +48,9 @@ class SearchModelFinder(object):
         return self
     
     def find_homolog_regions(self):
-        self.hits = mr_hit.find_hits(self.seq_info, dblvl=self.db_lvl)
+        self.hits = mr_hit.find_hits(self.seq_info, search_engine=self.search_engine,
+                                     hhsearch_exe=self.hhsearch_exe, hhsearch_db=self.hhsearch_db,
+                                     phmmer_dblvl=self.phmmer_dblvl)
         if not self.hits:
             logger.critical('SearchModelFinder PDB search could not find any hits!')
             return None
@@ -52,7 +58,8 @@ class SearchModelFinder(object):
         return self.regions
 
     def find_model_regions(self):
-        self.model_hits = mr_hit.find_hits(self.seq_info, dblvl="af2")
+        self.model_hits = mr_hit.find_hits(self.seq_info, search_engine="phmmer",
+                                           hhsearch_exe=None, hhsearch_db=None, phmmer_dblvl="af2")
         if not self.model_hits:
             logger.critical('SearchModelFinder EBI Alphafold database search could not find any hits!')
             return None
@@ -70,7 +77,7 @@ class SearchModelFinder(object):
     def prepare_models(self):
         if not self.model_hits and self.model_regions:
             return None
-        self.models = mr_alphafold.models_from_hits(self.model_hits, self.pdb_dir)
+        self.models = mr_alphafold.models_from_hits(self.model_hits)
         return self.models
 
     def homologs_as_dicts(self):

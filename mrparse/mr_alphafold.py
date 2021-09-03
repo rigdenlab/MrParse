@@ -19,7 +19,7 @@ class PdbModelException(Exception):
 
 
 AF_BASE_URL = 'https://alphafold.ebi.ac.uk/entry/'
-PDB_DIR = 'pdb_files'
+AF2_DIR = 'AF2_files'
 MODELS_DIR = 'models'
 
 logger = logging.getLogger(__name__)
@@ -117,10 +117,9 @@ class ModelData(object):
         return out_str
 
 
-def models_from_hits(hits, pdb_dir=None):
-    pdb_dir = pdb_dir or PDB_DIR
-    if not os.path.isdir(pdb_dir):
-        os.mkdir(pdb_dir)
+def models_from_hits(hits):
+    if not os.path.isdir(AF2_DIR):
+        os.mkdir(AF2_DIR)
     if not os.path.isdir(MODELS_DIR):
         os.mkdir(MODELS_DIR)
     models = OrderedDict()
@@ -131,7 +130,7 @@ def models_from_hits(hits, pdb_dir=None):
         mlog.model_url = AF_BASE_URL + hit.pdb_id.split('-')[1]
         try:
             mlog.pdb_file, mlog.molecular_weight, \
-            mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, mlog.date_made, mlog.plddt_regions = prepare_pdb(hit, pdb_dir)
+            mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, mlog.date_made, mlog.plddt_regions = prepare_pdb(hit)
         except PdbModelException as e:
             logger.critical("Error processing hit pdb %s", e.message)
         models[mlog.name] = mlog
@@ -145,7 +144,7 @@ def download_model(pdb_name):
     return query.text
 
 
-def prepare_pdb(hit, pdb_dir):
+def prepare_pdb(hit):
     """
     Download pdb or take file from cache
     trucate to required residues
@@ -165,7 +164,7 @@ def prepare_pdb(hit, pdb_dir):
     except RuntimeError:
         # SIMBAD currently raises an empty RuntimeError for download problems.
         raise PdbModelException("Error downloading PDB file for: {}".format(hit.pdb_id))
-    pdb_file = os.path.join(pdb_dir, pdb_name)
+    pdb_file = os.path.join(AF2_DIR, pdb_name)
     pdb_struct.save(pdb_file)
 
     seqid_range = range(hit.hit_start, hit.hit_stop + 1)
