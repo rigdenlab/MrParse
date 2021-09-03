@@ -10,9 +10,9 @@ from simbad.util.pdb_util import PdbStructure
 logging.basicConfig(level=logging.DEBUG)
 
 
-def test_2uvoA_models(test_data, get_2uvo_alphafold_test_hits):
+def test_2uvoA_models(get_2uvo_alphafold_test_hits):
     hits = get_2uvo_alphafold_test_hits
-    models = models_from_hits(hits, pdb_dir=test_data.pdb_dir)
+    models = models_from_hits(hits)
 
     m = models['Q0JF21_1']
     assert m.length == 167
