@@ -150,7 +150,7 @@ def prepare_pdb(hit):
     trucate to required residues
     calculate the MW
     """
-    pdb_name = "{}-model_v1.pdb".format(hit.pdb_id.split(":")[1])
+    pdb_name = "{0}_{1}.pdb".format(hit.pdb_id, hit.chain_id)
     pdb_struct = PdbStructure()
     try:
         pdb_string = download_model(pdb_name)

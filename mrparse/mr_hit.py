@@ -127,13 +127,9 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
             #             sequence_identity = float(sum([a==b for a, b in zip(*[str(s.upper().seq) for s in hsp.aln.get_all_seqs()])])) / float(hsp.aln_span)
             sh = SequenceHit()
             sh.rank = rank
-            if "_" in hsp.hit_id:
-                name, chain = hsp.hit_id.split('_')
-                sh.pdb_id = name
-                sh.chain_id = chain
-            else:
-                sh.pdb_id = hsp.hit_id
-                sh.chain_id = "A"
+            name, chain = hsp.hit_id.split('_')
+            sh.pdb_id = name
+            sh.chain_id = chain
             sh.evalue = hsp.evalue # is i-Evalue - possibly evalue_cond in later BioPython
             hstart = hsp.hit_start
             hstop = hsp.hit_end
@@ -179,7 +175,7 @@ def run_phmmer(seq_info, dblvl=95):
     if dblvl == 95:
         seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "pdb95.txt")
     elif dblvl == "af2":
-        seqdb = os.path.join(os.environ["CCP4"], "share", "mrparse", "data", "af2_sequences.fasta")
+        seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "seqAFDB.fasta")
     else:
         seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "pdb100.txt")
     cmd = [phmmerEXE + EXE_EXT,
