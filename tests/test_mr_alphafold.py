@@ -14,7 +14,7 @@ def test_2uvoA_models(get_2uvo_alphafold_test_hits):
     hits = get_2uvo_alphafold_test_hits
     models = models_from_hits(hits)
 
-    m = models['Q0JF21_1']
+    m = models['Q0JF21']
     assert m.length == 167
     assert abs(m.molecular_weight - 17135) < 0.001
     assert m.model_id == "Q0JF21"
@@ -26,9 +26,9 @@ def test_2uvoA_models(get_2uvo_alphafold_test_hits):
 def test_calculate_quality_scores(get_2uvo_alphafold_test_hits):
     """Test the quality scoring methods"""
     hits = get_2uvo_alphafold_test_hits
-    hit = hits['AFDB:AF-Q0JF21-F1_1']
+    hit = hits['AF-Q0JF21-F1-model_v1_1']
 
-    pdb_name = "{}-model_v1.pdb".format(hit.pdb_id.split(":")[1])
+    pdb_name = "{0}_{1}.pdb".format(hit.pdb_id, hit.chain_id)
     pdb_struct = PdbStructure()
     pdb_string = download_model(pdb_name)
     pdb_struct.structure = gemmi.read_pdb_string(pdb_string)
