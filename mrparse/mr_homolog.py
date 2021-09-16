@@ -5,6 +5,7 @@ Created on 18 Oct 2018
 """
 from collections import OrderedDict
 import copy
+import glob
 import logging
 import os
 from simbad.util.pdb_util import PdbStructure
@@ -124,9 +125,6 @@ class HomologData(object):
 
 
 def homologs_from_hits(hits, pdb_dir=None):
-    pdb_dir = pdb_dir or PDB_DIR
-    if not os.path.isdir(pdb_dir):
-        os.mkdir(pdb_dir)
     if not os.path.isdir(HOMOLOGS_DIR):
         os.mkdir(HOMOLOGS_DIR)
     homologs = OrderedDict()
@@ -150,8 +148,17 @@ def prepare_pdb(hit, pdb_dir):
     calculate the MW
 
     """
-    pdb_name = "{}.pdb".format(hit.pdb_id)
-    pdb_file = os.path.join(pdb_dir, pdb_name)
+
+    if pdb_dir != "None":
+        prefix, ext = os.path.basename(glob.glob(os.path.join(pdb_dir, "*", "*"))[0]).split(".", 1)
+        prefix = prefix[:-4]
+        pdb_file = os.path.join(pdb_dir, "{0}", "{1}{2}.{3}").format(hit.pdb_id[1:3].lower(), prefix,
+                                                                     hit.pdb_id.lower(), ext)
+    else:
+        if not os.path.isdir(PDB_DIR):
+            os.mkdir(PDB_DIR)
+        pdb_file = os.path.join(PDB_DIR, "{0}.pdb").format(hit.pdb_id.lower())
+
     pdb_struct = PdbStructure()
     if os.path.isfile(pdb_file):
         pdb_struct = pdb_struct.from_file(pdb_file)

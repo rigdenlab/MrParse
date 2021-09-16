@@ -1,7 +1,6 @@
 import json
 import multiprocessing
 import os
-import shutil
 import subprocess
 import sys
 
@@ -25,8 +24,8 @@ MODELS_JS = 'models.json'
 logger = None
 
 
-def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None, db_lvl=None, tmhmm_exe=None,
-        deepcoil_exe=None, ccp4cloud=None):
+def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None, phmmer_dblvl=None, search_engine=None,
+        tmhmm_exe=None, deepcoil_exe=None, hhsearch_exe=None, hhsearch_db=None, ccp4cloud=None):
     # Need to make a work directory first as all logs go into there
     work_dir = make_workdir()
     os.chdir(work_dir)
@@ -56,7 +55,15 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None, db_
         logger.info("Running with hklin %s", os.path.abspath(hklin))
         hkl_info = HklInfo(hklin, seq_info=seq_info)
 
-    search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir, db_lvl=db_lvl)
+    if search_engine == "hhsearch":
+        if not hhsearch_exe:
+            raise RuntimeError("HHSearch executable needs to be defined with --hhsearch_exe")
+        elif not hhsearch_db:
+            raise RuntimeError("HHSearch database needs to be defined with --hhsearch_db")
+
+    search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir, phmmer_dblvl=phmmer_dblvl,
+                                            search_engine=search_engine, hhsearch_exe=hhsearch_exe,
+                                            hhsearch_db=hhsearch_db)
 
     classifier = None
     if do_classify:
@@ -75,10 +82,7 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None, db_
     html_out = write_output_files(search_model_finder, hkl_info=hkl_info, classifier=classifier, ccp4cloud=ccp4cloud)
     logger.info("Wrote MrParse output file: %s", html_out)
 
-    # Clean up files and don't open HTML out if CCP4 cloud
-    if ccp4cloud:
-        shutil.rmtree(pdb_dir)
-    else:
+    if not ccp4cloud:
         opencmd = None
         if sys.platform.lower().startswith('linux'):
             opencmd = 'xdg-open'

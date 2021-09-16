@@ -28,6 +28,7 @@ class SequenceHit:
         self.pvalue = 0.0
         self.score = 0.0
         self.seq_ali = None
+        self.search_engine = None
         self.alignment = ""
         self.query_start = None 
         self.query_stop = None
@@ -91,13 +92,13 @@ class SequenceHit:
         return out_str
 
 
-def find_hits(seq_info, search_engine=PHMMER, dblvl=95):
+def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, phmmer_dblvl=95):
     if search_engine == PHMMER:
-        logfile = run_phmmer(seq_info, dblvl=dblvl)
+        logfile = run_phmmer(seq_info, dblvl=phmmer_dblvl)
         searchio_type = 'hmmer3-text'
     elif search_engine == HHSEARCH:
         searchio_type = 'hhsuite2-text'
-        logfile = run_hhsearch(seq_info)
+        logfile = run_hhsearch(seq_info, hhsearch_exe, hhsearch_db)
     else:
         raise RuntimeError("Unrecognised search_engine: {}".format(search_engine))
     target_sequence = seq_info.sequence
@@ -108,10 +109,10 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
     assert logfile and searchio_type and target_sequence
     try:
         io = SearchIO.read(logfile, searchio_type)
-    except AttributeError:
+    except ValueError:
         # If the error is: "'NoneType' object has no attribute 'group'" then this is an error in Biopython that
         # has been fixed in later versions
-        logger.exception("AttributeError while running Biopython")
+        logger.exception("ValueError while running Biopython")
         raise RuntimeError('Problem running Biopython SearchIO - you may need to update your version of Biopython.')
     except:
         logger.exception("Unexpected error while running Biopython")
@@ -126,15 +127,7 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
             #             sequence_identity = float(sum([a==b for a, b in zip(*[str(s.upper().seq) for s in hsp.aln.get_all_seqs()])])) / float(hsp.aln_span)
             sh = SequenceHit()
             sh.rank = rank
-            if "_" in hsp.hit_id:
-                name, chain = hsp.hit_id.split('_')
-                sh.pdb_id = name
-                sh.chain_id = chain
-            else:
-                sh.pdb_id = hsp.hit_id
-                sh.chain_id = "A"
-    #sh.score = hsp.bitscore
-            sh.score = hit.bitscore
+            sh.pdb_id, sh.chain_id = hsp.hit_id.split('_')
             sh.evalue = hsp.evalue # is i-Evalue - possibly evalue_cond in later BioPython
             hstart = hsp.hit_start
             hstop = hsp.hit_end
@@ -152,7 +145,15 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
             local, overall = simpleSeqID().getPercent(alignment, target_alignment, target_sequence)
             sh.local_sequence_identity = local
             sh.overall_sequence_identity = overall
-            hit_name = hit.id + "_" + str(hsp.domain_index)
+
+            if searchio_type == "hmmer3-text":
+                sh.score = hit.bitscore
+                hit_name = hit.id + "_" + str(hsp.domain_index)
+                sh.search_engine = "phmmer"
+            else:
+                sh.score = hit.score
+                hit_name = hit.id + "_" + str(hsp.output_index)
+                sh.search_engine = "hhsearch"
             sh.name = hit_name
             hitDict[hit_name] = sh
     return hitDict
@@ -172,7 +173,7 @@ def run_phmmer(seq_info, dblvl=95):
     if dblvl == 95:
         seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "pdb95.txt")
     elif dblvl == "af2":
-        seqdb = os.path.join(os.environ["CCP4"], "share", "mrparse", "data", "af2_sequences.fasta")
+        seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "afdb.fasta")
     else:
         seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "pdb100.txt")
     cmd = [phmmerEXE + EXE_EXT,
@@ -191,6 +192,11 @@ def run_phmmer(seq_info, dblvl=95):
     return logfile
 
 
-def run_hhsearch(seq_info):
-    raise NotImplementedError("{} search needs to be implemented".format(HHSEARCH))
-
+def run_hhsearch(seq_info, hhsearch_exe, hhsearch_db):
+    logfile = "hhsearch.log"
+    cmd = [hhsearch_exe,
+           '-i', seq_info.sequence_file,
+           '-d', hhsearch_db,
+           '-o', logfile]
+    run_cmd(cmd)
+    return logfile
