@@ -57,9 +57,9 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None, phm
 
     if search_engine == "hhsearch":
         if not hhsearch_exe:
-            raise RuntimeError("Cannot find hhsearch executable: %s, specify with --hhsearch_exe" % hhsearch_exe)
+            raise RuntimeError("HHSearch executable needs to be defined with --hhsearch_exe")
         elif not hhsearch_db:
-            raise RuntimeError("Cannot find hhsearch database: %s, specify with --hhsearch_db" % hhsearch_db)
+            raise RuntimeError("HHSearch database needs to be defined with --hhsearch_db")
 
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir, phmmer_dblvl=phmmer_dblvl,
                                             search_engine=search_engine, hhsearch_exe=hhsearch_exe,

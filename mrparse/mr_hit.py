@@ -127,9 +127,7 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
             #             sequence_identity = float(sum([a==b for a, b in zip(*[str(s.upper().seq) for s in hsp.aln.get_all_seqs()])])) / float(hsp.aln_span)
             sh = SequenceHit()
             sh.rank = rank
-            name, chain = hsp.hit_id.split('_')
-            sh.pdb_id = name
-            sh.chain_id = chain
+            sh.pdb_id, sh.chain_id = hsp.hit_id.split('_')
             sh.evalue = hsp.evalue # is i-Evalue - possibly evalue_cond in later BioPython
             hstart = hsp.hit_start
             hstop = hsp.hit_end
