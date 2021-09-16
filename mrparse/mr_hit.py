@@ -175,7 +175,7 @@ def run_phmmer(seq_info, dblvl=95):
     if dblvl == 95:
         seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "pdb95.txt")
     elif dblvl == "af2":
-        seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "seqAFDB.fasta")
+        seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "afdb.fasta")
     else:
         seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "pdb100.txt")
     cmd = [phmmerEXE + EXE_EXT,
