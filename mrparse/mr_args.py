@@ -35,7 +35,7 @@ def parse_command_line():
     parser.add_argument('--do_classify', action='store_true', help='Run the SS/TM/CC classifiers - requires internet access.')
     parser.add_argument('--pdb_dir', action=FilePathAction, help='Directory of PDB files')
     parser.add_argument('--phmmer_dblvl', help='Redundancy level of PDB database used by Phmmer', default='95',
-                        choices=['95', '100'])
+                        choices=['50', '70', '90', '95', '100'])
     parser.add_argument('--run_serial', action='store_true', help='Run on a single processor')
     parser.add_argument('-seq', '--seqin', action=FilePathAction, required=True, help='Sequence file')
     parser.add_argument('--search_engine', help="Select search engine", default="phmmer", choices=['phmmer', 'hhsearch'])
