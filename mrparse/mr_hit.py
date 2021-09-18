@@ -9,6 +9,7 @@ import os
 
 from mrparse.mr_util import run_cmd, EXE_EXT
 from mrbump.seq_align.simpleSeqID import simpleSeqID
+from mrbump.tools import makeSeqDB
 from Bio import SearchIO
 
 PHMMER = 'phmmer'
@@ -170,12 +171,14 @@ def run_phmmer(seq_info, dblvl=95):
     phmmerTblout = "phmmerTblout_{}.log".format(dblvl)
     phmmerDomTblout = "phmmerDomTblout_{}.log".format(dblvl)
     phmmerEXE = os.path.join(os.environ["CCP4"], "libexec", "phmmer")
-    if dblvl == 95:
-        seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "pdb95.txt")
-    elif dblvl == "af2":
+    delete_db = False
+    if dblvl == "af2":
         seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "afdb.fasta")
     else:
-        seqdb = os.path.join(os.environ["CCP4"], "share", "mrbump", "data", "pdb100.txt")
+        sb = makeSeqDB.sequenceDatabase()
+        seqdb = sb.makePhmmerFasta(RLEVEL=dblvl)
+        delete_db = True
+
     cmd = [phmmerEXE + EXE_EXT,
            '--notextw',
            '--tblout', phmmerTblout,
@@ -189,6 +192,10 @@ def run_phmmer(seq_info, dblvl=95):
         stdout = "\n".join(lines)
     with open(logfile, 'w') as f_out:
         f_out.write(stdout)
+
+    if delete_db:
+        os.unlink(seqdb)
+
     return logfile
 
 
