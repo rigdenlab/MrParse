@@ -1,3 +1,10 @@
+**[0.2.3]**
+
+*Added*
+
+- Replaced development version of vue with the production version
+
+
 **[0.2.2]**
 
 *Added*
