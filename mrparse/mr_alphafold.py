@@ -155,11 +155,6 @@ def prepare_pdb(hit):
     try:
         pdb_string = download_model(pdb_name)
         pdb_struct.structure = gemmi.read_pdb_string(pdb_string)
-
-        # Remove first model
-        models = [m.name for m in pdb_struct.structure]
-        del pdb_struct.structure[models[0]]
-
         date_made = pdb_string.split('\n')[0].split()[-1]
     except RuntimeError:
         # SIMBAD currently raises an empty RuntimeError for download problems.
