@@ -1,3 +1,9 @@
+**[0.2.4]**
+
+*Changed*
+
+- Fixed a bug that caused the Alphafold2 models atomic data to be deleted when using the latest version of gemmi
+
 **[0.2.3]**
 
 *Added*
