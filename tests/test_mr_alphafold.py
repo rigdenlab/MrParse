@@ -32,8 +32,6 @@ def test_calculate_quality_scores(get_2uvo_alphafold_test_hits):
     pdb_struct = PdbStructure()
     pdb_string = download_model(pdb_name)
     pdb_struct.structure = gemmi.read_pdb_string(pdb_string)
-    models = [m.name for m in pdb_struct.structure]
-    del pdb_struct.structure[models[0]]
     seqid_range = range(hit.hit_start, hit.hit_stop + 1)
     pdb_struct.select_residues(to_keep_idx=seqid_range)
 
