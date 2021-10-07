@@ -1,3 +1,9 @@
+**[0.2.5]**
+
+*Changed*
+
+- Updated testing for new CCP4 release
+
 **[0.2.4]**
 
 *Changed*
