@@ -1,0 +1,45 @@
+#!/usr/bin/env ccp4-python
+# encoding: utf-8
+import os
+import sys
+import traceback
+
+# Set up python path so we can do our imports
+THIS_DIR = os.path.abspath(os.path.dirname(__file__))
+ROOT_DIR = os.path.join(THIS_DIR, '..')
+sys.path.insert(0, ROOT_DIR)
+from mrparse import mr_analyse
+from mrparse import mr_args
+from mrparse import mr_version
+
+
+if "CCP4" not in os.environ:
+    raise RuntimeError("Cannot find CCP4 installation - please make sure CCP4 is installed and the setup scripts have been run!")
+
+
+def main():
+    args = mr_args.parse_command_line()
+    try:
+        return mr_analyse.run(args.seqin,
+                              hklin=args.hklin,
+                              run_serial=args.run_serial,
+                              do_classify=args.do_classify,
+                              pdb_dir=args.pdb_dir,
+                              phmmer_dblvl=args.phmmer_dblvl,
+                              search_engine=args.search_engine,
+                              tmhmm_exe=args.tmhmm_exe,
+                              deepcoil_exe=args.deepcoil_exe,
+                              hhsearch_exe=args.hhsearch_exe,
+                              hhsearch_db=args.hhsearch_db,
+                              ccp4cloud=args.ccp4cloud)
+    except KeyboardInterrupt:
+        sys.stderr.write("Interrupted by keyboard!")
+        return 0
+    except Exception as e:
+        sys.stderr.write("Error running mrparse: {}\n".format(e))
+        traceback.print_exc(file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())
