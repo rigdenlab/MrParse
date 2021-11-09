@@ -3,14 +3,8 @@
 import os
 import sys
 import traceback
-
-# Set up python path so we can do our imports
-THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-ROOT_DIR = os.path.join(THIS_DIR, '..')
-sys.path.insert(0, ROOT_DIR)
 from mrparse import mr_analyse
 from mrparse import mr_args
-from mrparse import mr_version
 
 
 if "CCP4" not in os.environ:

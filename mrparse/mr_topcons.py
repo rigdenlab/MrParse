@@ -1,13 +1,12 @@
-'''
+"""
 Created on 16 Nov 2018
 
 @author: jmht
-'''
+"""
+
 import logging
 import os
 import shutil
-import subprocess
-import sys
 import time
 import zipfile
 

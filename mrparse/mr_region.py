@@ -1,9 +1,9 @@
-'''
+"""
 Created on 18 Oct 2018
 
 @author: jmht
+"""
 
-'''
 from operator import attrgetter
 from mrparse.mr_hit import sort_hits_by_size
 
