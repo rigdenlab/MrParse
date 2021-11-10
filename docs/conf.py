@@ -52,7 +52,7 @@ except ImportError:
 
 # If set, mock the import system to have external dependencies
 autodoc_mock_imports = [
-    'mrbump', 'simbad', 'ample', 'gemmi', 'cctbx', 'mmtbx', 'iotbx', 'ConfigParser'
+    'mrbump', 'simbad', 'ample', 'gemmi', 'cctbx', 'mmtbx', 'iotbx', 'ConfigParser', 'Bio'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

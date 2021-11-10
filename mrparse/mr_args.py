@@ -24,21 +24,10 @@ class FilePathAction(argparse.Action):
 
 def mrparse_argparse():
     """Parse MrParse command line arguments"""
-    # Read config file, check for local config file for documentation
-    if os.path.isfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "mrparse.config")):
-        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "mrparse.config")
-    else:
-        config_file = os.path.join(os.environ["CCP4"], "share", "mrparse", "data", "mrparse.config")
-    defaults = {}
-    config = ConfigParser.SafeConfigParser()
-    config.read(config_file)
-    defaults.update(dict(config.items("Defaults")))
-    defaults.update(dict(config.items("Executables")))
-    defaults.update(dict(config.items("Databases")))
+
 
     # Read command line arguments
     parser = argparse.ArgumentParser(description="MrParse Molecular Replacement Search Model analysis")
-    parser.set_defaults(**defaults)
     parser.add_argument('-hkl', '--hklin', action=FilePathAction, help='MTZ/CIF Crystal Data file')
     parser.add_argument('--do_classify', action='store_true',
                         help='Run the SS/TM/CC classifiers - requires internet access.')
@@ -58,14 +47,27 @@ def mrparse_argparse():
     parser.add_argument('--hhsearch_db', help="Location of hhsearch database")
     parser.add_argument('--ccp4cloud', action='store_true', help="specify running through CCP4Cloud")
     parser.add_argument('-v', '--version', action='version', version='%(prog)s version: ' + __version__)
-    return parser, [config, config_file, defaults]
+    return parser
 
 
 def parse_command_line():
     """Parse MrParse command line arguments"""
+
+    # Read config file, check for local config file for documentation
+    if os.path.isfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "mrparse.config")):
+        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "mrparse.config")
+    else:
+        config_file = os.path.join(os.environ["CCP4"], "share", "mrparse", "data", "mrparse.config")
+    defaults = {}
+    config = ConfigParser.SafeConfigParser()
+    config.read(config_file)
+    defaults.update(dict(config.items("Defaults")))
+    defaults.update(dict(config.items("Executables")))
+    defaults.update(dict(config.items("Databases")))
+
     parser = mrparse_argparse()
-    args = parser[0].parse_args()
-    config, config_file, defaults = parser[1]
+    parser.set_defaults(**defaults)
+    args = parser.parse_args()
 
     # Add executables and databases to config file so that it only needs to be specified once
     update_config = False
