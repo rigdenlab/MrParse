@@ -58,13 +58,14 @@ def mrparse_argparse():
     parser.add_argument('--hhsearch_db', help="Location of hhsearch database")
     parser.add_argument('--ccp4cloud', action='store_true', help="specify running through CCP4Cloud")
     parser.add_argument('-v', '--version', action='version', version='%(prog)s version: ' + __version__)
-    return parser
+    return parser, [config, config_file, defaults]
 
 
 def parse_command_line():
     """Parse MrParse command line arguments"""
     parser = mrparse_argparse()
-    args = parser.parse_args()
+    args = parser[0].parse_args()
+    config, config_file, defaults = parser[1]
 
     # Add executables and databases to config file so that it only needs to be specified once
     update_config = False

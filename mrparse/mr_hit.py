@@ -203,7 +203,7 @@ def run_hhsearch(seq_info, hhsearch_exe, hhsearch_db):
     logfile = "hhsearch.log"
     cmd = [hhsearch_exe,
            '-i', seq_info.sequence_file,
-           '-d', hhsearch_db,
+           '-d', os.path.join(hhsearch_db, os.path.basename(hhsearch_db)),
            '-o', logfile]
     run_cmd(cmd)
     return logfile

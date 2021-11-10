@@ -2,6 +2,10 @@
 MrParse: an aid to decision making in Molecular Replacement
 ***********************************************************
 
+.. image:: https://readthedocs.org/projects/mrparse/badge/?version=documentation
+   :target: https://mrparse.readthedocs.io/en/documentation/?badge=documentation
+   :alt: Documentation Status
+
 About
 +++++
 
@@ -10,6 +14,12 @@ MrParse is a `CCP4 <http://www.ccp4.ac.uk>`_ program takes a protein amino acid 
 It also attempts to classify the sequence according to its secondary structure, and whether any regions are expected to be Coiled-Coil or Transmembrane.
 
 Results are currently displayed in a simple HTML webpage that is rendered using `VUE <https://vuejs.org>`_. The sequence graphics are created using the `PFAM graphics library <https://pfam.xfam.org/generate_graphic>`_, a copy of which is distributed with this code.
+
+Installation
+++++++++++++
+
+MrParse is distributed with CCP4, although optional software can be installed to get the most out of MrParse. Full details are provided `here <https://mrparse.readthedocs.io/en/documentation/install.html>`_
+
 
 Simple command line
 +++++++++++++++++++
@@ -27,19 +37,9 @@ To provide a reflection file and classify the sequence we can provide the follow
 
 Search Model Finder
 +++++++++++++++++++
-The search model finder by default uses `PHMMER <http://hmmer.org/>`_ (distributed with `CCP4 <http://www.ccp4.ac.uk>`_) to search for homologs. If installed you can also use `HHSEARCH <https://github.com/soedinglab/hh-suite>`_ using the following flags:
+The search model finder by default uses `PHMMER <http://hmmer.org/>`_ (distributed with `CCP4 <http://www.ccp4.ac.uk>`_) to search for homologs. If installed you can also use `HHSEARCH <https://github.com/soedinglab/hh-suite>`_.
+Examples of how to use MrParse are provided `here <https://mrparse.readthedocs.io/en/documentation/examples.html>`_
 
-.. code-block:: bash
-
-   --search_engine hhsearch
-   --hhsearch_exe <PATH TO HHSEARCH EXECUTABLE>
-   --hhsearch_db <PATH TO HHSEARCH PDB70 DATABASE>
-
-NOTE: The current Biopython shipped with CCP4 is out of date and contains an error that prevents HHSearch log files being parsed correctly. To update the version of Biopython within CCP4, run the command:
-
-.. code-block:: bash
-
-   ccp4-python -m pip install --upgrade biopython==1.76
 
 EBI Alphafold database search
 +++++++++++++++++++++++++++++
@@ -48,13 +48,6 @@ The search model finder currently uses `PHMMER <http://hmmer.org/>`_ (distribute
 Classifiers
 +++++++++++
 * secondary structure classification is currently carried by submitting jobs to the `JPRED <http://www.compbio.dundee.ac.uk/jpred/>`_ server.
-* Coiled-Coil classification is carried out with `Deepcoil <https://github.com/labstructbioinf/DeepCoil>`_. This needs to be installed locally.
-* Transmembrane classification is carried out with `TMHMM <https://github.com/dansondergaard/tmhmm.py>`_. This needs to be installed locally.
-
-Deepcoil and TMHMM executables can be specified with:
-
-.. code-block:: bash
-
-   --TMHMM_exe <PATH TO TMHMM EXECUTABLE>
-   --deepcoil_exe <PATH TO DEEPCOIL EXECUTABLE>
+* If installed, coiled-Coil classification is carried out with `Deepcoil <https://github.com/labstructbioinf/DeepCoil>`_.
+* If installed, transmembrane classification is carried out with `TMHMM <https://github.com/dansondergaard/tmhmm.py>`_.
 

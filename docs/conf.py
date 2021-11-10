@@ -16,12 +16,12 @@ import datetime
 import os
 import sys
 
-# Make SIMBAD believe we are running it as part of CCP4
+# Make MrParse believe we are running it as part of CCP4
 os.environ['CCP4'] = "/empty/path"
 
 # Required by autosummary
 sys.path.insert(0, ".")  # for sphinxext directory
-sys.path.insert(0, "..")  # for simbad directory
+sys.path.insert(0, "..")  # for mrparse directory
 
 # -- General configuration ------------------------------------------------
 
