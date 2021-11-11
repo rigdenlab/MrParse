@@ -1,8 +1,8 @@
-'''
+"""
 Created on 18 Oct 2018
 
 @author: jmht
-'''
+"""
 import os
 
 from ample.util.ample_util import filename_append

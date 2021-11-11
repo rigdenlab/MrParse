@@ -1,0 +1,7 @@
+enum34
+numpy
+pandas
+pyjob ==0.2.1
+sphinx-argparse
+sphinx_bootstrap_theme
+

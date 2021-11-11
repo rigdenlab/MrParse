@@ -6,13 +6,13 @@ import sys
 
 from jinja2 import Environment, FileSystemLoader
 
-from mr_log import setup_logging
-from mr_util import make_workdir, now
-from mr_hkl import HklInfo
-from mr_search_model import SearchModelFinder
-from mr_sequence import Sequence, MultipleSequenceException, merge_multiple_sequences
-from mr_classify import MrClassifier
-from mr_version import __version__
+from mrparse.mr_log import setup_logging
+from mrparse.mr_util import make_workdir, now
+from mrparse.mr_hkl import HklInfo
+from mrparse.mr_search_model import SearchModelFinder
+from mrparse.mr_sequence import Sequence, MultipleSequenceException, merge_multiple_sequences
+from mrparse.mr_classify import MrClassifier
+from mrparse.mr_version import __version__
 
 THIS_DIR = os.path.abspath(os.path.dirname(__file__))
 HTML_DIR = os.path.join(THIS_DIR, 'html')

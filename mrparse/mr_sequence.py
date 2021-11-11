@@ -33,8 +33,8 @@ class Sequence(object):
         if seq_file:
             self._read_sequence_file(seq_file, sequence_type)
         elif sequence:
-            self._bio_seq = Seq(sequence, generic_protein)
-            self._bio_seq_record = SeqRecord(self._bio_seq)
+            self._bio_seq = Seq(sequence)
+            self._bio_seq_record = SeqRecord(self._bio_seq, generic_protein)
         self.nresidues = len(self._bio_seq)
         self.sequence = str(self._bio_seq)
         self.sequence = str(self._bio_seq)
