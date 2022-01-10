@@ -3,6 +3,7 @@ Created on 18 Oct 2018
 
 @author: jmht
 """
+import logging
 import os
 
 from ample.util.ample_util import filename_append
@@ -12,6 +13,8 @@ from mrbump.ccp4.MRBUMP_ctruncate import Ctruncate
 
 from iotbx import reflection_file_reader
 from iotbx.reflection_file_utils import looks_like_r_free_flags_info
+
+logger = logging.getLogger(__name__)
 
 
 class GetLabels(object):
@@ -73,7 +76,7 @@ class GetLabels(object):
         reflection_file = reflection_file_reader.any_reflection_file(file_name=mtz_file)
         if not reflection_file.file_type() == "ccp4_mtz":
             msg = "File is not of type ccp4_mtz: {0}".format(mtz_file)
-            LOG.critical(msg)
+            logger.critical(msg)
             raise RuntimeError(msg)
 
         miller_arrays = reflection_file.as_miller_arrays()
@@ -90,16 +93,16 @@ class GetLabels(object):
                     elif len(m_a.info().labels) == 2:
                         self.dano, self.sigdano = m_a.info().labels
                     else:
-                        LOG.debug("Unexpected number of columns found in anomalous miller array")
+                        logger.debug("Unexpected number of columns found in anomalous miller array")
                 elif self.check_for_plus_minus_labels(m_a):
                     if m_a.is_xray_amplitude_array():
                         self.fplus, self.sigfplus, self.fminus, self.sigfminus = m_a.info().labels
                     elif m_a.is_xray_intensity_array():
                         self.iplus, self.sigiplus, self.iminus, self.sigiminus = m_a.info().labels
                     else:
-                        LOG.debug("Type of anomalous miller array unknown")
+                        logger.debug("Type of anomalous miller array unknown")
                 else:
-                    LOG.debug("Type of anomalous miller array unknown")
+                    logger.debug("Type of anomalous miller array unknown")
             elif m_a.is_xray_intensity_array() and len(m_a.info().labels) == 2 and not self.i:
                 self.i, self.sigi = m_a.info().labels
             elif m_a.is_xray_amplitude_array() and len(m_a.info().labels) == 2 and not self.f:

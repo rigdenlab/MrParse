@@ -132,7 +132,8 @@ def models_from_hits(hits):
             mlog.pdb_file, mlog.molecular_weight, \
             mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, mlog.date_made, mlog.plddt_regions = prepare_pdb(hit)
         except PdbModelException as e:
-            logger.critical("Error processing hit pdb %s", e.message)
+            logger.critical("Error processing pdb: %s", e.message)
+            continue
         models[mlog.name] = mlog
     return models
 
@@ -159,11 +160,16 @@ def prepare_pdb(hit):
     except RuntimeError:
         # SIMBAD currently raises an empty RuntimeError for download problems.
         raise PdbModelException("Error downloading PDB file for: {}".format(hit.pdb_id))
+
     pdb_file = os.path.join(AF2_DIR, pdb_name)
     pdb_struct.save(pdb_file)
 
     seqid_range = range(hit.hit_start, hit.hit_stop + 1)
-    pdb_struct.select_residues(to_keep_idx=seqid_range)
+    try:
+        pdb_struct.select_residues(to_keep_idx=seqid_range)
+    except IndexError:
+        # SIMBAD occasionally raises an empty IndexError when selecting residues.
+        raise PdbModelException("Error selecting residues for: {}".format(hit.pdb_id))
 
     avg_plddt = calculate_avg_plddt(pdb_struct.structure)
     sum_plddt = calculate_sum_plddt(pdb_struct.structure)
