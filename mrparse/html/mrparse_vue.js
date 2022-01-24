@@ -298,7 +298,7 @@ Vue.component('model-table', {
     },
     },
   mounted: function() {
-    this.sortBy('h_score')
+    this.sortBy('seq_ident')
   },
   template: `
   <div class="model-table">
