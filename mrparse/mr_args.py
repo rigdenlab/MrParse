@@ -34,6 +34,8 @@ def mrparse_argparse():
     parser.add_argument('--pdb_dir', action=FilePathAction, help='Directory of PDB files')
     parser.add_argument('--phmmer_dblvl', help='Redundancy level of PDB database used by Phmmer', default='95',
                         choices=['50', '70', '90', '95', '100'])
+    parser.add_argument('--plddt_cutoff', help='Removes residues from AFDB models below this pLDDT threshold',
+                        default='70', choices=['50', '70', '90', 'None'])
     parser.add_argument('--run_serial', action='store_true', help='Run on a single processor')
     parser.add_argument('-seq', '--seqin', action=FilePathAction, help='Sequence file')
     parser.add_argument('--search_engine', help="Select search engine", default="phmmer",

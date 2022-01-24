@@ -20,6 +20,7 @@ def main():
                               do_classify=args.do_classify,
                               pdb_dir=args.pdb_dir,
                               phmmer_dblvl=args.phmmer_dblvl,
+                              plddt_cutoff=args.plddt_cutoff,
                               search_engine=args.search_engine,
                               tmhmm_exe=args.tmhmm_exe,
                               deepcoil_exe=args.deepcoil_exe,

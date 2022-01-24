@@ -16,12 +16,13 @@ logger = logging.getLogger(__name__)
 
 class SearchModelFinder(object):
     def __init__(self, seq_info, hkl_info=None, pdb_dir=None, search_engine=None, phmmer_dblvl=None,
-                 hhsearch_exe=None, hhsearch_db=None):
+                 plddt_cutoff=None, hhsearch_exe=None, hhsearch_db=None):
         self.seq_info = seq_info
         self.hkl_info = hkl_info
         self.pdb_dir = pdb_dir
         self.search_engine = search_engine
         self.phmmer_dblvl = phmmer_dblvl
+        self.plddt_cutoff = plddt_cutoff
         self.hhsearch_exe = hhsearch_exe
         self.hhsearch_db = hhsearch_db
         self.hits = None
@@ -77,7 +78,7 @@ class SearchModelFinder(object):
     def prepare_models(self):
         if not self.model_hits and self.model_regions:
             return None
-        self.models = mr_alphafold.models_from_hits(self.model_hits)
+        self.models = mr_alphafold.models_from_hits(self.model_hits, self.plddt_cutoff)
         return self.models
 
     def homologs_as_dicts(self):
