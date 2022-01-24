@@ -4,8 +4,10 @@ Created on 18 Oct 2018
 @author: jmht
 """
 from collections import OrderedDict
+import json
 import logging
 import os
+import requests
 
 from mrparse.mr_util import run_cmd, EXE_EXT
 from mrbump.seq_align.simpleSeqID import simpleSeqID
@@ -94,15 +96,19 @@ class SequenceHit:
 
 
 def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, phmmer_dblvl=95):
+    target_sequence = seq_info.sequence
     if search_engine == PHMMER:
-        logfile = run_phmmer(seq_info, dblvl=phmmer_dblvl)
+        if phmmer_dblvl == "af2":
+            json_file = run_phmmer_alphafold_api(seq_info)
+            return _find_json_hits(json_file, target_sequence=seq_info)
+        else:
+            logfile = run_phmmer(seq_info, dblvl=phmmer_dblvl)
         searchio_type = 'hmmer3-text'
     elif search_engine == HHSEARCH:
         searchio_type = 'hhsuite2-text'
         logfile = run_hhsearch(seq_info, hhsearch_exe, hhsearch_db)
     else:
         raise RuntimeError("Unrecognised search_engine: {}".format(search_engine))
-    target_sequence = seq_info.sequence
     return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence)
     
 
@@ -160,6 +166,44 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
     return hitDict
 
 
+def _find_json_hits(json_file, target_sequence):
+    hitDict = OrderedDict()
+    with open(json_file, 'r') as f_in:
+        data = json.load(f_in)
+        for i, hit in enumerate(data['results']['hits']):
+            try:
+                sh = SequenceHit()
+                sh.rank = i + 1
+                sh.pdb_id = hit['name']
+                sh.evalue = hit['evalue']
+
+                alignment_info = hit['domains'][0]
+                qstart = alignment_info['alihmmfrom']
+                qstop = alignment_info['alihmmto']
+                sh.query_start = qstart
+                sh.query_stop = qstop
+                sh.hit_start = alignment_info['alisqfrom']
+                sh.hit_stop = alignment_info['alisqto']
+                seq_ali = zip(range(qstart, qstop), alignment_info['aliaseq'])
+                sh.seq_ali = [x[0] for x in seq_ali if x[1] != '-']
+                alignment = alignment_info['aliaseq'].upper()
+                target_alignment = alignment_info['alimodel'].upper()
+                sh.target_alignment = alignment
+                sh.alignment = target_alignment
+                local, overall = simpleSeqID().getPercent(alignment, target_alignment, target_sequence)
+                sh.local_sequence_identity = local
+                sh.overall_sequence_identity = overall
+
+                sh.score = hit['score']
+                hit_name = hit['name'] + "_" + str(hit['ndom'])
+                sh.name = hit_name
+                sh.search_engine = "phmmer"
+                hitDict[hit_name] = sh
+            except:
+                logger.debug("Issue with target {}".format(hit['name']))
+    return hitDict
+
+
 def sort_hits_by_size(hits, ascending=False):
     reverse = not(ascending)
     return OrderedDict(sorted(hits.items(), key=lambda x: x[1].length, reverse=reverse))
@@ -206,4 +250,29 @@ def run_hhsearch(seq_info, hhsearch_exe, hhsearch_db):
            '-d', os.path.join(hhsearch_db, os.path.basename(hhsearch_db)),
            '-o', logfile]
     run_cmd(cmd)
+    return logfile
+
+
+def run_phmmer_alphafold_api(seq_info):
+    params = {
+        'seqdb': 'alphafold',
+        'seq': '>Seq\n{}'.format(seq_info.sequence)
+    }
+
+    # post the seqrch request to the server
+    results_url = requests.post(url='https://www.ebi.ac.uk/Tools/hmmer/search/phmmer', data=params).url
+
+    # modify the range, format and presence of alignments in your results here
+    res_params = {
+        'output': 'json',
+        'range': '1,10'
+    }
+
+    # send a GET request to the server
+    data = requests.get(results_url, params=res_params)
+
+    logfile = "phmmer_afdb.json"
+    with open(logfile, 'w') as f_out:
+        f_out.write(data.text)
+
     return logfile

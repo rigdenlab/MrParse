@@ -4,12 +4,14 @@ Created on 23 Jul 2021
 @author: hlasimpk
 """
 from collections import OrderedDict
+import ftplib
 import gemmi
 from itertools import groupby
 import logging
+import numpy as np
 from operator import itemgetter
 import os
-import numpy as np
+from pkg_resources import parse_version
 import requests
 from simbad.util.pdb_util import PdbStructure
 
@@ -47,12 +49,11 @@ class ModelData(object):
 
     @property
     def name(self):
-        fields = self._get_child_attr('hit', 'name').split("-")
-        return fields[1] + fields[2][2:]
+        return self._get_child_attr('hit', 'name')
 
     @property
     def model_id(self):
-        return self._get_child_attr('hit', 'name').split("-")[1]
+        return self._get_child_attr('hit', 'name')
 
     @property
     def range(self):
@@ -117,20 +118,23 @@ class ModelData(object):
         return out_str
 
 
-def models_from_hits(hits):
+def models_from_hits(hits, plddt_cutoff):
     if not os.path.isdir(AF2_DIR):
         os.mkdir(AF2_DIR)
     if not os.path.isdir(MODELS_DIR):
         os.mkdir(MODELS_DIR)
+
+    db_ver = get_afdb_version()
     models = OrderedDict()
     for hit in hits.values():
         mlog = ModelData()
         mlog.hit = hit
         hit._homolog = mlog
-        mlog.model_url = AF_BASE_URL + hit.pdb_id.split('-')[1]
+        mlog.model_url = AF_BASE_URL + hit.pdb_id
         try:
             mlog.pdb_file, mlog.molecular_weight, \
-            mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, mlog.date_made, mlog.plddt_regions = prepare_pdb(hit)
+            mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, \
+            mlog.date_made, mlog.plddt_regions = prepare_pdb(hit, plddt_cutoff, db_ver)
         except PdbModelException as e:
             logger.critical("Error processing pdb: %s", e.message)
             continue
@@ -145,13 +149,13 @@ def download_model(pdb_name):
     return query.text
 
 
-def prepare_pdb(hit):
+def prepare_pdb(hit, plddt_cutoff, database_version):
     """
     Download pdb or take file from cache
     trucate to required residues
     calculate the MW
     """
-    pdb_name = "{0}_{1}.pdb".format(hit.pdb_id, hit.chain_id)
+    pdb_name = "AF-{0}-F1-model_{1}.pdb".format(hit.pdb_id, database_version)
     pdb_struct = PdbStructure()
     try:
         pdb_string = download_model(pdb_name)
@@ -176,10 +180,14 @@ def prepare_pdb(hit):
     h_score = calculate_quality_h_score(pdb_struct.structure)
     plddt_regions = get_plddt_regions(pdb_struct.structure, hit.seq_ali)
 
+    # Remove residues below threshold
+    if plddt_cutoff != "None":
+        pdb_struct.structure = remove_residues_below_plddt_threshold(pdb_struct.structure, int(plddt_cutoff))
+
     # Convert plddt to bfactor score
     pdb_struct.structure = convert_plddt_to_bfactor(pdb_struct.structure)
 
-    truncated_pdb_name = "{}_{}_{}-{}.pdb".format(hit.pdb_id, hit.chain_id, hit.hit_start, hit.hit_stop)
+    truncated_pdb_name = "{}_{}_{}-{}.pdb".format(hit.pdb_id, database_version, hit.hit_start, hit.hit_stop)
     truncated_pdb_path = os.path.join(MODELS_DIR, truncated_pdb_name)
     pdb_struct.save(truncated_pdb_path,
                     remarks=["PHASER ENSEMBLE MODEL 1 ID {}".format(hit.local_sequence_identity)])
@@ -203,6 +211,17 @@ def calculate_quality_h_score(struct):
             score = i
             break
     return score
+
+
+def get_afdb_version():
+    """Query the FTP site to find the latest version of the AFDB"""
+    ftp_host = "ftp.ebi.ac.uk"
+    ftp_user = "anonymous"
+    ftp_pass = ""
+    ftp = ftplib.FTP(ftp_host, ftp_user, ftp_pass)
+    ftp.cwd('/pub/databases/alphafold/')
+    versions = [x for x in ftp.nlst() if x.startswith('v')]
+    return max(versions, key=parse_version)
 
 
 def get_plddt(struct):
@@ -278,3 +297,16 @@ def _convert_plddt_to_bfactor(plddt):
     if bfactor > 999.99:
         return 999.99
     return bfactor
+
+
+def remove_residues_below_plddt_threshold(struct, plddt_cutoff):
+    to_remove = []
+    for chain in struct[0]:
+        for i, residue in enumerate(chain):
+            plddt_value = residue[0].b_iso
+            if plddt_value < plddt_cutoff:
+                to_remove.append(i)
+
+        for i in to_remove[::-1]:
+            del chain[i]
+    return struct
