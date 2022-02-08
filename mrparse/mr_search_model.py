@@ -15,22 +15,21 @@ logger = logging.getLogger(__name__)
 
 
 class SearchModelFinder(object):
-    def __init__(self, seq_info, hkl_info=None, pdb_dir=None, search_engine=None, phmmer_dblvl=None,
-                 plddt_cutoff=None, hhsearch_exe=None, hhsearch_db=None):
+    def __init__(self, seq_info, **kwargs):
         self.seq_info = seq_info
-        self.hkl_info = hkl_info
-        self.pdb_dir = pdb_dir
-        self.search_engine = search_engine
-        self.phmmer_dblvl = phmmer_dblvl
-        self.plddt_cutoff = plddt_cutoff
-        self.hhsearch_exe = hhsearch_exe
-        self.hhsearch_db = hhsearch_db
+        self.hkl_info = kwargs.get("hkl_info", None)
+        self.pdb_dir = kwargs.get("pdb_dir", None)
+        self.search_engine = kwargs.get("search_engine", "phmmer")
+        self.phmmer_dblvl = kwargs.get("phmmer_dblvl", 95)
+        self.plddt_cutoff = kwargs.get("plddt_cutoff", 70)
+        self.hhsearch_exe = kwargs.get("hhsearch_exe", None)
+        self.hhsearch_db = kwargs.get("hhsearch_db", None)
         self.hits = None
         self.model_hits = None
         self.regions = None
         self.model_regions = None
-        self.homologs = None
-        self.models = None
+        self.homologs = {}
+        self.models = {}
 
     def __call__(self):
         """Required so that we can use multiprocessing pool. We need to be able to pickle the object passed

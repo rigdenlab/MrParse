@@ -18,7 +18,7 @@ def get_N_HexCol(N=5):
     hex_out = []
     for rgb in HSV_tuples:
         rgb = map(lambda x: int(x * 255), colorsys.hsv_to_rgb(*rgb))
-        hex_out.append("".join(map(lambda x: chr(x).encode('hex'), rgb)))
+        hex_out.append("".join(map(lambda x: str(x).encode("utf-8").hex(), rgb)))
     return ['#' + h for h in hex_out]
 
 

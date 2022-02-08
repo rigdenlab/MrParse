@@ -182,6 +182,7 @@ def prepare_pdb(hit, plddt_cutoff, database_version):
 
     # Remove residues below threshold
     if plddt_cutoff != "None":
+        logger.debug(plddt_cutoff)
         pdb_struct.structure = remove_residues_below_plddt_threshold(pdb_struct.structure, int(plddt_cutoff))
 
     # Convert plddt to bfactor score
