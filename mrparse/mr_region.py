@@ -7,6 +7,7 @@ Created on 18 Oct 2018
 from operator import attrgetter
 from mrparse.mr_hit import sort_hits_by_size
 
+
 class RegionData:
     def __init__(self):
         self.target_name = ""
@@ -14,7 +15,7 @@ class RegionData:
         self.midpoint = 0
         self.extent = 0
         self.matches = []
-    
+
     @property
     def start_stop(self):
         assert self.midpoint >= 0 or self.extent >= 0, "Need non-zero midpoint and extent!"
@@ -26,13 +27,13 @@ class RegionData:
     @property
     def id(self):
         return self.index + 1
-        
+
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
-        INDENT = "  "
-        out_str = "Class: {}\nData:\n".format(self.__class__)
+        indent = "  "
+        out_str = f"Class: {self.__class__}\nData:\n"
         for a in sorted(attrs):
-            out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
+            out_str += indent + f"{a} : {self.__dict__[a]}\n"
         return out_str
 
 
@@ -47,40 +48,36 @@ class RegionFinder(object):
             hits = sort_hits_by_size(hits, ascending=True)
         target_regions = []
         for hit in hits.values():
-#             print "CHECKING HIT %s %s %s" % (hit.name, hit.hit_extent, hit.hit_midpoint)
             self.create_or_update_region(hit, target_regions)
         if sort:
             target_regions = self.sort_regions(target_regions)
         return target_regions
-    
+
     def create_or_update_region(self, hit, target_regions):
         for region in target_regions:
-#             print "Checking region %s %s %s" % (region.id, region.extent, region.midpoint)
             if self.hit_within_region(hit, region):
-#                 print "WITHIN"
                 return self.update_region(hit, region)
         self.add_new_region(hit, target_regions)
         return
 
-    def hit_within_region(self, hit, region, extentTolerance=50, midpointTolerance=20):
-#         print "e- %s e+ %s m- %s m+ %s" % (region.extent - extentTolerance,
-#                                            region.extent + extentTolerance,
-#                                            region.midpoint - midpointTolerance,
-#                                            region.midpoint + midpointTolerance)
-        if hit.query_extent >= region.extent - extentTolerance and \
-            hit.query_extent <= region.extent + extentTolerance and \
-            hit.query_midpoint >= region.midpoint - midpointTolerance and \
-            hit.query_midpoint <= region.midpoint + midpointTolerance:
-            return True
+    @staticmethod
+    def hit_within_region(hit, region, extent_tolerance=50, midpoint_tolerance=20):
+        if hit.query_extent >= region.extent - extent_tolerance:
+            if hit.query_extent <= region.extent + extent_tolerance:
+                if hit.query_midpoint >= region.midpoint - midpoint_tolerance:
+                    if hit.query_midpoint <= region.midpoint + midpoint_tolerance:
+                        return True
         return False
 
-    def update_region(self, hit, region):
+    @staticmethod
+    def update_region(hit, region):
         # Should we update the midpoint and extent of the region?
         region.matches.append(hit)
         hit.region = region
         return
-    
-    def add_new_region(self, hit, target_regions):
+
+    @staticmethod
+    def add_new_region(hit, target_regions):
         region = RegionData()
         region.index = len(target_regions)
         region.midpoint = hit.query_midpoint
@@ -89,13 +86,15 @@ class RegionFinder(object):
         target_regions.append(region)
         hit.region = region
         return target_regions
-    
-    def sort_regions(self, regions, ascending=False):
-        reverse = not(ascending)
+
+    @staticmethod
+    def sort_regions(regions, ascending=False):
+        reverse = not ascending
         # Need to think about better ways of sorting - probably store reference to hit in region?
         regions = sorted(regions, key=attrgetter('extent'), reverse=reverse)
+
         # The matches and ranges also need to be sorted
-        for i, r in enumerate(regions):
-            r.index = i
-            r.matches.reverse()
+        for i, region in enumerate(regions):
+            region.index = i
+            region.matches.reverse()
         return regions

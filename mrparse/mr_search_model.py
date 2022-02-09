@@ -15,36 +15,36 @@ logger = logging.getLogger(__name__)
 
 
 class SearchModelFinder(object):
-    def __init__(self, seq_info, hkl_info=None, pdb_dir=None, search_engine=None, phmmer_dblvl=None,
-                 hhsearch_exe=None, hhsearch_db=None):
+    def __init__(self, seq_info, **kwargs):
         self.seq_info = seq_info
-        self.hkl_info = hkl_info
-        self.pdb_dir = pdb_dir
-        self.search_engine = search_engine
-        self.phmmer_dblvl = phmmer_dblvl
-        self.hhsearch_exe = hhsearch_exe
-        self.hhsearch_db = hhsearch_db
+        self.hkl_info = kwargs.get("hkl_info", None)
+        self.pdb_dir = kwargs.get("pdb_dir", None)
+        self.search_engine = kwargs.get("search_engine", "phmmer")
+        self.phmmer_dblvl = kwargs.get("phmmer_dblvl", 95)
+        self.plddt_cutoff = kwargs.get("plddt_cutoff", 70)
+        self.hhsearch_exe = kwargs.get("hhsearch_exe", None)
+        self.hhsearch_db = kwargs.get("hhsearch_db", None)
         self.hits = None
         self.model_hits = None
         self.regions = None
         self.model_regions = None
-        self.homologs = None
-        self.models = None
+        self.homologs = {}
+        self.models = {}
 
     def __call__(self):
         """Required so that we can use multiprocessing pool. We need to be able to pickle the object passed
         to the pool and instance methods don't work, so we add the object to the pool and define __call__
         https://stackoverflow.com/questions/1816958/cant-pickle-type-instancemethod-when-using-multiprocessing-pool-map/6975654#6975654
         """
-        logger.debug('SearchModelFinder started at %s' % now())
+        logger.debug(f'SearchModelFinder started at {now()}')
         self.find_homolog_regions()
-        logger.debug('SearchModelFinder homolog regions done at %s' % now())
+        logger.debug(f'SearchModelFinder homolog regions done at {now()}')
         self.prepare_homologs()
-        logger.debug('SearchModelFinder homologs done at %s' % now())
+        logger.debug(f'SearchModelFinder homologs done at {now()}')
         self.find_model_regions()
-        logger.debug('SearchModelFinder model regions done at %s' % now())
+        logger.debug(f'SearchModelFinder model regions done at {now()}')
         self.prepare_models()
-        logger.debug('SearchModelFinder models done at %s' % now())
+        logger.debug(f'SearchModelFinder models done at {now()}')
         return self
     
     def find_homolog_regions(self):
@@ -77,7 +77,7 @@ class SearchModelFinder(object):
     def prepare_models(self):
         if not self.model_hits and self.model_regions:
             return None
-        self.models = mr_alphafold.models_from_hits(self.model_hits)
+        self.models = mr_alphafold.models_from_hits(self.model_hits, self.plddt_cutoff)
         return self.models
 
     def homologs_as_dicts(self):

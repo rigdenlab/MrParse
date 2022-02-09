@@ -1,6 +1,7 @@
 import json
 import multiprocessing
 import os
+from pathlib import Path
 import subprocess
 import sys
 
@@ -14,9 +15,9 @@ from mrparse.mr_sequence import Sequence, MultipleSequenceException, merge_multi
 from mrparse.mr_classify import MrClassifier
 from mrparse.mr_version import __version__
 
-THIS_DIR = os.path.abspath(os.path.dirname(__file__))
-HTML_DIR = os.path.join(THIS_DIR, 'html')
-HTML_TEMPLATE = os.path.join(HTML_DIR, 'mrparse.html.jinja2')
+THIS_DIR = Path(__file__).parent.resolve()
+HTML_DIR = THIS_DIR.joinpath('html')
+HTML_TEMPLATE = HTML_DIR.joinpath('mrparse.html.jinja2')
 HTML_OUT = 'mrparse.html'
 HOMOLOGS_JS = 'homologs.json'
 MODELS_JS = 'models.json'
@@ -24,35 +25,48 @@ MODELS_JS = 'models.json'
 logger = None
 
 
-def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None, phmmer_dblvl=None, search_engine=None,
-        tmhmm_exe=None, deepcoil_exe=None, hhsearch_exe=None, hhsearch_db=None, ccp4cloud=None):
+def run(seqin, **kwargs):
+    # Get any input kwargs
+    hklin = kwargs.get('hklin', None)
+    run_serial = kwargs.get('run_serial', None)
+    do_classify = kwargs.get('do_classify', None)
+    pdb_dir = kwargs.get('pdb_dir', None)
+    phmmer_dblvl = kwargs.get('phmmer_dblvl', None)
+    plddt_cutoff = kwargs.get('plddt_cutoff', None)
+    search_engine = kwargs.get('search_engine', None)
+    tmhmm_exe = kwargs.get('tmhmm_exe', None)
+    deepcoil_exe = kwargs.get('deepcoil_exe', None)
+    hhsearch_exe = kwargs.get('hhsearch_exe', None)
+    hhsearch_db = kwargs.get('hhsearch_db', None)
+    ccp4cloud = kwargs.get('ccp4cloud', None)
+
     # Need to make a work directory first as all logs go into there
     work_dir = make_workdir()
     os.chdir(work_dir)
     global logger
     logger = setup_logging()
-    program_name = os.path.basename(sys.argv[0])
-    logger.info("Running: %s", program_name)
-    logger.info("Version: %s", __version__)
-    logger.info("Program started at: %s", now())
-    logger.info("Running from directory: %s", work_dir)
+    program_name = Path(sys.argv[0]).parent
+    logger.info(f"Running: {program_name}")
+    logger.info(f"Version: {__version__}")
+    logger.info(f"Program started at: {now()}")
+    logger.info(f"Running from directory: {work_dir}")
 
-    if not (seqin and os.path.isfile(seqin)):
-        raise RuntimeError("Cannot find seqin file: %s" % seqin)
-    logger.info("Running with seqin %s", os.path.abspath(seqin))
+    if not (seqin and Path(seqin).exists()):
+        raise RuntimeError(f"Cannot find seqin file: {seqin}")
+    logger.info(f"Running with seqin {Path(seqin).resolve()}")
 
     try:
         seq_info = Sequence(seqin)
     except MultipleSequenceException:
-        logger.info("Multiple sequences found seqin: %s\n\nAttempting to merge sequences", seqin)
+        logger.info(f"Multiple sequences found seqin: {seqin}\n\nAttempting to merge sequences")
         seq_info = merge_multiple_sequences(seqin)
-        logger.info("Merged sequence file: %s", seq_info.sequence_file)
+        logger.info(f"Merged sequence file: {seq_info.sequence_file}")
 
     hkl_info = None
     if hklin:
         if not os.path.isfile(hklin):
-            raise RuntimeError("Cannot find hklin file: %s" % hklin)
-        logger.info("Running with hklin %s", os.path.abspath(hklin))
+            raise RuntimeError(f"Cannot find hklin file: {hklin}")
+        logger.info(f"Running with hklin {Path(hklin).resolve()}")
         hkl_info = HklInfo(hklin, seq_info=seq_info)
 
     if search_engine == "hhsearch":
@@ -62,8 +76,8 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None, phm
             raise RuntimeError("HHSearch database needs to be defined with --hhsearch_db")
 
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir, phmmer_dblvl=phmmer_dblvl,
-                                            search_engine=search_engine, hhsearch_exe=hhsearch_exe,
-                                            hhsearch_db=hhsearch_db)
+                                            plddt_cutoff=plddt_cutoff, search_engine=search_engine,
+                                            hhsearch_exe=hhsearch_exe, hhsearch_db=hhsearch_db)
 
     classifier = None
     if do_classify:
@@ -77,10 +91,8 @@ def run(seqin, hklin=None, run_serial=False, do_classify=True, pdb_dir=None, phm
                                                                          hkl_info,
                                                                          do_classify)
 
-    #     results_json = get_results_json(search_model_finder, hkl_info=hkl_info, classifier=classifier)
-    #     html_out = write_output_files(results_json)
     html_out = write_output_files(search_model_finder, hkl_info=hkl_info, classifier=classifier, ccp4cloud=ccp4cloud)
-    logger.info("Wrote MrParse output file: %s", html_out)
+    logger.info(f"Wrote MrParse output file: {html_out}")
 
     if not ccp4cloud:
         opencmd = None
@@ -97,25 +109,25 @@ def run_analyse_serial(search_model_finder, classifier, hkl_info, do_classify):
     try:
         search_model_finder()
     except Exception as e:
-        logger.critical('SearchModelFinder failed: %s' % e)
+        logger.critical(f'SearchModelFinder failed: {e}')
         logger.debug("Traceback is:", exc_info=sys.exc_info())
     if do_classify:
         try:
             classifier()
         except Exception as e:
-            logger.critical('MrClassifier failed: %s' % e)
+            logger.critical(f'MrClassifier failed: {e}')
             logger.debug("Traceback is:", exc_info=sys.exc_info())
     if hkl_info:
         try:
             hkl_info()
         except Exception as e:
-            logger.critical('HklInfo failed: %s' % e)
+            logger.critical(f'HklInfo failed: {e}')
             logger.debug("Traceback is:", exc_info=sys.exc_info())
 
 
 def run_analyse_parallel(search_model_finder, classifier, hkl_info, do_classify):
     nproc = 3 if hkl_info else 2
-    logger.info("Running on %d processors." % nproc)
+    logger.info(f"Running on {nproc} processors.")
     pool = multiprocessing.Pool(nproc)
     smf_result = pool.apply_async(search_model_finder)
 
@@ -130,19 +142,19 @@ def run_analyse_parallel(search_model_finder, classifier, hkl_info, do_classify)
     try:
         search_model_finder = smf_result.get()
     except Exception as e:
-        logger.critical('SearchModelFinder failed: %s' % e)
+        logger.critical(f'SearchModelFinder failed: {e}')
         logger.debug("Traceback is:", exc_info=sys.exc_info())
     if do_classify:
         try:
             classifier = mrc_result.get()
         except Exception as e:
-            logger.critical('MrClassifier failed: %s' % e)
+            logger.critical(f'MrClassifier failed: {e}')
             logger.debug("Traceback is:", exc_info=sys.exc_info())
     if hkl_info:
         try:
             hkl_info = hklin_result.get()
         except Exception as e:
-            logger.critical('HklInfo failed: %s' % e)
+            logger.critical(f'HklInfo failed: {e}')
             logger.debug("Traceback is:", exc_info=sys.exc_info())
     return search_model_finder, classifier, hkl_info
 
@@ -154,8 +166,7 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4
     homologs_pfam = {}
     try:
         homologs = search_model_finder.homologs_as_dicts()
-        homologs_js_out = os.path.abspath(HOMOLOGS_JS)
-        with open(homologs_js_out, 'w') as w:
+        with open(HOMOLOGS_JS, 'w') as w:
             w.write(json.dumps(homologs))
         homologs_pfam = search_model_finder.homologs_with_graphics()
         if ccp4cloud:
@@ -167,7 +178,7 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4
     models_pfam = {}
     try:
         models = search_model_finder.models_as_dicts()
-        models_js_out = os.path.abspath(MODELS_JS)
+        models_js_out = Path(MODELS_JS).resolve()
         with open(models_js_out, 'w') as w:
             w.write(json.dumps(models))
         models_pfam = search_model_finder.models_with_graphics()
@@ -186,7 +197,7 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4
             del results_dict['hkl_info']['hklin']
     results_json = json.dumps(results_dict)
 
-    html_out = os.path.abspath(HTML_OUT)
+    html_out = Path(HTML_OUT).resolve()
     render_template(HTML_TEMPLATE, html_out,
                     # kwargs appear as variables in the template
                     mrparse_html_dir=HTML_DIR,
@@ -201,15 +212,15 @@ def render_template(in_file_path, out_file_path, **kwargs):
 
     Parameters
     ----------
-    in_file_path : str
+    in_file_path : Path
        The path to the template
-    out_file_path : str
+    out_file_path : Path
        The path to output the templated file
     **kwargs : dict
        Variables to use in templating
     """
-    env = Environment(loader=FileSystemLoader(os.path.dirname(in_file_path)), keep_trailing_newline=True)
-    template = env.get_template(os.path.basename(in_file_path))
+    env = Environment(loader=FileSystemLoader(in_file_path.parent), keep_trailing_newline=True)
+    template = env.get_template(in_file_path.name)
     output = template.render(**kwargs)
-    with open(out_file_path, "w") as f:
+    with open(str(out_file_path), "w") as f:
         f.write(output)

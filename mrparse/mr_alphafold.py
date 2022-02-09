@@ -4,12 +4,14 @@ Created on 23 Jul 2021
 @author: hlasimpk
 """
 from collections import OrderedDict
+import ftplib
 import gemmi
 from itertools import groupby
 import logging
-from operator import itemgetter
-import os
 import numpy as np
+from operator import itemgetter
+from pathlib import Path
+from pkg_resources import parse_version
 import requests
 from simbad.util.pdb_util import PdbStructure
 
@@ -19,8 +21,8 @@ class PdbModelException(Exception):
 
 
 AF_BASE_URL = 'https://alphafold.ebi.ac.uk/entry/'
-AF2_DIR = 'AF2_files'
-MODELS_DIR = 'models'
+AF2_DIR = Path('AF2_files')
+MODELS_DIR = Path('models')
 
 logger = logging.getLogger(__name__)
 
@@ -47,12 +49,11 @@ class ModelData(object):
 
     @property
     def name(self):
-        fields = self._get_child_attr('hit', 'name').split("-")
-        return fields[1] + fields[2][2:]
+        return self._get_child_attr('hit', 'name')
 
     @property
     def model_id(self):
-        return self._get_child_attr('hit', 'name').split("-")[1]
+        return self._get_child_attr('hit', 'name')
 
     @property
     def range(self):
@@ -110,29 +111,32 @@ class ModelData(object):
 
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
-        line_template = "  {} : {}\n"
-        out_str = "Class: {}\nData:\n".format(self.__class__)
+        out_str = f"Class: {self.__class__}\nData:\n"
         for a in sorted(attrs):
-            out_str += line_template.format(a, self.__dict__[a])
+            out_str += f"  {a} : {self.__dict__[a]}\n"
         return out_str
 
 
-def models_from_hits(hits):
-    if not os.path.isdir(AF2_DIR):
-        os.mkdir(AF2_DIR)
-    if not os.path.isdir(MODELS_DIR):
-        os.mkdir(MODELS_DIR)
+def models_from_hits(hits, plddt_cutoff):
+    if not AF2_DIR.exists():
+        AF2_DIR.mkdir()
+    if not MODELS_DIR.exists():
+        MODELS_DIR.mkdir()
+
+    db_ver = get_afdb_version()
     models = OrderedDict()
     for hit in hits.values():
         mlog = ModelData()
         mlog.hit = hit
         hit._homolog = mlog
-        mlog.model_url = AF_BASE_URL + hit.pdb_id.split('-')[1]
+        mlog.model_url = AF_BASE_URL + hit.pdb_id
         try:
             mlog.pdb_file, mlog.molecular_weight, \
-            mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, mlog.date_made, mlog.plddt_regions = prepare_pdb(hit)
+            mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, \
+            mlog.date_made, mlog.plddt_regions = prepare_pdb(hit, plddt_cutoff, db_ver)
         except PdbModelException as e:
-            logger.critical("Error processing hit pdb %s", e.message)
+            logger.critical(f"Error processing pdb: {e}")
+            continue
         models[mlog.name] = mlog
     return models
 
@@ -144,13 +148,13 @@ def download_model(pdb_name):
     return query.text
 
 
-def prepare_pdb(hit):
+def prepare_pdb(hit, plddt_cutoff, database_version):
     """
     Download pdb or take file from cache
     trucate to required residues
     calculate the MW
     """
-    pdb_name = "{0}_{1}.pdb".format(hit.pdb_id, hit.chain_id)
+    pdb_name = f"AF-{hit.pdb_id}-F1-model_{database_version}.pdb"
     pdb_struct = PdbStructure()
     try:
         pdb_string = download_model(pdb_name)
@@ -158,26 +162,36 @@ def prepare_pdb(hit):
         date_made = pdb_string.split('\n')[0].split()[-1]
     except RuntimeError:
         # SIMBAD currently raises an empty RuntimeError for download problems.
-        raise PdbModelException("Error downloading PDB file for: {}".format(hit.pdb_id))
-    pdb_file = os.path.join(AF2_DIR, pdb_name)
-    pdb_struct.save(pdb_file)
+        raise PdbModelException(f"Error downloading PDB file for: {hit.pdb_id}")
+
+    pdb_file = AF2_DIR.joinpath(pdb_name)
+    pdb_struct.save(str(pdb_file))
 
     seqid_range = range(hit.hit_start, hit.hit_stop + 1)
-    pdb_struct.select_residues(to_keep_idx=seqid_range)
+    try:
+        pdb_struct.select_residues(to_keep_idx=seqid_range)
+    except IndexError:
+        # SIMBAD occasionally raises an empty IndexError when selecting residues.
+        raise PdbModelException(f"Error selecting residues for: {hit.pdb_id}")
 
     avg_plddt = calculate_avg_plddt(pdb_struct.structure)
     sum_plddt = calculate_sum_plddt(pdb_struct.structure)
     h_score = calculate_quality_h_score(pdb_struct.structure)
     plddt_regions = get_plddt_regions(pdb_struct.structure, hit.seq_ali)
 
+    # Remove residues below threshold
+    if plddt_cutoff != "None":
+        logger.debug(plddt_cutoff)
+        pdb_struct.structure = remove_residues_below_plddt_threshold(pdb_struct.structure, int(plddt_cutoff))
+
     # Convert plddt to bfactor score
     pdb_struct.structure = convert_plddt_to_bfactor(pdb_struct.structure)
 
-    truncated_pdb_name = "{}_{}_{}-{}.pdb".format(hit.pdb_id, hit.chain_id, hit.hit_start, hit.hit_stop)
-    truncated_pdb_path = os.path.join(MODELS_DIR, truncated_pdb_name)
-    pdb_struct.save(truncated_pdb_path,
-                    remarks=["PHASER ENSEMBLE MODEL 1 ID {}".format(hit.local_sequence_identity)])
-    return truncated_pdb_path, int(pdb_struct.molecular_weight), avg_plddt, sum_plddt, h_score, date_made, plddt_regions
+    truncated_pdb_name = f"{hit.pdb_id}_{database_version}_{hit.hit_start}-{hit.hit_stop}.pdb"
+    truncated_pdb_path = MODELS_DIR.joinpath(truncated_pdb_name)
+    pdb_struct.save(str(truncated_pdb_path),
+                    remarks=[f"PHASER ENSEMBLE MODEL 1 ID {hit.local_sequence_identity}"])
+    return str(truncated_pdb_path), int(pdb_struct.molecular_weight), avg_plddt, sum_plddt, h_score, date_made, plddt_regions
 
 
 def calculate_quality_threshold(struct, plddt_threshold=70):
@@ -197,6 +211,17 @@ def calculate_quality_h_score(struct):
             score = i
             break
     return score
+
+
+def get_afdb_version():
+    """Query the FTP site to find the latest version of the AFDB"""
+    ftp_host = "ftp.ebi.ac.uk"
+    ftp_user = "anonymous"
+    ftp_pass = ""
+    ftp = ftplib.FTP(ftp_host, ftp_user, ftp_pass)
+    ftp.cwd('/pub/databases/alphafold/')
+    versions = [x for x in ftp.nlst() if x.startswith('v')]
+    return max(versions, key=parse_version)
 
 
 def get_plddt(struct):
@@ -269,6 +294,17 @@ def _convert_plddt_to_bfactor(plddt):
         return 657.97  # Same as the b-factor value with an rmsd estimate of 5.0
     rmsd_est = (0.6 / (lddt ** 3))
     bfactor = ((8 * (np.pi ** 2)) / 3.0) * (rmsd_est ** 2)
-    if bfactor > 999.99:
-        return 999.99
     return bfactor
+
+
+def remove_residues_below_plddt_threshold(struct, plddt_cutoff):
+    to_remove = []
+    for chain in struct[0]:
+        for i, residue in enumerate(chain):
+            plddt_value = residue[0].b_iso
+            if plddt_value < plddt_cutoff:
+                to_remove.append(i)
+
+        for i in to_remove[::-1]:
+            del chain[i]
+    return struct

@@ -17,7 +17,6 @@ class AnnotationSymbol(object):
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-#             return self.__dict__ == other.__dict__
             return other.stype == self.stype
         else:
             return False
@@ -27,10 +26,10 @@ class AnnotationSymbol(object):
 
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
-        INDENT = "  "
-        out_str = "Class: {}\nData:\n".format(self.__class__)
+        indent = "  "
+        out_str = f"Class: {self.__class__}\nData:\n"
         for a in sorted(attrs):
-            out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
+            out_str += indent + f"{a} : {self.__dict__[a]}\n"
         return out_str
 
 
@@ -53,7 +52,7 @@ class SequenceAnnotation(object):
 
     def add_annotation(self, annotation):
         if annotation != NULL_ANNOTATION:
-            assert self.annotation_is_significant(annotation), "Cannot find: %s" % annotation
+            assert self.annotation_is_significant(annotation), f"Cannot find: {annotation}"
         self.annotation += annotation.symbol
         self.scores.append(annotation.score)
 
@@ -106,10 +105,10 @@ class SequenceAnnotation(object):
 
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
-        INDENT = "  "
-        out_str = "Class: {}\nData:\n".format(self.__class__)
+        indent = "  "
+        out_str = f"Class: {self.__class__}\nData:\n"
         for a in sorted(attrs):
-            out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
+            out_str += indent + f"{a} : {self.__dict__[a]}\n"
         return out_str
 
 
@@ -121,10 +120,10 @@ class AnnotationChunk(object):
 
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
-        INDENT = "  "
-        out_str = "Class: {}\nData:\n".format(self.__class__)
+        indent = "  "
+        out_str = f"Class: {self.__class__}\nData:\n"
         for a in sorted(attrs):
-            out_str += INDENT + "{} : {}\n".format(a, self.__dict__[a])
+            out_str += indent + f"{a} : {self.__dict__[a]}\n"
         return out_str
 
 
@@ -146,7 +145,4 @@ def get_annotation_chunks(annotation):
                 chunk.end = i
                 chunks.append(chunk)
                 chunk = None
-    if chunk:
-        chunk.end = i
-        chunks.append(chunk)
     return chunks

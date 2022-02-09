@@ -6,6 +6,7 @@ Created on 16 Nov 2018
 
 import logging
 import os
+from pathlib import Path
 import shutil
 import time
 import zipfile
@@ -34,15 +35,14 @@ class TMPred(object):
     def __init__(self, seq_info):
         self.seq_info = seq_info
         self.prediction = None
-        script_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),'scripts')
-        self.topcons_script = os.path.join(script_dir, 'topcons2_wsdl.py')
+        self.topcons_script = str(Path(__file__).parent.resolve().joinpath('scripts', 'topcons2_wsdl.py'))
         self.poll_time = POLL_TIME
         self.max_poll_time = MAX_POLL_TIME
 
     def parse_topcons_directory(self, results_dir):
-        assert os.path.isdir(results_dir), "Cannot find directory: %s" % results_dir
-        results_file = os.path.join(results_dir, 'query.result.txt')
-        return self.parse_topcons_output(results_file)
+        assert Path(results_dir).exists(), f"Cannot find directory: {results_dir}"
+        results_file = Path(results_dir, 'query.result.txt')
+        return self.parse_topcons_output(str(results_file))
 
     @staticmethod
     def parse_topcons_output(results_file):
@@ -97,6 +97,11 @@ class TMPred(object):
         # normalise to between 0.0 and 1.0
         probabilities = [p / 100.0 if p > 0.0 else 0.0 for p in _probabilities]
         return probabilities
+
+    @staticmethod
+    def cleanup(results_dir):
+        if Path(results_dir).exists():
+            shutil.rmtree(results_dir)
     
     def run_topcons(self, seqin):
         jobid = self.submit_job(seqin)
@@ -104,7 +109,7 @@ class TMPred(object):
         while True:
             elapsed_time = time.time() - start
             if elapsed_time > self.max_poll_time:
-                raise OutOfTimeException("Exceed maximum runtime of: %d" % self.max_poll_time)
+                raise OutOfTimeException(f"Exceed maximum runtime of: {self.max_poll_time}")
             if self.job_finished(jobid):
                 break
             time.sleep(self.poll_time)
@@ -119,7 +124,7 @@ class TMPred(object):
             if line.startswith("You have successfully submitted your job"):
                 jobid = line.split('=')[1].strip()
         if jobid is None:
-            raise RuntimeError("Error submitting topcons job: %s" % out)
+            raise RuntimeError(f"Error submitting topcons job: {out}")
         return jobid
         
     def job_finished(self, jobid):
@@ -134,33 +139,29 @@ class TMPred(object):
             if line.endswith("finished!"):
                 _jobid = line.split()[4]
                 if _jobid != jobid:
-                    raise RuntimeError("Error collecting topcons job: %s" % out)
+                    raise RuntimeError(f"Error collecting topcons job: {out}")
                 else:
                     return True
             elif line.endswith("Please check you typing!"):
-                raise RuntimeError("Incorrect jobid: %s" % jobid)
+                raise RuntimeError(f"Incorrect jobid: {jobid}")
         return False
 
     
     def get_results(self, jobid):
         ziparchive = jobid + '.zip'
         if not zipfile.is_zipfile(ziparchive):
-            raise RuntimeError('File is not a valid zip archive: {0}'.format(ziparchive))
+            raise RuntimeError(f'File is not a valid zip archive: {ziparchive}')
         zipf = zipfile.ZipFile(ziparchive)
         if not zipf.infolist():
-            raise RuntimeError('Empty zip file: {0}'.format(ziparchive))
+            raise RuntimeError(f'Empty zip file: {ziparchive}')
         zipf.extractall()
-        assert os.path.isdir(jobid)
-        return os.path.abspath(jobid)
-    
-    def cleanup(self, results_dir):
-        if os.path.isdir(results_dir):
-            shutil.rmtree(results_dir)
+        assert Path(jobid).exists()
+        return Path(jobid).resolve()
     
     def get_prediction(self):
-        logger.debug("TMPred starting prediction at: %s" % now())
+        logger.debug(f"TMPred starting prediction at: {now()}")
         topcons_dir = self.run_topcons(self.seq_info.sequence_file)
         prediction, scores = self.parse_topcons_directory(topcons_dir)
         self.prediction = self.create_annotation(prediction, scores)
-        logger.debug("TMPred finished prediction at: %s" % now())
-        #self.cleanup()
+        logger.debug(f"TMPred finished prediction at: {now()}")
+        self.cleanup(topcons_dir)

@@ -1,9 +1,9 @@
 #!/usr/bin/env ccp4-python
-'''
+"""
 Created on 26 Oct 2018
 
 @author: jmht
-'''
+"""
 import set_mrparse_path
 from mrparse.mr_sequence import Sequence
 from mrparse.mr_homolog import homologs_from_hits
@@ -17,21 +17,17 @@ def test_homologs(test_data, get_2uvo_test_hits):
     RegionFinder().find_regions_from_hits(hits)
     homologs = homologs_from_hits(hits, pdb_dir=test_data.pdb_dir)
     add_pfam_dict_to_homologs(homologs, seq_info.nresidues)
-    
+
     assert len(homologs) == 14
-    homolog = homologs.values()[0]
+    homolog = homologs["2x3t_C_1"]
     assert homolog.name == '2x3t_C_1'
     ali_start = homolog.hit.query_start
     pfam_ali_start = homolog._pfam_json['regions'][0]['aliStart']
     assert ali_start == pfam_ali_start
-#     {'regions': [{'startStyle': 'curved', 'end': 79, 'start': 2, 'aliStart': 2, 
-#                   'text': '1iqb_B_1', 'endStyle': 'curved', 'colour': '#7f7f3f', 
-#                   'aliEnd': 79, 'metadata': 
-#                   {'start': 2, 'end': 79, 'description': 'Homolog 1iqb_B_1 from region #2', 
-#                    'database': 'PHMMER search'}}], 'length': 171}
-    
+
 
 if __name__ == '__main__':
     import sys
     import pytest
+
     pytest.main([__file__] + sys.argv[1:])

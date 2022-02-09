@@ -1,7 +1,5 @@
 #!/usr/bin/env ccp4-python
 import set_mrparse_path
-import conftest
-
 import os
 from mrparse.mr_sequence import Sequence, merge_multiple_sequences
 from Bio import SeqIO

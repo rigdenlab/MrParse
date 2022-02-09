@@ -237,720 +237,230 @@ Domain search space  (domZ):              15  [number of targets reported over t
 [ok]
 """
 
-PHMMER_AF_LOG_TXT = """# phmmer :: search a protein sequence against a protein database
-# HMMER 3.2 (June 2018); http://hmmer.org/
-# Copyright (C) 2018 Howard Hughes Medical Institute.
-# Freely distributed under the BSD open source license.
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# query sequence file:             /Users/adamsimpkin/dev/mrparse_fresh/data/2uvoA.fasta
-# target sequence database:        /Users/adamsimpkin/opt/clean/ccp4-7.1/share/mrbump/data/seqAFDB.fasta
-# MSA of hits saved to file:       phmmerAlignment_af2.log
-# per-seq hits tabular output:     phmmerTblout_af2.log
-# per-dom hits tabular output:     phmmerDomTblout_af2.log
-# max ASCII text line length:      unlimited
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Query:       2UVO:A|PDBID|CHAIN|SEQUENCE  [L=171]
-Scores for complete sequences (score includes all domains):
-   --- full sequence ---   --- best 1 domain ---    -#dom-
-    E-value  score  bias    E-value  score  bias    exp  N  Sequence                  Description
-    ------- ------ -----    ------- ------ -----   ---- --  --------                  -----------
-    5.5e-74  253.2  98.2    7.1e-74  252.8  98.2    1.1  1  AF-Q0JF21-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 18552 : 87298 ] wmpLDDT: 85.88
-    2.8e-11   48.2  10.0    2.8e-11   48.2  10.0    2.2  2  AF-Q7Y1Z1-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 31625 : 87298 ] wmpLDDT: 85.53
-    3.9e-10   44.5  16.7    3.9e-10   44.5  16.7    2.8  1  AF-A0A1D6LMS5-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 6798 : 78598 ] wmpLDDT: 86.46
-    1.1e-09   43.0  15.2    1.1e-09   43.0  15.2    2.4  2  AF-Q7DNA1-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 5638 : 87298 ] wmpLDDT: 89.91
-    3.5e-09   41.4  10.5    3.5e-09   41.4  10.5    3.0  3  AF-Q9SDY6-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 27683 : 111598 ] wmpLDDT: 90.55
-    1.1e-08   39.8   8.0    1.1e-08   39.8   8.0    1.7  2  AF-C6T7J9-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 21501 : 111598 ] wmpLDDT: 88.34
-      2e-08   38.9  10.9      2e-08   38.9  10.9    2.7  2  AF-I1MMY2-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 14149 : 111598 ] wmpLDDT: 90.21
-    3.1e-08   38.3   8.5    3.1e-08   38.3   8.5    2.3  2  AF-Q6K8R2-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 2537 : 87298 ] wmpLDDT: 90.96
-    1.3e-07   36.3  15.4    1.3e-07   36.3  15.4    1.9  1  AF-B6TR38-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 271 : 78598 ] wmpLDDT: 90.07
-    1.5e-07   36.0  10.1    1.5e-07   36.0  10.1    2.2  2  AF-B6TT00-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 9220 : 78598 ] wmpLDDT: 91.82
-    1.7e-07   35.9  22.6    1.7e-07   35.9  22.6    2.7  2  AF-Q42993-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 13417 : 87298 ] wmpLDDT: 90.79
-      2e-07   35.7  21.9      2e-07   35.7  21.9    2.8  1  AF-P25765-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 27511 : 87298 ] wmpLDDT: 89.12
-    2.8e-07   35.2   9.6    2.8e-07   35.2   9.6    2.6  3  AF-O24603-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 20429 : 54868 ] wmpLDDT: 89.88
-      3e-07   35.1  14.9      3e-07   35.1  14.9    2.0  2  AF-P43082-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 17725 : 54868 ] wmpLDDT: 84.90
-    4.6e-07   34.5  19.1    4.6e-07   34.5  19.1    2.5  1  AF-A0A1D6LMS1-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 11432 : 78598 ] wmpLDDT: 90.27
-    4.9e-07   34.4  17.6    4.9e-07   34.4  17.6    2.4  2  AF-A0A1D6GWN3-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 28572 : 78598 ] wmpLDDT: 80.40
-    5.1e-07   34.3  12.1    5.1e-07   34.3  12.1    2.0  2  AF-O24598-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 5613 : 54868 ] wmpLDDT: 90.40
-    5.4e-07   34.2   8.6    5.4e-07   34.2   8.6    1.9  2  AF-Q9M2U5-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 20516 : 54868 ] wmpLDDT: 90.20
-    6.9e-07   33.9  11.4    6.9e-07   33.9  11.4    1.9  2  AF-I1M587-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 50466 : 111598 ] wmpLDDT: 89.46
-      2e-06   32.4  10.9      2e-06   32.4  10.9    2.0  2  AF-O22841-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 17814 : 54868 ] wmpLDDT: 89.08
-    2.3e-06   32.2  13.0    2.3e-06   32.2  13.0    1.9  1  AF-O22842-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 23646 : 54868 ] wmpLDDT: 88.79
-    3.6e-06   31.5  11.0    3.6e-06   31.5  11.0    2.4  2  AF-A0A1D6GWN1-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 38497 : 78598 ] wmpLDDT: 88.44
-      5e-06   31.1  27.6      5e-06   31.1  27.6    2.7  1  AF-P24626-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 23336 : 87298 ] wmpLDDT: 90.83
-    6.3e-06   30.8  14.1    6.3e-06   30.8  14.1    2.9  3  AF-O24658-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 3457 : 54868 ] wmpLDDT: 89.68
-    7.8e-06   30.4  17.6    9.7e-06   30.1  17.6    1.2  1  AF-Q0JC38-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 10185 : 87298 ] wmpLDDT: 71.85
-    8.1e-06   30.4  12.2    8.1e-06   30.4  12.2    2.6  2  AF-P19171-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 1685 : 54868 ] wmpLDDT: 89.30
-    1.1e-05   29.9  21.2    2.5e-05   28.8  21.2    1.5  1  AF-A0A1X7YIJ7-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 27631 : 78598 ] wmpLDDT: 86.49
-    1.7e-05   29.4  15.2    1.7e-05   29.4  15.2    2.3  2  AF-O04138-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 3513 : 87298 ] wmpLDDT: 86.78
-    5.8e-05   27.6  25.6    5.8e-05   27.6  25.6    2.1  2  AF-P29023-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 9277 : 78598 ] wmpLDDT: 88.81
-    0.00012   26.5  24.9    0.00012   26.5  24.9    2.2  3  AF-C0P451-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 32177 : 78598 ] wmpLDDT: 88.36
-    0.00036   25.0  27.8    0.00036   25.0  27.8    1.9  2  AF-I1NCA0-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 3766 : 111598 ] wmpLDDT: 85.61
-     0.0013   23.2   0.3     0.0013   23.2   0.3    1.0  1  AF-A0A0P0Y930-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 31777 : 87298 ] wmpLDDT: 74.91
-     0.0014   23.0   7.4     0.0014   23.0   7.4    2.1  2  AF-O24654-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 3955 : 54868 ] wmpLDDT: 89.85
-     0.0015   23.0   6.8     0.0015   23.0   6.8    2.2  2  AF-A0A1P8AME8-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 18391 : 54868 ] wmpLDDT: 84.04
-     0.0023   22.4  33.5     0.0023   22.4  33.5    2.5  2  AF-Q688M5-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 37002 : 87298 ] wmpLDDT: 88.47
-     0.0023   22.4  25.4     0.0023   22.4  25.4    1.9  2  AF-I1NCA1-F1-model_v1      resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 26281 : 111598 ] wmpLDDT: 88.99
-
-
-Domain annotation for each sequence (and alignments):
->> AF-Q0JF21-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 18552 : 87298 ] wmpLDDT: 85.88
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !  252.8  98.2     7e-78   7.1e-74       2     169 ..      30     197 ..      29     201 .. 0.99
-
-  Alignments for each domain:
-  == domain 1  score: 252.8 bits;  conditional E-value: 7e-78
-  2UVO:A|PDBID|CHAIN|SEQUENCE   2 rcgeqgsnmecpnnlccsqygycgmggdycgkgcqngacwtskrcgsqaggatctnnqccsqygycgfgaeycgagcqggpcradikcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacstdkpcgkdaggrvctnnyccskwgscgigpgycgagcqsggc 169
-                                   cg+q+  m cp+nlccsq+gycg+g dycg gcq+gac +s+rcgsq ggatc+nnqccsqygycgfg+eycg+gcq+gpcradikcg  a+g+lcpnn+ccsqwg+cglgsefcg+gcqsgac  +k cgk agg  c nn+ccs  g cg+g +ycg+gcqsggc
-        AF-Q0JF21-F1-model_v1  30 TCGKQNDGMICPHNLCCSQFGYCGLGRDYCGTGCQSGACCSSQRCGSQGGGATCSNNQCCSQYGYCGFGSEYCGSGCQNGPCRADIKCGRNANGELCPNNMCCSQWGYCGLGSEFCGNGCQSGACCPEKRCGKQAGGDKCPNNFCCSAGGYCGLGGNYCGSGCQSGGC 197
-                                  6*********************************************************************************************************************************************************************** PP
-
->> AF-Q7Y1Z1-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 31625 : 87298 ] wmpLDDT: 85.53
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   48.2  10.0   2.8e-15   2.8e-11      83     136 ..      30      81 ..      20      97 .. 0.86
-   2 ?   -2.2   1.0       7.6   7.7e+04      34      53 ..     179     198 ..     159     230 .. 0.48
-
-  Alignments for each domain:
-  == domain 1  score: 48.2 bits;  conditional E-value: 2.8e-15
-  2UVO:A|PDBID|CHAIN|SEQUENCE  83 cradikcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacstdkpcgkda 136
-                                  +ra+ +cg qagg  cpn lccs+wg+cgl  ++c ggcqs  c   +  g d 
-        AF-Q7Y1Z1-F1-model_v1  30 ARAE-QCGRQAGGARCPNRLCCSRWGWCGLTDDYCKGGCQS-QCRVSRDGGDDD 81 
-                                  5555.8**********************************8.588888777764 PP
-
-  == domain 2  score: -2.2 bits;  conditional E-value: 7.6
-  2UVO:A|PDBID|CHAIN|SEQUENCE  34 gcqngacwtskrcgsqagga 53 
-                                  g+ +  c  + r     g a
-        AF-Q7Y1Z1-F1-model_v1 179 GATSDFCVPNARWPCAPGKA 198
-                                  33333333333333333333 PP
-
->> AF-A0A1D6LMS5-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 6798 : 78598 ] wmpLDDT: 86.46
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   44.5  16.7   3.9e-14   3.9e-10      82     127 ..      20      67 ..      12      82 .. 0.80
-
-  Alignments for each domain:
-  == domain 1  score: 44.5 bits;  conditional E-value: 3.9e-14
-  2UVO:A|PDBID|CHAIN|SEQUENCE  82 pcradikcgsqaggklcpnnlccsqwgfcglgsefcgggcqs...gacs 127
-                                  p+ra+ +cgsqagg lcpn lccsq+g+cg  s++cg+gcqs   g+c 
-    AF-A0A1D6LMS5-F1-model_v1  20 PARAE-QCGSQAGGALCPNCLCCSQFGWCGSTSDYCGSGCQSqcsGSCG 67 
-                                  88887.8**********************************72225553 PP
-
->> AF-Q7DNA1-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 5638 : 87298 ] wmpLDDT: 89.91
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   43.0  15.2   1.1e-13   1.1e-09      84     128 ..      31      73 ..      20      91 .. 0.85
-   2 ?   -1.4   1.3       4.1   4.2e+04      52      78 ..     288     314 ..     269     331 .. 0.66
-
-  Alignments for each domain:
-  == domain 1  score: 43.0 bits;  conditional E-value: 1.1e-13
-  2UVO:A|PDBID|CHAIN|SEQUENCE  84 radikcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacst 128
-                                  ra+ +cg+qagg  cpn lccs+wg+cg  s+fcg gcqs  cs 
-        AF-Q7DNA1-F1-model_v1  31 RAE-QCGAQAGGARCPNCLCCSRWGWCGTTSDFCGDGCQSQ-CSG 73 
-                                  555.8**********************************85.543 PP
-
-  == domain 2  score: -1.4 bits;  conditional E-value: 4.1
-  2UVO:A|PDBID|CHAIN|SEQUENCE  52 gatctnnqccsqygycgfgaeycgagc 78 
-                                  g  c +       +  gf   ycga  
-        AF-Q7DNA1-F1-model_v1 288 GLECGHGPDDRVANRIGFYQRYCGAFG 314
-                                  444544444444555667777777643 PP
-
->> AF-Q9SDY6-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 27683 : 111598 ] wmpLDDT: 90.55
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   41.4  10.5   3.4e-13   3.5e-09      88     129 ..      25      65 ..      19      87 .. 0.75
-   2 ?   -2.2   5.4       7.3   7.4e+04      49      86 ..     159     185 ..     121     211 .. 0.61
-   3 ?   -2.3   0.2       8.2   8.3e+04      51      58 ..     277     284 ..     251     315 .. 0.61
-
-  Alignments for each domain:
-  == domain 1  score: 41.4 bits;  conditional E-value: 3.4e-13
-  2UVO:A|PDBID|CHAIN|SEQUENCE  88 kcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacstd 129
-                                  +cg+qagg lcpn lccs++g+cg    +cg gcqs   s  
-        AF-Q9SDY6-F1-model_v1  25 QCGTQAGGALCPNRLCCSKFGWCGDTDSYCGEGCQSQCKS-A 65 
-                                  7999999999999999999999999999999999985322.2 PP
-
-  == domain 2  score: -2.2 bits;  conditional E-value: 7.3
-  2UVO:A|PDBID|CHAIN|SEQUENCE  49 qaggatctnnqccsqygycgfgaeycgagcqgg..pcrad 86 
-                                   a             +gyc ++ +  +  c gg  pc a 
-        AF-Q9SDY6-F1-model_v1 159 YA-------------WGYCFINEQNQATYCDGGnwPCAAG 185
-                                  33.............3444444444444444433334333 PP
-
-  == domain 3  score: -2.3 bits;  conditional E-value: 8.2
-  2UVO:A|PDBID|CHAIN|SEQUENCE  51 ggatctnn 58 
-                                  gg  c + 
-        AF-Q9SDY6-F1-model_v1 277 GGLECGHG 284
-                                  33333333 PP
-
->> AF-C6T7J9-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 21501 : 111598 ] wmpLDDT: 88.34
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   39.8   8.0   1.1e-12   1.1e-08       7      44 ..      34      71 ..      29      88 .. 0.87
-   2 ?   -2.0   0.3       6.3   6.4e+04      29      42 ..     159     172 ..     146     194 .. 0.59
-
-  Alignments for each domain:
-  == domain 1  score: 39.8 bits;  conditional E-value: 1.1e-12
-  2UVO:A|PDBID|CHAIN|SEQUENCE  7 gsnmecpnnlccsqygycgmggdycgkgcqngacwtsk 44
-                                 + n  c   lccs+ygycg g dycgkgc+ g c+ + 
-        AF-C6T7J9-F1-model_v1 34 AQNCGCEAELCCSKYGYCGSGDDYCGKGCKEGPCYGTA 71
-                                 57899*****************************9764 PP
-
-  == domain 2  score: -2.0 bits;  conditional E-value: 6.3
-  2UVO:A|PDBID|CHAIN|SEQUENCE  29 dycgkgcqngacwt 42 
-                                  dyc k  ++  c  
-        AF-C6T7J9-F1-model_v1 159 DYCDKTNRHYPCAH 172
-                                  44444333333322 PP
-
->> AF-I1MMY2-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 14149 : 111598 ] wmpLDDT: 90.21
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   38.9  10.9     2e-12     2e-08      87     138 ..      24      75 ..      18      89 .. 0.76
-   2 ?    0.7   1.0      0.94   9.5e+03     107     127 ..     158     178 ..     117     204 .. 0.67
-
-  Alignments for each domain:
-  == domain 1  score: 38.9 bits;  conditional E-value: 2e-12
-  2UVO:A|PDBID|CHAIN|SEQUENCE  87 ikcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacstdkpcgkdagg 138
-                                    cg+q gg +cpn lccsq+g+cg     cg gcqs       p     +g
-        AF-I1MMY2-F1-model_v1  24 QNCGTQVGGVICPNGLCCSQYGWCGNTEAHCGRGCQSQCTPGSTPTPTTPSG 75 
-                                  47************************999*******9866555555443333 PP
-
-  == domain 2  score: 0.7 bits;  conditional E-value: 0.94
-  2UVO:A|PDBID|CHAIN|SEQUENCE 107 wgfcglgsefcgggcqsgacs 127
-                                  wg+c ++    +  c sg   
-        AF-I1MMY2-F1-model_v1 158 WGYCFINERNQADYCTSGTRW 178
-                                  555555555444555544322 PP
-
->> AF-Q6K8R2-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 2537 : 87298 ] wmpLDDT: 90.96
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   38.3   8.5     3e-12   3.1e-08      51      85 ..      26      60 ..      15      78 .. 0.73
-   2 ?   -0.0   0.5       1.6   1.6e+04     144     163 ..     148     169 ..     140     194 .. 0.73
-
-  Alignments for each domain:
-  == domain 1  score: 38.3 bits;  conditional E-value: 3e-12
-  2UVO:A|PDBID|CHAIN|SEQUENCE 51 ggatctnnqccsqygycgfgaeycgagcqggpcra 85
-                                  +  c ++qccs++g+cg g++ycg gcq+gpc  
-        AF-Q6K8R2-F1-model_v1 26 QSCGCASDQCCSKWGFCGTGSDYCGTGCQAGPCDV 60
-                                 34557888888888888888888888888888854 PP
-
-  == domain 2  score: -0.0 bits;  conditional E-value: 1.6
-  2UVO:A|PDBID|CHAIN|SEQUENCE 144 nyc..cskwgscgigpgycgag 163
-                                  nyc   s    c  g gy g g
-        AF-Q6K8R2-F1-model_v1 148 NYCdeTSTQWPCMAGKGYYGRG 169
-                                  6663322333577788887776 PP
-
->> AF-B6TR38-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 271 : 78598 ] wmpLDDT: 90.07
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   36.3  15.4   1.2e-11   1.3e-07      43      84 ..      31      71 ..      23      89 .. 0.80
-
-  Alignments for each domain:
-  == domain 1  score: 36.3 bits;  conditional E-value: 1.2e-11
-  2UVO:A|PDBID|CHAIN|SEQUENCE 43 skrcgsqaggatctnnqccsqygycgfgaeycgagcqggpcr 84
-                                  ++cg qaggatc +  ccs++g+cg  +eycgagcq+  c 
-        AF-B6TR38-F1-model_v1 31 GQQCGQQAGGATCRDCLCCSRFGFCGDTSEYCGAGCQS-QCT 71
-                                 57899999999999999999999999999999999996.343 PP
-
->> AF-B6TT00-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 9220 : 78598 ] wmpLDDT: 91.82
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   36.0  10.1   1.5e-11   1.5e-07      51      84 ..      26      59 ..      19      74 .. 0.64
-   2 ?    0.3   0.3       1.3   1.3e+04     143     163 ..     147     169 ..      99     192 .. 0.81
-
-  Alignments for each domain:
-  == domain 1  score: 36.0 bits;  conditional E-value: 1.5e-11
-  2UVO:A|PDBID|CHAIN|SEQUENCE 51 ggatctnnqccsqygycgfgaeycgagcqggpcr 84
-                                  +  c +  ccs++gycg g +ycgagcq+gpc 
-        AF-B6TT00-F1-model_v1 26 QNCGCASGLCCSRFGYCGTGEDYCGAGCQSGPCD 59
-                                 3445666666666666666666666666666664 PP
-
-  == domain 2  score: 0.3 bits;  conditional E-value: 1.3
-  2UVO:A|PDBID|CHAIN|SEQUENCE 143 nnycc...skwgscgigpgycgag 163
-                                   nyc    ++w  c  g gy g g
-        AF-B6TT00-F1-model_v1 147 KNYCDrnnTQW-PCQAGKGYYGRG 169
-                                  45554211344.577777777766 PP
-
->> AF-Q42993-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 13417 : 87298 ] wmpLDDT: 90.79
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   35.9  22.6   1.7e-11   1.7e-07      88     138 ..      22      75 ..      16      83 .. 0.82
-   2 ?    0.8   1.3      0.88     9e+03     143     158 ..     173     189 ..     142     221 .. 0.57
-
-  Alignments for each domain:
-  == domain 1  score: 35.9 bits;  conditional E-value: 1.7e-11
-  2UVO:A|PDBID|CHAIN|SEQUENCE  88 kcgsqaggklcpnnlccsqwgfcglgsefcgggcqs...gacstdkpcgkdagg 138
-                                  +cgsqagg lcpn lccsq+g+cg  s +cg+gcqs   g+c    p     gg
-        AF-Q42993-F1-model_v1  22 QCGSQAGGALCPNCLCCSQYGWCGSTSAYCGSGCQSqcsGSCGGGGPTPPSGGG 75 
-                                  7*********************************96333777777666655555 PP
-
-  == domain 2  score: 0.8 bits;  conditional E-value: 0.88
-  2UVO:A|PDBID|CHAIN|SEQUENCE 143 nnycc..skwgscgigpg 158
-                                  ++yc   s+w  c+ g  
-        AF-Q42993-F1-model_v1 173 SDYCVqsSQW-PCAAGKK 189
-                                  2222111112.2223333 PP
-
->> AF-P25765-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 27511 : 87298 ] wmpLDDT: 89.12
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   35.7  21.9     2e-11     2e-07      88     133 ..      23      66 ..      15      82 .. 0.59
-
-  Alignments for each domain:
-  == domain 1  score: 35.7 bits;  conditional E-value: 2e-11
-  2UVO:A|PDBID|CHAIN|SEQUENCE  88 kcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacstdkpcg 133
-                                  +cgsqagg +cpn lccsq+g+cg  s++cg+gcqs  cs    cg
-        AF-P25765-F1-model_v1  23 QCGSQAGGAVCPNCLCCSQFGWCGSTSDYCGAGCQSQ-CSA-AGCG 66 
-                                  4666666666666666666666666666666666653.333.1233 PP
-
->> AF-O24603-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 20429 : 54868 ] wmpLDDT: 89.88
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   35.2   9.6   2.7e-11   2.8e-07      47      91 ..      30      72 ..      23     112 .. 0.78
-   2 ?   -0.1   1.0       1.7   1.7e+04     143     164 ..     155     178 ..     137     196 .. 0.60
-   3 ?   -2.1   0.1       6.9     7e+04     145     145 ..     259     259 ..     227     273 .. 0.50
-
-  Alignments for each domain:
-  == domain 1  score: 35.2 bits;  conditional E-value: 2.7e-11
-  2UVO:A|PDBID|CHAIN|SEQUENCE 47 gsqaggatctnnqccsqygycgfgaeycgagcqggpcradikcgs 91
-                                 +sq     c ++ ccs+ygycg   e+cg gcq+gpcr+    g 
-        AF-O24603-F1-model_v1 30 ASQN--CGCASDFCCSKYGYCGTTDEFCGEGCQAGPCRSSGGGGD 72
-                                 5554..458999999999999999999999999999998765554 PP
-
-  == domain 2  score: -0.1 bits;  conditional E-value: 1.7
-  2UVO:A|PDBID|CHAIN|SEQUENCE 143 nnyccskw..gscgigpgycgagc 164
-                                    yc ++     c+ g gy g g+
-        AF-O24603-F1-model_v1 155 GEYCDTEKpeFPCAQGKGYYGRGA 178
-                                  444433320123555555555543 PP
-
-  == domain 3  score: -2.1 bits;  conditional E-value: 6.9
-  2UVO:A|PDBID|CHAIN|SEQUENCE 145 y 145
-                                  y
-        AF-O24603-F1-model_v1 259 Y 259
-                                  1 PP
-
->> AF-P43082-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 17725 : 54868 ] wmpLDDT: 84.90
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   35.1  14.9   2.9e-11     3e-07       2      48 ..      23      70 ..      22      88 .. 0.80
-   2 ?   -2.5   2.7       9.2   9.4e+04      23      51 ..     120     146 ..     105     207 .. 0.61
-
-  Alignments for each domain:
-  == domain 1  score: 35.1 bits;  conditional E-value: 2.9e-11
-  2UVO:A|PDBID|CHAIN|SEQUENCE  2 rcgeqgsnmecpnnlccsqygycgmggdycg..kgcqngacwtskrcgs 48
-                                 +cg qg    cp n+ccsqygycg  +dyc+   +cq+  cw s   g 
-        AF-P43082-F1-model_v1 23 QCGRQGGGRTCPGNICCSQYGYCGTTADYCSptNNCQS-NCWGSGPSGP 70
-                                 8*****************************83357987.59*9876654 PP
-
-  == domain 2  score: -2.5 bits;  conditional E-value: 9.2
-  2UVO:A|PDBID|CHAIN|SEQUENCE  23 ycgmggdycgkgcqngacwtskrcgsqag 51 
-                                  +cg +g     +c  g c   k+  + a+
-        AF-P43082-F1-model_v1 120 FCGPAGPRGQASC--GKCLRVKNTRTNAA 146
-                                  2333333222222..45555555444444 PP
-
->> AF-A0A1D6LMS1-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 11432 : 78598 ] wmpLDDT: 90.27
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   34.5  19.1   4.5e-11   4.6e-07      88     135 ..      27      72 ..      20      81 .. 0.83
-
-  Alignments for each domain:
-  == domain 1  score: 34.5 bits;  conditional E-value: 4.5e-11
-  2UVO:A|PDBID|CHAIN|SEQUENCE  88 kcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacstdkpcgkd 135
-                                  +cg+qagg lcp+ lccsqwg+cg   ++c  gcqs        cg  
-    AF-A0A1D6LMS1-F1-model_v1  27 QCGTQAGGALCPDCLCCSQWGYCGSTPDYCTDGCQSQCFG--SGCGGG 72 
-                                  7**********************************97544..457754 PP
-
->> AF-A0A1D6GWN3-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 28572 : 78598 ] wmpLDDT: 80.40
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   34.4  17.6   4.8e-11   4.9e-07      87     124 ..      22      59 ..      12      69 .. 0.88
-   2 ?   -0.8   1.5       2.8   2.9e+04      22      37 ..     171     186 ..     136     199 .. 0.57
-
-  Alignments for each domain:
-  == domain 1  score: 34.4 bits;  conditional E-value: 4.8e-11
-  2UVO:A|PDBID|CHAIN|SEQUENCE  87 ikcgsqaggklcpnnlccsqwgfcglgsefcgggcqsg 124
-                                   +cg  a gklcp+ lccs+wg+cg  s++cg gcqs 
-    AF-A0A1D6GWN3-F1-model_v1  22 AQCGDGADGKLCPDCLCCSKWGYCGSTSDYCGDGCQSQ 59 
-                                  58**********************************95 PP
-
-  == domain 2  score: -0.8 bits;  conditional E-value: 2.8
-  2UVO:A|PDBID|CHAIN|SEQUENCE  22 gycgmggdycgkgcqn 37 
-                                   yc m g+y+   c  
-    AF-A0A1D6GWN3-F1-model_v1 171 DYCDMTGEYAQWPCVA 186
-                                  3444444444333333 PP
-
->> AF-O24598-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 5613 : 54868 ] wmpLDDT: 90.40
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   34.3  12.1     5e-11   5.1e-07       9      90 ..      26      61 ..      20      98 .. 0.53
-   2 ?   -1.8   0.2       5.6   5.7e+04      25      33 ..     246     254 ..     225     264 .. 0.51
-
-  Alignments for each domain:
-  == domain 1  score: 34.3 bits;  conditional E-value: 5e-11
-  2UVO:A|PDBID|CHAIN|SEQUENCE  9 nmecpnnlccsqygycgmggdycgkgcqngacwtskrcgsqaggatctnnqccsqygycgfgaeycgagcqggpcradikcg 90
-                                 n +                                           c  n ccsq+gycg  a+ycg+ cq+gpcr     g
-        AF-O24598-F1-model_v1 26 NCD-------------------------------------------CAPNLCCSQFGYCGTTADYCGSTCQSGPCRVG---G 61
-                                 444...........................................55555555555555555555555555555542...2 PP
-
-  == domain 2  score: -1.8 bits;  conditional E-value: 5.6
-  2UVO:A|PDBID|CHAIN|SEQUENCE  25 gmggdycgk 33 
-                                  g   dycg+
-        AF-O24598-F1-model_v1 246 GYYRDYCGQ 254
-                                  333344443 PP
-
->> AF-Q9M2U5-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 20516 : 54868 ] wmpLDDT: 90.20
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   34.2   8.6   5.3e-11   5.4e-07       8      43 ..      29      64 ..      24     103 .. 0.70
-   2 ?   -1.7   0.4       5.4   5.5e+04      34      83 ..     157     163 ..     137     193 .. 0.59
-
-  Alignments for each domain:
-  == domain 1  score: 34.2 bits;  conditional E-value: 5.3e-11
-  2UVO:A|PDBID|CHAIN|SEQUENCE  8 snmecpnnlccsqygycgmggdycgkgcqngacwts 43
-                                  n  c + lccsq+g+cg  +dycg gcq g c+  
-        AF-Q9M2U5-F1-model_v1 29 QNCGCSSELCCSQFGFCGNTSDYCGVGCQQGPCFAP 64
-                                 455666666666666666666666666666666654 PP
-
-  == domain 2  score: -1.7 bits;  conditional E-value: 5.4
-  2UVO:A|PDBID|CHAIN|SEQUENCE  34 gcqngacwtskrcgsqaggatctnnqccsqygycgfgaeycgagcqggpc 83 
-                                  ++                                              pc
-        AF-Q9M2U5-F1-model_v1 157 NA-------------------------------------------TQYPC 163
-                                  22...........................................22222 PP
-
->> AF-I1M587-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 50466 : 111598 ] wmpLDDT: 89.46
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   33.9  11.4   6.8e-11   6.9e-07       8      46 ..      28      66 ..      23      94 .. 0.77
-   2 ?   -1.4   0.3       4.3   4.4e+04      57      70 ..     161     174 ..     137     195 .. 0.67
-
-  Alignments for each domain:
-  == domain 1  score: 33.9 bits;  conditional E-value: 6.8e-11
-  2UVO:A|PDBID|CHAIN|SEQUENCE  8 snmecpnnlccsqygycgmggdycgkgcqngacwtskrc 46
-                                  n  c   lccsq+gycg g +ycg gc+ g c++s   
-        AF-I1M587-F1-model_v1 28 QNCGCAEGLCCSQHGYCGNGEEYCGTGCKQGPCYSSTPS 66
-                                 577788888888888888888888888888888887655 PP
-
-  == domain 2  score: -1.4 bits;  conditional E-value: 4.3
-  2UVO:A|PDBID|CHAIN|SEQUENCE  57 nnqccsqygycgfg 70 
-                                     c s  gy g g
-        AF-I1M587-F1-model_v1 161 QYPCLSNRGYYGRG 174
-                                  33444445554444 PP
-
->> AF-O22841-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 17814 : 54868 ] wmpLDDT: 89.08
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   32.4  10.9     2e-10     2e-06      48      86 ..      29      67 ..      21      86 .. 0.76
-   2 ?   -2.0   0.8       6.4   6.5e+04      20      34 ..     169     184 ..     152     198 .. 0.66
-
-  Alignments for each domain:
-  == domain 1  score: 32.4 bits;  conditional E-value: 2e-10
-  2UVO:A|PDBID|CHAIN|SEQUENCE 48 sqaggatctnnqccsqygycgfgaeycgagcqggpcrad 86
-                                  q g   c  n ccs+ygycg    ycg gc++gpc + 
-        AF-O22841-F1-model_v1 29 QQCGTTGCAANLCCSRYGYCGTTDAYCGTGCRSGPCSSS 67
-                                 345556688888888888888888888888888888754 PP
-
-  == domain 2  score: -2.0 bits;  conditional E-value: 6.4
-  2UVO:A|PDBID|CHAIN|SEQUENCE  20 qygy.cgmggdycgkg 34 
-                                    +y c  g dy g+g
-        AF-O22841-F1-model_v1 169 STAYpCTPGKDYYGRG 184
-                                  3333366666777666 PP
-
->> AF-O22842-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 23646 : 54868 ] wmpLDDT: 88.79
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   32.2  13.0   2.3e-10   2.3e-06      93     128 ..      31      66 ..      21      90 .. 0.59
-
-  Alignments for each domain:
-  == domain 1  score: 32.2 bits;  conditional E-value: 2.3e-10
-  2UVO:A|PDBID|CHAIN|SEQUENCE  93 aggklcpnnlccsqwgfcglgsefcgggcqsgacst 128
-                                   g   c  n+ccs+wg+cg    +cg gcqsg c++
-        AF-O22842-F1-model_v1  31 CGTNGCKGNMCCSRWGYCGTTKAYCGTGCQSGPCNS 66 
-                                  333445555555555555555555555555555543 PP
-
->> AF-A0A1D6GWN1-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 38497 : 78598 ] wmpLDDT: 88.44
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   31.5  11.0   3.6e-10   3.6e-06      87     124 ..      27      64 ..      15      74 .. 0.87
-   2 ?   -1.1   0.3       3.4   3.4e+04     129     168 ..     225     236 ..     202     271 .. 0.69
-
-  Alignments for each domain:
-  == domain 1  score: 31.5 bits;  conditional E-value: 3.6e-10
-  2UVO:A|PDBID|CHAIN|SEQUENCE  87 ikcgsqaggklcpnnlccsqwgfcglgsefcgggcqsg 124
-                                   +cg+ +   lcp  lccs+wgfcg    +cg+gcqs 
-    AF-A0A1D6GWN1-F1-model_v1  27 PQCGANSTTALCPYCLCCSKWGFCGSTEAYCGNGCQSQ 64 
-                                  47**********************************95 PP
-
-  == domain 2  score: -1.1 bits;  conditional E-value: 3.4
-  2UVO:A|PDBID|CHAIN|SEQUENCE 129 dkpcgkdaggrvctnnyccskwgscgigpgycgagcqsgg 168
-                                  d  c                            g g  +gg
-    AF-A0A1D6GWN1-F1-model_v1 225 DAEC----------------------------GRGPDAGG 236
-                                  3333............................22222222 PP
-
->> AF-P24626-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 23336 : 87298 ] wmpLDDT: 90.83
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   31.1  27.6     5e-10     5e-06      88     127 ..      20      62 ..      14      81 .. 0.74
-
-  Alignments for each domain:
-  == domain 1  score: 31.1 bits;  conditional E-value: 5e-10
-  2UVO:A|PDBID|CHAIN|SEQUENCE  88 kcgsqaggklcpnnlccsqwgfcglgsefcgggcqs...gacs 127
-                                  +cgsqagg lcpn lccsq+g+cg  s++cg+gcqs   g c 
-        AF-P24626-F1-model_v1  20 QCGSQAGGALCPNCLCCSQYGWCGSTSDYCGAGCQSqcsGGCG 62 
-                                  6999999999999999999999999999999999862224443 PP
-
->> AF-O24658-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 3457 : 54868 ] wmpLDDT: 89.68
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   30.8  14.1   6.2e-10   6.3e-06      53      97 ..      27      68 ..      17      97 .. 0.67
-   2 ?    0.5   1.6       1.1   1.1e+04     141     163 ..     141     165 ..     135     183 .. 0.73
-   3 ?   -1.0   0.6       3.1   3.1e+04      54      76 ..     231     253 ..     223     263 .. 0.52
-
-  Alignments for each domain:
-  == domain 1  score: 30.8 bits;  conditional E-value: 6.2e-10
-  2UVO:A|PDBID|CHAIN|SEQUENCE 53 atctnnqccsqygycgfgaeycgagcqggpcradikcgsqaggkl 97
-                                   c  n ccsq+gycg    ycg gc++gpcr     g+  gg +
-        AF-O24658-F1-model_v1 27 CGCAPNLCCSQFGYCGTDDAYCGVGCRSGPCRGS---GTPTGGSV 68
-                                 4577888888888888888888888888888864...44444443 PP
-
-  == domain 2  score: 0.5 bits;  conditional E-value: 1.1
-  2UVO:A|PDBID|CHAIN|SEQUENCE 141 ctnnyccsk..wgscgigpgycgag 163
-                                  +t nyc s      c+ g gy g g
-        AF-O24658-F1-model_v1 141 ATRNYCQSSntQYPCAPGKGYFGRG 165
-                                  5778887651134688888888876 PP
-
-  == domain 3  score: -1.0 bits;  conditional E-value: 3.1
-  2UVO:A|PDBID|CHAIN|SEQUENCE  54 tctnnqccsqygycgfgaeycga 76 
-                                   c      +  +  g+  +ycg 
-        AF-O24658-F1-model_v1 231 ECNGGNSGAVNARIGYYRDYCGQ 253
-                                  44444444444445555555553 PP
-
->> AF-Q0JC38-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 10185 : 87298 ] wmpLDDT: 71.85
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   30.1  17.6   9.6e-10   9.7e-06       8      47 ..      28      65 ..      22      82 .. 0.80
-
-  Alignments for each domain:
-  == domain 1  score: 30.1 bits;  conditional E-value: 9.6e-10
-  2UVO:A|PDBID|CHAIN|SEQUENCE  8 snmecpnnlccsqygycgmggdycgkgcqngacwtskrcg 47
-                                  n  c +  ccsq+gycg    ycg+gcq+g cw s   g
-        AF-Q0JC38-F1-model_v1 28 QNCGCQDGYCCSQWGYCGTTEAYCGQGCQSGPCWGSG--G 65
-                                 6888999999999999999999999999999999874..2 PP
-
->> AF-P19171-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 1685 : 54868 ] wmpLDDT: 89.30
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   30.4  12.2     8e-10   8.1e-06      88     133 ..      35      81 ..      30      96 .. 0.80
-   2 ?   -2.6   0.7       9.6   9.7e+04     130     142 ..     286     298 ..     268     321 .. 0.58
-
-  Alignments for each domain:
-  == domain 1  score: 30.4 bits;  conditional E-value: 8e-10
-  2UVO:A|PDBID|CHAIN|SEQUENCE  88 kcgsqaggklcpnnlccsqwgfcglgsefcg.ggcqsgacstdkpcg 133
-                                  +cg qagg lcpn lccs++g+cg    +c   gcqs       p g
-        AF-P19171-F1-model_v1  35 QCGRQAGGALCPNGLCCSEFGWCGNTEPYCKqPGCQSQCTPGGTPPG 81 
-                                  7*****************************6369*997666666665 PP
-
-  == domain 2  score: -2.6 bits;  conditional E-value: 9.6
-  2UVO:A|PDBID|CHAIN|SEQUENCE 130 kpcgkdaggrvct 142
-                                    cg+   grv+ 
-        AF-P19171-F1-model_v1 286 LECGRGQDGRVAD 298
-                                  3444444444443 PP
-
->> AF-A0A1X7YIJ7-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 27631 : 78598 ] wmpLDDT: 86.49
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   28.8  21.2   2.4e-09   2.5e-05      10      80 ..      34      99 ..      28     104 .. 0.76
-
-  Alignments for each domain:
-  == domain 1  score: 28.8 bits;  conditional E-value: 2.4e-09
-  2UVO:A|PDBID|CHAIN|SEQUENCE 10 mecpnnlccsqygycgmggdycgkgcqngacwtskrcgsqaggatctnnqccsqygycgfgaeycgagcqg 80
-                                   c   +ccs+ygycg  + ycg+gc++g cw s  cg   gga+       ++  + g+   ++g+ c+g
-    AF-A0A1X7YIJ7-F1-model_v1 34 CGCQPGFCCSKYGYCGKTSAYCGEGCKSGPCWGSAGCGG--GGASVARV--VTKSFFNGIK-SHAGSWCEG 99
-                                 568899*******************************95..77776543..3333344443.456666665 PP
-
->> AF-O04138-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 3513 : 87298 ] wmpLDDT: 86.78
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   29.4  15.2   1.6e-09   1.7e-05       8      44 ..      28      64 ..      22      88 .. 0.82
-   2 ?   -0.6   0.4       2.4   2.5e+04      25      45 ..     160     180 ..     146     200 .. 0.70
-
-  Alignments for each domain:
-  == domain 1  score: 29.4 bits;  conditional E-value: 1.6e-09
-  2UVO:A|PDBID|CHAIN|SEQUENCE  8 snmecpnnlccsqygycgmggdycgkgcqngacwtsk 44
-                                  n  c +  ccsq+gycg    ycg+gcq+g cw s 
-        AF-O04138-F1-model_v1 28 QNCGCQDGYCCSQWGYCGTTEAYCGQGCQSGPCWGSG 64
-                                 6888999999999999999999999999999999874 PP
-
-  == domain 2  score: -0.6 bits;  conditional E-value: 2.4
-  2UVO:A|PDBID|CHAIN|SEQUENCE  25 gmggdycgkgcqngacwtskr 45 
-                                  g + dyc k+ +   c   k+
-        AF-O04138-F1-model_v1 160 GANMDYCDKSNKQWPCQPGKK 180
-                                  555567776666666665554 PP
-
->> AF-P29023-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 9277 : 78598 ] wmpLDDT: 88.81
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   27.6  25.6   5.7e-09   5.8e-05       9     123 ..      22      91 ..      12      99 .. 0.50
-   2 ?   -2.1   0.3       6.8   6.9e+04     153     163 ..     159     169 ..     143     193 .. 0.59
-
-  Alignments for each domain:
-  == domain 1  score: 27.6 bits;  conditional E-value: 5.7e-09
-  2UVO:A|PDBID|CHAIN|SEQUENCE   9 nmecpnnlccsqygycgmggdycgkgcqngacwtskrcgsqaggatctnnqccsqygycgfgaeycgagcqggpcradikcgsqaggklcpnnlccsqwgfcglgsefcgggcqs 123
-                                  n  c  n+ccs++gycg   +ycg gcq+g c                                           r+    g   gg     ++  s + f g+ ++ +g+gc+ 
-        AF-P29023-F1-model_v1  22 NCGCQPNVCCSKFGYCGTTDEYCGDGCQSGPC-------------------------------------------RSGRGGGGSGGGGANVASVVTSSF-FNGIKNQ-AGSGCEG 91 
-                                  44455555555555555555555555555555...........................................555444444444444334433332.4444433.3444443 PP
-
-  == domain 2  score: -2.1 bits;  conditional E-value: 6.8
-  2UVO:A|PDBID|CHAIN|SEQUENCE 153 cgigpgycgag 163
-                                  c+ g  y g g
-        AF-P29023-F1-model_v1 159 CAAGQKYYGRG 169
-                                  33333333322 PP
-
->> AF-C0P451-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 32177 : 78598 ] wmpLDDT: 88.36
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   26.5  24.9   1.2e-08   0.00012      51     123 ..      34     103 ..      23     111 .. 0.59
-   2 ?   -2.3   0.4       8.2   8.3e+04     153     163 ..     171     181 ..     156     204 .. 0.59
-   3 ?   -2.4   0.3       8.8   8.9e+04      51      75 ..     245     269 ..     238     278 .. 0.64
-
-  Alignments for each domain:
-  == domain 1  score: 26.5 bits;  conditional E-value: 1.2e-08
-  2UVO:A|PDBID|CHAIN|SEQUENCE  51 ggatctnnqccsqygycgfgaeycgagcqggpcradikcgsqaggklcpnnlccsqwgfcglgsefcgggcqs 123
-                                   +  c  n ccs++gycg   eycg gcq+gpcr+    gs  gg     ++      f g+ s+ +g+gc+ 
-        AF-C0P451-F1-model_v1  34 QNCGCQPNVCCSKFGYCGTTDEYCGDGCQSGPCRSGG-GGSSGGGGANVASVVTGS-FFNGIKSQ-AGSGCEG 103
-                                  3445677777777777777777777777777777654.344444443333333332.35566555.5666654 PP
-
-  == domain 2  score: -2.3 bits;  conditional E-value: 8.2
-  2UVO:A|PDBID|CHAIN|SEQUENCE 153 cgigpgycgag 163
-                                  c+ g  y g g
-        AF-C0P451-F1-model_v1 171 CAAGQKYYGRG 181
-                                  33333333322 PP
-
-  == domain 3  score: -2.4 bits;  conditional E-value: 8.8
-  2UVO:A|PDBID|CHAIN|SEQUENCE  51 ggatctnnqccsqygycgfgaeycg 75 
-                                  g+  c  n  +   +  g+  +yc 
-        AF-C0P451-F1-model_v1 245 GALECGGNNPAQMNARVGYYRQYCR 269
-                                  4456777777777777777777774 PP
-
->> AF-I1NCA0-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 3766 : 111598 ] wmpLDDT: 85.61
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   25.0  27.8   3.6e-08   0.00036       1      62 [.      21      83 ..      21     103 .. 0.81
-   2 ?   -1.8   0.7       5.6   5.7e+04      27      40 ..     131     138 ..     113     163 .. 0.48
-
-  Alignments for each domain:
-  == domain 1  score: 25.0 bits;  conditional E-value: 3.6e-08
-  2UVO:A|PDBID|CHAIN|SEQUENCE  1 ercgeqgsnmecpnnlccsqygycgmggdycg..kgcqngacwtskrcgsqaggatctnnqccs 62
-                                 e+cg q+  + cpnnlccsqyg+cg   +yc+  k+cq++ cw     g   gg    +n  ++
-        AF-I1NCA0-F1-model_v1 21 EQCGRQAGGQTCPNNLCCSQYGWCGNTEEYCSpsKNCQSN-CWGGGGGGGGGGGGESASNVRAT 83
-                                 78*****************************544899975.99998888877777666664443 PP
-
-  == domain 2  score: -1.8 bits;  conditional E-value: 5.6
-  2UVO:A|PDBID|CHAIN|SEQUENCE  27 ggdycgkgcqngac 40 
-                                  g d c      g c
-        AF-I1NCA0-F1-model_v1 131 GRDSC------GKC 138
-                                  22222......333 PP
-
->> AF-A0A0P0Y930-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 31777 : 87298 ] wmpLDDT: 74.91
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   23.2   0.3   1.3e-07    0.0013      65      85 ..       8      28 ..       2      45 .. 0.74
-
-  Alignments for each domain:
-  == domain 1  score: 23.2 bits;  conditional E-value: 1.3e-07
-  2UVO:A|PDBID|CHAIN|SEQUENCE 65 gycgfgaeycgagcqggpcra 85
-                                 ++cg g++y g gcq+gpc  
-    AF-A0A0P0Y930-F1-model_v1  8 AFCGTGSDYYGTGCQAGPCDV 28
-                                 678888888888888888854 PP
-
->> AF-O24654-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 3955 : 54868 ] wmpLDDT: 89.85
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   23.0   7.4   1.4e-07    0.0014      98     128 ..      30      61 ..      20      77 .. 0.76
-   2 ?    1.0   0.4      0.77   7.8e+03      14      42 ..     152     182 ..     145     196 .. 0.67
-
-  Alignments for each domain:
-  == domain 1  score: 23.0 bits;  conditional E-value: 1.4e-07
-  2UVO:A|PDBID|CHAIN|SEQUENCE  98 cpn.nlccsqwgfcglgsefcgggcqsgacst 128
-                                  cp    ccs+wgfcg   e+cg  c sg c+ 
-        AF-O24654-F1-model_v1  30 CPGlKECCSRWGFCGTKDEYCGFFCFSGPCNI 61 
-                                  66534699999999999999999999999975 PP
-
-  == domain 2  score: 1.0 bits;  conditional E-value: 0.77
-  2UVO:A|PDBID|CHAIN|SEQUENCE  14 nnlccsq.ygy.cgmggdycgkgcqngacwt 42 
-                                  n   cs+   y c  g +y g+g   +  w 
-        AF-O24654-F1-model_v1 152 NERYCSKsKKYpCEPGKNYYGRGLLQSITWN 182
-                                  4444443123338888888888888888886 PP
-
->> AF-A0A1P8AME8-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 18391 : 54868 ] wmpLDDT: 84.04
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   23.0   6.8   1.5e-07    0.0015      57      86 ..      62      91 ..      47     101 .. 0.79
-   2 ?   -0.1   0.7       1.7   1.7e+04      16      37 ..     182     204 ..     168     217 .. 0.57
-
-  Alignments for each domain:
-  == domain 1  score: 23.0 bits;  conditional E-value: 1.5e-07
-  2UVO:A|PDBID|CHAIN|SEQUENCE 57 nnqccsqygycgfgaeycgagcqggpcrad 86
-                                  n+ccs  gycg + e+cg  c +gpc+  
-    AF-A0A1P8AME8-F1-model_v1 62 INECCSHTGYCGTNVEHCGFWCLSGPCQLS 91
-                                 489999999999999999999999999865 PP
-
-  == domain 2  score: -0.1 bits;  conditional E-value: 1.7
-  2UVO:A|PDBID|CHAIN|SEQUENCE  16 lccsqygy.cgmggdycgkgcqn 37 
-                                   c s   y c  g  y g+g   
-    AF-A0A1P8AME8-F1-model_v1 182 YCSSSKTYpCQSGKKYYGRGLLQ 204
-                                  23333333244444555555444 PP
-
->> AF-Q688M5-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 37002 : 87298 ] wmpLDDT: 88.47
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   22.4  33.5   2.2e-07    0.0023      88     138 ..      25      71 ..      12      85 .. 0.79
-   2 ?   -0.9   0.4         3   3.1e+04      64      86 ..     166     192 ..     142     208 .. 0.56
-
-  Alignments for each domain:
-  == domain 1  score: 22.4 bits;  conditional E-value: 2.2e-07
-  2UVO:A|PDBID|CHAIN|SEQUENCE  88 kcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacstdkpcgkdagg 138
-                                  +cgsqagg lcpn lccs +g+cg  s++cg gcqs  c     cg   gg
-        AF-Q688M5-F1-model_v1  25 QCGSQAGGALCPNCLCCSSYGWCGSTSDYCGDGCQSQ-CD---GCGGGGGG 71 
-                                  7999999999999999999999999999999999985.43...24443333 PP
-
-  == domain 2  score: -0.9 bits;  conditional E-value: 3
-  2UVO:A|PDBID|CHAIN|SEQUENCE  64 ygyc.....gfgaeycgagcqggpcrad 86 
-                                  +gyc     g  a yc  +++  pc  d
-        AF-Q688M5-F1-model_v1 166 WGYCfkeeiGATASYCVPSAE-WPCAPD 192
-                                  333322222333444443333.344444 PP
-
->> AF-I1NCA1-F1-model_v1  resolution: 1.00 experiment: AFDB release_date: 01-JUL-21 [ 26281 : 111598 ] wmpLDDT: 88.99
-   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
- ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
-   1 !   22.4  25.4   2.3e-07    0.0023       2      63 ..      23      82 ..      22     109 .. 0.76
-   2 ?   -1.6   1.1       4.8   4.9e+04     124     139 ..     120     135 ..      85     145 .. 0.59
-
-  Alignments for each domain:
-  == domain 1  score: 22.4 bits;  conditional E-value: 2.3e-07
-  2UVO:A|PDBID|CHAIN|SEQUENCE  2 rcgeqgsnmecpnnlccsqygycgmggdycg..kgcqngacwtskrcgsqaggatctnnqccsq 63
-                                 +cg q+  + c nnlccsqyg+cg + d+c+  k+cq+  cw s       gg +++n   ++ 
-        AF-I1NCA1-F1-model_v1 23 NCGRQAGGQTCGNNLCCSQYGWCGNSEDHCSpsKNCQS-TCWGSGG--GGGGGESASN-VRATY 82
-                                 7*****************************64489996.8**9853..3345555444.33334 PP
-
-  == domain 2  score: -1.6 bits;  conditional E-value: 4.8
-  2UVO:A|PDBID|CHAIN|SEQUENCE 124 gacstdkpcgkdaggr 139
-                                  + c    p g+da g+
-        AF-I1NCA1-F1-model_v1 120 AFCGPVGPRGRDACGK 135
-                                  3455555555555554 PP
-
-
-
-Internal pipeline statistics summary:
--------------------------------------
-Query model(s):                            1  (171 nodes)
-Target sequences:                     365198  (160235650 residues searched)
-Passed MSV filter:                     21203  (0.0580589); expected 7304.0 (0.02)
-Passed bias filter:                     5935  (0.0162515); expected 7304.0 (0.02)
-Passed Vit filter:                       554  (0.00151699); expected 365.2 (0.001)
-Passed Fwd filter:                        38  (0.000104053); expected 3.7 (1e-05)
-Initial search space (Z):             365198  [actual number of targets]
-Domain search space  (domZ):              36  [number of targets reported over threshold]
-# CPU time: 2.06u 0.10s 00:00:02.16 Elapsed: 00:00:00.79
-# Mc/sec: 34293.84
-//
-# Alignment of 36 hits satisfying inclusion thresholds saved to: phmmerAlignment_af2.log
-[ok]
-"""
+PHMMER_AF_JSON = '{"results":{"hits":[{"archScore":"8","ph":"Streptophyta","arch":"PF00187.22 PF00187.22 PF00187.22 P' \
+                 'F00187.22","kg":"Eukaryota","ndom":1,"extlink":"https://alphafold.ebi.ac.uk/entry/Q0JF21","acc2":"Q' \
+                 '0JF21","taxid":"39947","acc":"Q0JF21","taxlink":"http://www.uniprot.org/taxonomy/","desc":"Lectin",' \
+                 '"pvalue":-181.501522091517,"flags":"3","nregions":1,"niseqs":16,"name":"Q0JF21","species":"Oryza sa' \
+                 'tiva subsp. japonica","score":"253.2","bias":"98.2","sindex":"236295369","nincluded":"1","domains":' \
+                 '[{"aliniseqs":1,"alisqacc":"F1","aliIdCount":125,"alirfline":"","is_included":1,"alihmmname":">Seq"' \
+                 ',"bitscore":252.817687988281,"ievalue":"7.1e-74","alisqto":197,"aliSim":0.875,"jali":197,"bias":"98' \
+                 '.19","ienv":29,"cevalue":"7.0e-78","alimline":" cg+q+  m cp+nlccsq+gycg+g dycg gcq+gac +s+rcgsq gga' \
+                 'tc+nnqccsqygycgfg+eycg+gcq+gpcradikcg  a+g+lcpnn+ccsqwg+cglgsefcg+gcqsgac  +k cgk agg  c nn+ccs  g ' \
+                 'cg+g +ycg+gcqsggc","alihmmfrom":2,"aliL":227,"is_reported":1,"alintseq":"","alisindex":"236295369",' \
+                 '"jenv":201,"alimmline":"","alihmmacc":"","oasc":"0.99","aliaseq":"TCGKQNDGMICPHNLCCSQFGYCGLGRDYCGTG' \
+                 'CQSGACCSSQRCGSQGGGATCSNNQCCSQYGYCGFGSEYCGSGCQNGPCRADIKCGRNANGELCPNNMCCSQWGYCGLGSEFCGNGCQSGACCPEKRCG' \
+                 'KQAGGDKCPNNFCCSAGGYCGLGGNYCGSGCQSGGC","alihmmto":169,"aliId":0.744047619047619,"alippline":"6******' \
+                 '***************************************************************************************************' \
+                 '**************************************************************","alimodel":"rcgeqgsnmecpnnlccsqygyc' \
+                 'gmggdycgkgcqngacwtskrcgsqaggatctnnqccsqygycgfgaeycgagcqggpcradikcgsqaggklcpnnlccsqwgfcglgsefcgggcqs' \
+                 'gacstdkpcgkdaggrvctnnyccskwgscgigpgycgagcqsggc","aliM":171,"iali":30,"alicsline":"","aliSimCount":1' \
+                 '47,"alihmmdesc":"","alisqdesc":"Lectin","alisqname":"Q0JF21","alisqfrom":30,"aliN":168}],"evalue":"' \
+                 '5.4e-74","nreported":1,"archindex":"88390276629085 39947"},{"archScore":"4","ph":"Streptophyta","ar' \
+                 'ch":"PF00187.22 PF00182.22","kg":"Eukaryota","ndom":2,"extlink":"https://alphafold.ebi.ac.uk/entry/' \
+                 'Q7Y1Z1","acc2":"Q7Y1Z1","taxid":"39947","acc":"Q7Y1Z1","taxlink":"http://www.uniprot.org/taxonomy/"' \
+                 ',"desc":"Chitinase 7","pvalue":-37.0974407605701,"flags":"3","nregions":2,"niseqs":16,"name":"Q7Y1Z' \
+                 '1","species":"Oryza sativa subsp. japonica","score":"48.2","bias":"10.0","sindex":"236343183","ninc' \
+                 'luded":"1","domains":[{"aliniseqs":1,"alisqacc":"F1","aliIdCount":29,"alirfline":"","is_included":1' \
+                 ',"alihmmname":">Seq","bitscore":48.2214241027832,"ievalue":"2.8e-11","alisqto":81,"aliSim":0.711538' \
+                 '461538462,"jali":81,"bias":"9.96","ienv":20,"cevalue":"2.8e-15","alimline":"+ra+ +cg qagg  cpn lccs' \
+                 '+wg+cgl  ++c ggcqs  c   +  g d ","alihmmfrom":83,"aliL":340,"is_reported":1,"alintseq":"","alisinde' \
+                 'x":"236343183","jenv":97,"alimmline":"","alihmmacc":"","oasc":"0.86","aliaseq":"ARAE-QCGRQAGGARCPNR' \
+                 'LCCSRWGWCGLTDDYCKGGCQS-QCRVSRDGGDDD","alihmmto":136,"aliId":0.557692307692308,"alippline":"5555.8**' \
+                 '********************************8.588888777764","alimodel":"cradikcgsqaggklcpnnlccsqwgfcglgsefcgggc' \
+                 'qsgacstdkpcgkda","aliM":171,"iali":30,"alicsline":"","aliSimCount":37,"alihmmdesc":"","alisqdesc":"' \
+                 'Chitinase 7","alisqname":"Q7Y1Z1","alisqfrom":30,"aliN":54},{"aliniseqs":1,"alisqacc":"F1","aliIdCo' \
+                 'unt":5,"alirfline":"","is_included":0,"alihmmname":">Seq","bitscore":-2.23642659187317,"ievalue":"7' \
+                 '7000","alisqto":198,"aliSim":0.4,"jali":198,"bias":"1.04","ienv":159,"cevalue":"7.6","alimline":"g+' \
+                 ' +  c  + r     g a","alihmmfrom":34,"aliL":340,"is_reported":0,"alintseq":"","alisindex":"236343183' \
+                 '","jenv":230,"alimmline":"","alihmmacc":"","oasc":"0.48","aliaseq":"GATSDFCVPNARWPCAPGKA","alihmmto' \
+                 '":53,"aliId":0.25,"alippline":"33333333333333333333","alimodel":"gcqngacwtskrcgsqagga","aliM":171,"' \
+                 'iali":179,"alicsline":"","aliSimCount":8,"alihmmdesc":"","alisqdesc":"Chitinase 7","alisqname":"Q7Y' \
+                 '1Z1","alisqfrom":179,"aliN":20}],"evalue":"2.8e-11","nreported":1,"archindex":"55525311637573 39947' \
+                 '"},{"archScore":"4","ph":"Streptophyta","arch":"PF00187.22 PF00182.22","kg":"Eukaryota","ndom":3,"e' \
+                 'xtlink":"https://alphafold.ebi.ac.uk/entry/A0A1D6LMS5","acc2":"A0A1D6LMS5","taxid":"4577","acc":"A0' \
+                 'A1D6LMS5","taxlink":"http://www.uniprot.org/taxonomy/","desc":"Chitinase","pvalue":-34.464617586289' \
+                 '1,"flags":"3","nregions":3,"niseqs":16,"name":"A0A1D6LMS5","species":"Zea mays","score":"44.5","bia' \
+                 's":"16.7","sindex":"237720498","nincluded":"1","domains":[{"aliniseqs":1,"alisqacc":"F1","aliIdCoun' \
+                 't":31,"alirfline":"","is_included":1,"alihmmname":">Seq","bitscore":44.4842414855957,"ievalue":"3.9' \
+                 'e-10","alisqto":67,"aliSim":0.869565217391304,"jali":67,"bias":"16.70","ienv":12,"cevalue":"3.9e-14' \
+                 '","alimline":"p+ra+ +cgsqagg lcpn lccsq+g+cg  s++cg+gcqs   g+c ","alihmmfrom":82,"aliL":310,"is_rep' \
+                 'orted":1,"alintseq":"","alisindex":"237720498","jenv":82,"alimmline":"","alihmmacc":"","oasc":"0.80' \
+                 '","aliaseq":"PARAE-QCGSQAGGALCPNCLCCSQFGWCGSTSDYCGSGCQSqcsGSCG","alihmmto":127,"aliId":0.6739130434' \
+                 '78261,"alippline":"88887.8**********************************72225553","alimodel":"pcradikcgsqaggklc' \
+                 'pnnlccsqwgfcglgsefcgggcqs...gacs","aliM":171,"iali":20,"alicsline":"","aliSimCount":40,"alihmmdesc"' \
+                 ':"","alisqdesc":"Chitinase","alisqname":"A0A1D6LMS5","alisqfrom":20,"aliN":49},{"aliniseqs":1,"alis' \
+                 'qacc":"F1","aliIdCount":17,"alirfline":"","is_included":0,"alihmmname":">Seq","bitscore":-4.5749888' \
+                 '420105,"ievalue":"360000","alisqto":167,"aliSim":0.449275362318841,"jali":167,"bias":"10.49","ienv"' \
+                 ':92,"cevalue":"36","alimline":"c  n   +  g+ + +  + g g  g+p  +    g   g   +p+      wg+c            ' \
+                 '                          +    + gp yc  ++","alihmmfrom":55,"aliL":310,"is_reported":0,"alintseq":"' \
+                 '","alisindex":"237720498","jenv":205,"alimmline":"","alihmmacc":"","oasc":"0.47","aliaseq":"CPANGFY' \
+                 'TYAGFIAAANAFPGFGTTGAPDTSHETTG---GWATAPDGP--YAWGYCF------------------------------------KEEQGGASGPDYC' \
+                 'EPSA","alihmmto":164,"aliId":0.246376811594203,"alippline":"333333333333333333444444444433332222...' \
+                 '223334332..2344443....................................33333333333333322","alimodel":"ctnnqccsqygycg' \
+                 'fgaeycgagcqggpcradikcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacstdkpcgkdaggrvctnnyccskwgscgigpgycgagc","' \
+                 'aliM":171,"iali":99,"alicsline":"","aliSimCount":31,"alihmmdesc":"","alisqdesc":"Chitinase","alisqn' \
+                 'ame":"A0A1D6LMS5","alisqfrom":99,"aliN":110},{"aliniseqs":1,"alisqacc":"F1","aliIdCount":0,"alirfli' \
+                 'ne":"","is_included":0,"alihmmname":">Seq","bitscore":-2.89088797569275,"ievalue":"120000","alisqto' \
+                 '":275,"aliSim":0,"jali":275,"bias":"0.18","ienv":251,"cevalue":"12","alimline":" ","alihmmfrom":137' \
+                 ',"aliL":310,"is_reported":0,"alintseq":"","alisindex":"237720498","jenv":304,"alimmline":"","alihmm' \
+                 'acc":"","oasc":"0.62","aliaseq":"D","alihmmto":137,"aliId":0,"alippline":"1","alimodel":"g","aliM":' \
+                 '171,"iali":275,"alicsline":"","aliSimCount":0,"alihmmdesc":"","alisqdesc":"Chitinase","alisqname":"' \
+                 'A0A1D6LMS5","alisqfrom":275,"aliN":1}],"evalue":"3.9e-10","nreported":1,"archindex":"55525311637573' \
+                 ' 4577"},{"archScore":"4","ph":"Streptophyta","arch":"PF00187.22 PF00182.22","kg":"Eukaryota","ndom"' \
+                 ':3,"extlink":"https://alphafold.ebi.ac.uk/entry/Q7DNA1","acc2":"Q7DNA1","taxid":"39947","acc":"Q7DN' \
+                 'A1","taxlink":"http://www.uniprot.org/taxonomy/","desc":"Chitinase 2","pvalue":-33.4454090806076,"f' \
+                 'lags":"3","nregions":3,"niseqs":16,"name":"Q7DNA1","species":"Oryza sativa subsp. japonica","score"' \
+                 ':"43.0","bias":"15.2","sindex":"236237656","nincluded":"1","domains":[{"aliniseqs":1,"alisqacc":"F1' \
+                 '","aliIdCount":29,"alirfline":"","is_included":1,"alihmmname":">Seq","bitscore":43.0375175476074,"i' \
+                 'evalue":"1.1e-09","alisqto":73,"aliSim":0.813953488372093,"jali":73,"bias":"15.22","ienv":20,"ceval' \
+                 'ue":"1.1e-13","alimline":"ra+ +cg+qagg  cpn lccs+wg+cg  s+fcg gcqs  cs ","alihmmfrom":84,"aliL":340' \
+                 ',"is_reported":1,"alintseq":"","alisindex":"236237656","jenv":91,"alimmline":"","alihmmacc":"","oas' \
+                 'c":"0.85","aliaseq":"RAE-QCGAQAGGARCPNCLCCSRWGWCGTTSDFCGDGCQSQ-CSG","alihmmto":128,"aliId":0.674418' \
+                 '604651163,"alippline":"555.8**********************************85.543","alimodel":"radikcgsqaggklcpn' \
+                 'nlccsqwgfcglgsefcgggcqsgacst","aliM":171,"iali":31,"alicsline":"","aliSimCount":35,"alihmmdesc":"",' \
+                 '"alisqdesc":"Chitinase 2","alisqname":"Q7DNA1","alisqfrom":31,"aliN":45},{"aliniseqs":1,"alisqacc":' \
+                 '"F1","aliIdCount":1,"alirfline":"","is_included":0,"alihmmname":">Seq","bitscore":-3.32551097869873' \
+                 ',"ievalue":"170000","alisqto":184,"aliSim":1,"jali":184,"bias":"0.28","ienv":168,"cevalue":"16","al' \
+                 'imline":"c","alihmmfrom":17,"aliL":340,"is_reported":0,"alintseq":"","alisindex":"236237656","jenv"' \
+                 ':205,"alimmline":"","alihmmacc":"","oasc":"0.46","aliaseq":"C","alihmmto":17,"aliId":1,"alippline":' \
+                 '"2","alimodel":"c","aliM":171,"iali":184,"alicsline":"","aliSimCount":1,"alihmmdesc":"","alisqdesc"' \
+                 ':"Chitinase 2","alisqname":"Q7DNA1","alisqfrom":184,"aliN":1},{"aliniseqs":1,"alisqacc":"F1","aliId' \
+                 'Count":8,"alirfline":"","is_included":0,"alihmmname":">Seq","bitscore":-1.36343097686768,"ievalue":' \
+                 '"42000","alisqto":314,"aliSim":0.37037037037037,"jali":314,"bias":"1.32","ienv":269,"cevalue":"4.1"' \
+                 ',"alimline":"g  c +       +  gf   ycga  ","alihmmfrom":52,"aliL":340,"is_reported":0,"alintseq":"",' \
+                 '"alisindex":"236237656","jenv":331,"alimmline":"","alihmmacc":"","oasc":"0.66","aliaseq":"GLECGHGPD' \
+                 'DRVANRIGFYQRYCGAFG","alihmmto":78,"aliId":0.296296296296296,"alippline":"44454444444455566777777764' \
+                 '3","alimodel":"gatctnnqccsqygycgfgaeycgagc","aliM":171,"iali":288,"alicsline":"","aliSimCount":10,"' \
+                 'alihmmdesc":"","alisqdesc":"Chitinase 2","alisqname":"Q7DNA1","alisqfrom":288,"aliN":27}],"pdbs":["' \
+                 '3iwr_A","3iwr_B","2dkv_A"],"evalue":"1.1e-09","nreported":1,"archindex":"55525311637573 39947"},{"a' \
+                 'rchScore":"4","ph":"Streptophyta","arch":"PF00187.22 PF00182.22","kg":"Eukaryota","ndom":3,"extlink' \
+                 '":"https://alphafold.ebi.ac.uk/entry/Q9SDY6","acc2":"Q9SDY6","taxid":"3847","acc":"Q9SDY6","taxlink' \
+                 '":"http://www.uniprot.org/taxonomy/","desc":"Chitinase","pvalue":-32.2919606696729,"flags":"3","nre' \
+                 'gions":3,"niseqs":16,"name":"Q9SDY6","species":"Glycine max","score":"41.4","bias":"10.5","sindex":' \
+                 '"243314487","nincluded":"1","domains":[{"aliniseqs":1,"alisqacc":"F1","aliIdCount":24,"alirfline":"' \
+                 '","is_included":1,"alihmmname":">Seq","bitscore":41.4002456665039,"ievalue":"3.4e-09","alisqto":65,' \
+                 '"aliSim":0.731707317073171,"jali":65,"bias":"10.51","ienv":19,"cevalue":"3.4e-13","alimline":"+cg+q' \
+                 'agg lcpn lccs++g+cg    +cg gcqs   s  ","alihmmfrom":88,"aliL":320,"is_reported":1,"alintseq":"","al' \
+                 'isindex":"243314487","jenv":87,"alimmline":"","alihmmacc":"","oasc":"0.75","aliaseq":"QCGTQAGGALCPN' \
+                 'RLCCSKFGWCGDTDSYCGEGCQSQCKS-A","alihmmto":129,"aliId":0.585365853658537,"alippline":"79999999999999' \
+                 '99999999999999999999985322.2","alimodel":"kcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacstd","aliM":171,"i' \
+                 'ali":25,"alicsline":"","aliSimCount":30,"alihmmdesc":"","alisqdesc":"Chitinase","alisqname":"Q9SDY6' \
+                 '","alisqfrom":25,"aliN":42},{"aliniseqs":1,"alisqacc":"F1","aliIdCount":10,"alirfline":"","is_inclu' \
+                 'ded":0,"alihmmname":">Seq","bitscore":-2.17198753356934,"ievalue":"73000","alisqto":185,"aliSim":0.' \
+                 '555555555555556,"jali":185,"bias":"5.35","ienv":121,"cevalue":"7.3","alimline":" a             +gyc' \
+                 ' ++ +  +  c gg  pc a ","alihmmfrom":49,"aliL":320,"is_reported":0,"alintseq":"","alisindex":"243314' \
+                 '487","jenv":211,"alimmline":"","alihmmacc":"","oasc":"0.61","aliaseq":"YA-------------WGYCFINEQNQAT' \
+                 'YCDGGnwPCAAG","alihmmto":86,"aliId":0.37037037037037,"alippline":"33.............344444444444444443' \
+                 '3334333","alimodel":"qaggatctnnqccsqygycgfgaeycgagcqgg..pcrad","aliM":171,"iali":159,"alicsline":""' \
+                 ',"aliSimCount":15,"alihmmdesc":"","alisqdesc":"Chitinase","alisqname":"Q9SDY6","alisqfrom":159,"ali' \
+                 'N":40},{"aliniseqs":1,"alisqacc":"F1","aliIdCount":3,"alirfline":"","is_included":0,"alihmmname":">' \
+                 'Seq","bitscore":-2.33587241172791,"ievalue":"82000","alisqto":284,"aliSim":0.5,"jali":284,"bias":"0' \
+                 '.21","ienv":251,"cevalue":"8.2","alimline":"gg  c + ","alihmmfrom":51,"aliL":320,"is_reported":0,"a' \
+                 'lintseq":"","alisindex":"243314487","jenv":315,"alimmline":"","alihmmacc":"","oasc":"0.61","aliaseq' \
+                 '":"GGLECGHG","alihmmto":58,"aliId":0.375,"alippline":"33333333","alimodel":"ggatctnn","aliM":171,"i' \
+                 'ali":277,"alicsline":"","aliSimCount":4,"alihmmdesc":"","alisqdesc":"Chitinase","alisqname":"Q9SDY6' \
+                 '","alisqfrom":277,"aliN":8}],"evalue":"3.4e-09","nreported":1,"archindex":"55525311637573 3847"},{"' \
+                 'archScore":"3","ph":"Streptophyta","arch":"PF00187.22 PF00182.22 PF00182.22","kg":"Eukaryota","ndom' \
+                 '":2,"extlink":"https://alphafold.ebi.ac.uk/entry/C6T7J9","acc2":"C6T7J9","taxid":"3847","acc":"C6T7' \
+                 'J9","taxlink":"http://www.uniprot.org/taxonomy/","desc":"Chitinase","pvalue":-31.1536505620012,"fla' \
+                 'gs":"3","nregions":2,"niseqs":16,"name":"C6T7J9","species":"Glycine max","score":"39.8","bias":"8.0' \
+                 '","sindex":"243339183","nincluded":"1","domains":[{"aliniseqs":1,"alisqacc":"F1","aliIdCount":21,"a' \
+                 'lirfline":"","is_included":1,"alihmmname":">Seq","bitscore":39.7844619750977,"ievalue":"1.1e-08","a' \
+                 'lisqto":71,"aliSim":0.684210526315789,"jali":71,"bias":"7.98","ienv":29,"cevalue":"1.1e-12","alimli' \
+                 'ne":"+ n  c   lccs+ygycg g dycgkgc+ g c+ + ","alihmmfrom":7,"aliL":280,"is_reported":1,"alintseq":"' \
+                 '","alisindex":"243339183","jenv":88,"alimmline":"","alihmmacc":"","oasc":"0.87","aliaseq":"AQNCGCEA' \
+                 'ELCCSKYGYCGSGDDYCGKGCKEGPCYGTA","alihmmto":44,"aliId":0.552631578947368,"alippline":"57899*********' \
+                 '********************9764","alimodel":"gsnmecpnnlccsqygycgmggdycgkgcqngacwtsk","aliM":171,"iali":34,' \
+                 '"alicsline":"","aliSimCount":26,"alihmmdesc":"","alisqdesc":"Chitinase","alisqname":"C6T7J9","alisq' \
+                 'from":34,"aliN":38},{"aliniseqs":1,"alisqacc":"F1","aliIdCount":5,"alirfline":"","is_included":0,"a' \
+                 'lihmmname":">Seq","bitscore":-1.96306431293488,"ievalue":"63000","alisqto":172,"aliSim":0.5,"jali":' \
+                 '172,"bias":"0.27","ienv":146,"cevalue":"6.3","alimline":"dyc k  ++  c  ","alihmmfrom":29,"aliL":280' \
+                 ',"is_reported":0,"alintseq":"","alisindex":"243339183","jenv":194,"alimmline":"","alihmmacc":"","oa' \
+                 'sc":"0.59","aliaseq":"DYCDKTNRHYPCAH","alihmmto":42,"aliId":0.357142857142857,"alippline":"44444333' \
+                 '333322","alimodel":"dycgkgcqngacwt","aliM":171,"iali":159,"alicsline":"","aliSimCount":7,"alihmmdes' \
+                 'c":"","alisqdesc":"Chitinase","alisqname":"C6T7J9","alisqfrom":159,"aliN":14}],"evalue":"1.1e-08","' \
+                 'nreported":1,"archindex":"113074525985478 3847"},{"archScore":"3","ph":"Streptophyta","arch":"PF001' \
+                 '87.22 PF00182.22","kg":"Eukaryota","ndom":2,"extlink":"https://alphafold.ebi.ac.uk/entry/I1MMY2","a' \
+                 'cc2":"I1MMY2","taxid":"3847","acc":"I1MMY2","taxlink":"http://www.uniprot.org/taxonomy/","desc":"Ch' \
+                 'itinase","pvalue":-30.5115182979563,"flags":"3","nregions":2,"niseqs":16,"name":"I1MMY2","species":' \
+                 '"Glycine max","score":"38.9","bias":"10.9","sindex":"243358091","nincluded":"1","domains":[{"alinis' \
+                 'eqs":1,"alisqacc":"F1","aliIdCount":24,"alirfline":"","is_included":1,"alihmmname":">Seq","bitscore' \
+                 '":38.8729820251465,"ievalue":"2.0e-08","alisqto":75,"aliSim":0.557692307692308,"jali":75,"bias":"10' \
+                 '.90","ienv":18,"cevalue":"2.0e-12","alimline":"  cg+q gg +cpn lccsq+g+cg     cg gcqs       p     +g' \
+                 '","alihmmfrom":87,"aliL":317,"is_reported":1,"alintseq":"","alisindex":"243358091","jenv":89,"alimm' \
+                 'line":"","alihmmacc":"","oasc":"0.76","aliaseq":"QNCGTQVGGVICPNGLCCSQYGWCGNTEAHCGRGCQSQCTPGSTPTPTTP' \
+                 'SG","alihmmto":138,"aliId":0.461538461538462,"alippline":"47************************999*******98665' \
+                 '55555443333","alimodel":"ikcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacstdkpcgkdagg","aliM":171,"iali":24' \
+                 ',"alicsline":"","aliSimCount":29,"alihmmdesc":"","alisqdesc":"Chitinase","alisqname":"I1MMY2","alis' \
+                 'qfrom":24,"aliN":52},{"aliniseqs":1,"alisqacc":"F1","aliIdCount":6,"alirfline":"","is_included":0,"' \
+                 'alihmmname":">Seq","bitscore":0.743120551109314,"ievalue":"9400","alisqto":178,"aliSim":0.476190476' \
+                 '190476,"jali":178,"bias":"0.96","ienv":117,"cevalue":"0.94","alimline":"wg+c ++    +  c sg   ","ali' \
+                 'hmmfrom":107,"aliL":317,"is_reported":1,"alintseq":"","alisindex":"243358091","jenv":204,"alimmline' \
+                 '":"","alihmmacc":"","oasc":"0.67","aliaseq":"WGYCFINERNQADYCTSGTRW","alihmmto":127,"aliId":0.285714' \
+                 '285714286,"alippline":"555555555444555544322","alimodel":"wgfcglgsefcgggcqsgacs","aliM":171,"iali":' \
+                 '158,"alicsline":"","aliSimCount":10,"alihmmdesc":"","alisqdesc":"Chitinase","alisqname":"I1MMY2","a' \
+                 'lisqfrom":158,"aliN":21}],"evalue":"2.0e-08","nreported":2,"archindex":"55525311637573 3847"},{"arc' \
+                 'hScore":"2","ph":"Streptophyta","arch":"PF00187.22 PF00182.22 PF00182.22","kg":"Eukaryota","ndom":2' \
+                 ',"extlink":"https://alphafold.ebi.ac.uk/entry/Q6K8R2","acc2":"Q6K8R2","taxid":"39947","acc":"Q6K8R2' \
+                 '","taxlink":"http://www.uniprot.org/taxonomy/","desc":"Chitinase 6","pvalue":-30.1115021385755,"fla' \
+                 'gs":"3","nregions":2,"niseqs":16,"name":"Q6K8R2","species":"Oryza sativa subsp. japonica","score":"' \
+                 '38.3","bias":"8.5","sindex":"236253149","nincluded":"1","domains":[{"aliniseqs":1,"alisqacc":"F1","' \
+                 'aliIdCount":18,"alirfline":"","is_included":1,"alihmmname":">Seq","bitscore":38.30517578125,"ievalu' \
+                 'e":"3.0e-08","alisqto":60,"aliSim":0.771428571428571,"jali":60,"bias":"8.51","ienv":15,"cevalue":"3' \
+                 '.0e-12","alimline":" +  c ++qccs++g+cg g++ycg gcq+gpc  ","alihmmfrom":51,"aliL":271,"is_reported":1' \
+                 ',"alintseq":"","alisindex":"236253149","jenv":78,"alimmline":"","alihmmacc":"","oasc":"0.73","alias' \
+                 'eq":"QSCGCASDQCCSKWGFCGTGSDYCGTGCQAGPCDV","alihmmto":85,"aliId":0.514285714285714,"alippline":"3455' \
+                 '7888888888888888888888888888854","alimodel":"ggatctnnqccsqygycgfgaeycgagcqggpcra","aliM":171,"iali"' \
+                 ':26,"alicsline":"","aliSimCount":27,"alihmmdesc":"","alisqdesc":"Chitinase 6","alisqname":"Q6K8R2",' \
+                 '"alisqfrom":26,"aliN":35},{"aliniseqs":1,"alisqacc":"F1","aliIdCount":10,"alirfline":"","is_include' \
+                 'd":0,"alihmmname":">Seq","bitscore":-0.0346345528960228,"ievalue":"16000","alisqto":169,"aliSim":0.' \
+                 '5,"jali":169,"bias":"0.48","ienv":140,"cevalue":"1.6","alimline":"nyc   s    c  g gy g g","alihmmfr' \
+                 'om":144,"aliL":271,"is_reported":0,"alintseq":"","alisindex":"236253149","jenv":194,"alimmline":"",' \
+                 '"alihmmacc":"","oasc":"0.73","aliaseq":"NYCdeTSTQWPCMAGKGYYGRG","alihmmto":163,"aliId":0.5,"alippli' \
+                 'ne":"6663322333577788887776","alimodel":"nyc..cskwgscgigpgycgag","aliM":171,"iali":148,"alicsline":' \
+                 '"","aliSimCount":10,"alihmmdesc":"","alisqdesc":"Chitinase 6","alisqname":"Q6K8R2","alisqfrom":148,' \
+                 '"aliN":22}],"evalue":"3.0e-08","nreported":1,"archindex":"113074525985478 39947"},{"archScore":"4",' \
+                 '"ph":"Streptophyta","arch":"PF00187.22 PF00182.22","kg":"Eukaryota","ndom":2,"extlink":"https://alp' \
+                 'hafold.ebi.ac.uk/entry/B6TR38","acc2":"B6TR38","taxid":"4577","acc":"B6TR38","taxlink":"http://www.' \
+                 'uniprot.org/taxonomy/","desc":"Chitinase","pvalue":-28.6942419861504,"flags":"3","nregions":2,"nise' \
+                 'qs":16,"name":"B6TR38","species":"Zea mays","score":"36.3","bias":"15.4","sindex":"237740814","ninc' \
+                 'luded":"1","domains":[{"aliniseqs":1,"alisqacc":"F1","aliIdCount":24,"alirfline":"","is_included":1' \
+                 ',"alihmmname":">Seq","bitscore":36.2934341430664,"ievalue":"1.3e-07","alisqto":71,"aliSim":0.780487' \
+                 '804878049,"jali":71,"bias":"15.39","ienv":23,"cevalue":"1.2e-11","alimline":" ++cg qaggatc +  ccs++' \
+                 'g+cg  +eycgagcq+  c ","alihmmfrom":43,"aliL":334,"is_reported":1,"alintseq":"","alisindex":"2377408' \
+                 '14","jenv":89,"alimmline":"","alihmmacc":"","oasc":"0.80","aliaseq":"GQQCGQQAGGATCRDCLCCSRFGFCGDTSE' \
+                 'YCGAGCQS-QCT","alihmmto":84,"aliId":0.585365853658537,"alippline":"57899999999999999999999999999999' \
+                 '999996.343","alimodel":"skrcgsqaggatctnnqccsqygycgfgaeycgagcqggpcr","aliM":171,"iali":31,"alicsline' \
+                 '":"","aliSimCount":32,"alihmmdesc":"","alisqdesc":"Chitinase","alisqname":"B6TR38","alisqfrom":31,"' \
+                 'aliN":42},{"aliniseqs":1,"alisqacc":"F1","aliIdCount":4,"alirfline":"","is_included":0,"alihmmname"' \
+                 ':">Seq","bitscore":-3.81587338447571,"ievalue":"230000","alisqto":193,"aliSim":0.555555555555556,"j' \
+                 'ali":193,"bias":"0.04","ienv":170,"cevalue":"23","alimline":"c+ g  y g","alihmmfrom":24,"aliL":334,' \
+                 '"is_reported":0,"alintseq":"","alisindex":"237740814","jenv":201,"alimmline":"","alihmmacc":"","oas' \
+                 'c":"0.49","aliaseq":"CAPGKKYFG","alihmmto":32,"aliId":0.444444444444444,"alippline":"222333333","al' \
+                 'imodel":"cgmggdycg","aliM":171,"iali":185,"alicsline":"","aliSimCount":5,"alihmmdesc":"","alisqdesc' \
+                 '":"Chitinase","alisqname":"B6TR38","alisqfrom":185,"aliN":9}],"evalue":"1.3e-07","nreported":1,"arc' \
+                 'hindex":"55525311637573 4577"},{"archScore":"3","ph":"Streptophyta","arch":"PF00187.22 PF00182.22 P' \
+                 'F00182.22","kg":"Eukaryota","ndom":2,"extlink":"https://alphafold.ebi.ac.uk/entry/B6TT00","acc2":"B' \
+                 '6TT00","taxid":"4577","acc":"B6TT00","taxlink":"http://www.uniprot.org/taxonomy/","desc":"Chitinase' \
+                 '","pvalue":-28.4890673188471,"flags":"3","nregions":2,"niseqs":16,"name":"B6TT00","species":"Zea ma' \
+                 'ys","score":"36.0","bias":"10.1","sindex":"237844714","nincluded":"1","domains":[{"aliniseqs":1,"al' \
+                 'isqacc":"F1","aliIdCount":19,"alirfline":"","is_included":1,"alihmmname":">Seq","bitscore":36.00219' \
+                 '7265625,"ievalue":"1.5e-07","alisqto":59,"aliSim":0.735294117647059,"jali":59,"bias":"10.11","ienv"' \
+                 ':19,"cevalue":"1.5e-11","alimline":" +  c +  ccs++gycg g +ycgagcq+gpc ","alihmmfrom":51,"aliL":271,' \
+                 '"is_reported":1,"alintseq":"","alisindex":"237844714","jenv":74,"alimmline":"","alihmmacc":"","oasc' \
+                 '":"0.64","aliaseq":"QNCGCASGLCCSRFGYCGTGEDYCGAGCQSGPCD","alihmmto":84,"aliId":0.558823529411765,"al' \
+                 'ippline":"3445666666666666666666666666666664","alimodel":"ggatctnnqccsqygycgfgaeycgagcqggpcr","aliM' \
+                 '":171,"iali":26,"alicsline":"","aliSimCount":25,"alihmmdesc":"","alisqdesc":"Chitinase","alisqname"' \
+                 ':"B6TT00","alisqfrom":26,"aliN":34},{"aliniseqs":1,"alisqacc":"F1","aliIdCount":10,"alirfline":"","' \
+                 'is_included":0,"alihmmname":">Seq","bitscore":0.288663238286972,"ievalue":"13000","alisqto":169,"al' \
+                 'iSim":0.571428571428571,"jali":169,"bias":"0.35","ienv":99,"cevalue":"1.3","alimline":" nyc    ++w ' \
+                 ' c  g gy g g","alihmmfrom":143,"aliL":271,"is_reported":0,"alintseq":"","alisindex":"237844714","je' \
+                 'nv":192,"alimmline":"","alihmmacc":"","oasc":"0.81","aliaseq":"KNYCDrnnTQW-PCQAGKGYYGRG","alihmmto"' \
+                 ':163,"aliId":0.476190476190476,"alippline":"45554211344.577777777766","alimodel":"nnycc...skwgscgig' \
+                 'pgycgag","aliM":171,"iali":147,"alicsline":"","aliSimCount":12,"alihmmdesc":"","alisqdesc":"Chitina' \
+                 'se","alisqname":"B6TT00","alisqfrom":147,"aliN":24}],"evalue":"1.5e-07","nreported":1,"archindex":"' \
+                 '113074525985478 4577"}],"algo":"phmmer","stats":{"page":1,"nhits":"36","elapsed":"0.10","Z":362042,' \
+                 '"Z_setby":0,"n_past_msv":20785,"unpacked":"36","user":0,"domZ_setby":0,"nseqs":362042,"n_past_bias"' \
+                 ':5893,"sys":0,"n_past_fwd":38,"total":4,"nmodels":1,"nincluded":"36","n_past_vit":541,"nreported":"' \
+                 '36","domZ":36},"uuid":"B401DCCA-8999-11EC-BB2E-100EE976C163","_internal":{"lowevalue":"1.5e-07","hi' \
+                 'ghevalue":"5.4e-74"}}}'

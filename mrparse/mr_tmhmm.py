@@ -4,7 +4,7 @@ Created on 18 Dec 2020
 @author: hlasimpk
 """
 import logging
-import os
+from pathlib import Path
 from pyjob import cexec
 import glob
 
@@ -24,8 +24,7 @@ class TMPred(object):
         self.seq_info = seq_info
         self.tmhmm_exe = tmhmm_exe
         self.prediction = None
-        script_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'scripts')
-        self.tmhmm_model = os.path.join(script_dir, 'TMHMM2.0.model')
+        self.tmhmm_model = str(Path(__file__).parent.resolve().joinpath('scripts', 'TMHMM2.0.model'))
 
     @staticmethod
     def prepare_seqin(seqin):
@@ -89,7 +88,7 @@ class TMPred(object):
         return
 
     def get_prediction(self):
-        logger.debug("TMHMM starting prediction at: %s" % now())
+        logger.debug(f"TMHMM starting prediction at: {now()}")
         # If there are no spaces in the fasta header, tmhmm gives an error
         self.prepare_seqin(self.seq_info.sequence_file)
         self.run_job(self.seq_info.sequence_file)
@@ -97,4 +96,4 @@ class TMPred(object):
         plot_file = glob.glob("*.plot")[0]
         prediction, scores = self.parse_tmhmm_output(annotation_file, plot_file)
         self.prediction = self.create_annotation(prediction, scores)
-        logger.debug("TMHMM finished prediction at: %s" % now())
+        logger.debug(f"TMHMM finished prediction at: {now()}")

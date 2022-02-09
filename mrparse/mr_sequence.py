@@ -5,7 +5,7 @@ Created on 17 Nov 2018
 """
 
 import copy
-import os
+from pathlib import Path
 
 from Bio.Seq import Seq
 from Bio import SeqIO
@@ -33,10 +33,9 @@ class Sequence(object):
         if seq_file:
             self._read_sequence_file(seq_file, sequence_type)
         elif sequence:
-            self._bio_seq = Seq(sequence)
-            self._bio_seq_record = SeqRecord(self._bio_seq, generic_protein)
+            self._bio_seq = Seq(sequence, generic_protein)
+            self._bio_seq_record = SeqRecord(self._bio_seq, id="")
         self.nresidues = len(self._bio_seq)
-        self.sequence = str(self._bio_seq)
         self.sequence = str(self._bio_seq)
 
     def __len__(self):
@@ -48,7 +47,7 @@ class Sequence(object):
         if sequence_type is None:
             sequence_type = self.sequence_type_from_filename(seq_file)
             if not sequence_type:
-                raise RuntimeError("Cannot determine sequence type from file: {}".format(seq_file))
+                raise RuntimeError(f"Cannot determine sequence type from file: {seq_file}")
 
         try:
             self._bio_seq_record = SeqIO.read(seq_file, sequence_type, alphabet=generic_protein)
@@ -58,7 +57,7 @@ class Sequence(object):
 
     @staticmethod
     def sequence_type_from_filename(seq_file):
-        _, suffix = os.path.splitext(seq_file)
+        suffix = Path(seq_file).suffix
         suffix = suffix.lstrip('.').lower()
         try:
             return SUFFIX_TO_TYPE[suffix]
@@ -89,7 +88,7 @@ class Sequence(object):
         if sequence_type is None:
             sequence_type = self.sequence_type_from_filename(seq_file)
             if not sequence_type:
-                raise RuntimeError("Cannot determine sequence type from file: {}".format(seq_file))
+                raise RuntimeError(f"Cannot determine sequence type from file: {seq_file}")
         if description:
             seq_record = copy.copy(self._bio_seq_record)
             seq_record.id = description
@@ -120,7 +119,7 @@ def merge_multiple_sequences(seq_file):
 
     sequence_type = Sequence.sequence_type_from_filename(seq_file)
     if not sequence_type:
-        raise RuntimeError("Cannot determine sequence type from file: {}".format(seq_file))
+        raise RuntimeError(f"Cannot determine sequence type from file: {seq_file}")
 
     sequence = ""
     identifier = []
@@ -135,8 +134,8 @@ def merge_multiple_sequences(seq_file):
     bio_seq_record = SeqRecord(sequence)
     bio_seq_record.id = "||".join(identifier)
 
-    file_name = os.path.basename(seq_file).split('.')[0]
-    merged_seq_file = os.path.join(os.getcwd(), '{}_merged.fasta'.format(file_name))
-    SeqIO.write(bio_seq_record, merged_seq_file, "fasta")
+    file_name = Path(seq_file).stem
+    merged_seq_file = Path.cwd().joinpath(f'{file_name}_merged.fasta')
+    SeqIO.write(bio_seq_record, str(merged_seq_file), "fasta")
 
     return Sequence(merged_seq_file)

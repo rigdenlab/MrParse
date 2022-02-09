@@ -3,8 +3,8 @@ import set_mrparse_path
 import pytest
 import gemmi
 import logging
-from mrparse.mr_alphafold import download_model, models_from_hits, calculate_quality_threshold, calculate_quality_h_score, \
-    calculate_avg_plddt, calculate_sum_plddt
+from mrparse.mr_alphafold import download_model, models_from_hits, calculate_quality_threshold, \
+    calculate_quality_h_score, calculate_avg_plddt, calculate_sum_plddt, get_afdb_version
 from simbad.util.pdb_util import PdbStructure
 
 logging.basicConfig(level=logging.DEBUG)
@@ -12,23 +12,24 @@ logging.basicConfig(level=logging.DEBUG)
 
 def test_2uvoA_models(get_2uvo_alphafold_test_hits):
     hits = get_2uvo_alphafold_test_hits
-    models = models_from_hits(hits)
+    models = models_from_hits(hits, plddt_cutoff=0)
 
-    m = models['Q0JF21']
-    assert m.length == 167
-    assert abs(m.molecular_weight - 17135) < 0.001
-    assert m.model_id == "Q0JF21"
+    m = models['Q0JF21_1']
+    assert m.length == 166
+    assert abs(m.molecular_weight - 17033) < 0.001
+    assert m.model_id == "Q0JF21_1"
     assert m.h_score == 92
     assert int(m.avg_plddt) == 95
-    assert int(m.sum_plddt) == 16187
+    assert int(m.sum_plddt) == 16094
 
 
 def test_calculate_quality_scores(get_2uvo_alphafold_test_hits):
     """Test the quality scoring methods"""
     hits = get_2uvo_alphafold_test_hits
-    hit = hits['AF-Q0JF21-F1-model_v1_1']
+    hit = hits['Q0JF21_1']
 
-    pdb_name = "{0}_{1}.pdb".format(hit.pdb_id, hit.chain_id)
+    database_version = get_afdb_version()
+    pdb_name = f"AF-{hit.pdb_id}-F1-model_{database_version}.pdb"
     pdb_struct = PdbStructure()
     pdb_string = download_model(pdb_name)
     pdb_struct.structure = gemmi.read_pdb_string(pdb_string)
@@ -44,7 +45,7 @@ def test_calculate_quality_scores(get_2uvo_alphafold_test_hits):
     assert int(threshold_2) == 70
     assert h_score == 92
     assert int(avg_plddt) == 95
-    assert int(sum_plddt) == 16187
+    assert int(sum_plddt) == 16094
 
 
 if __name__ == '__main__':
