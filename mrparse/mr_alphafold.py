@@ -10,7 +10,7 @@ from itertools import groupby
 import logging
 import numpy as np
 from operator import itemgetter
-import os
+from pathlib import Path
 from pkg_resources import parse_version
 import requests
 from simbad.util.pdb_util import PdbStructure
@@ -21,8 +21,8 @@ class PdbModelException(Exception):
 
 
 AF_BASE_URL = 'https://alphafold.ebi.ac.uk/entry/'
-AF2_DIR = 'AF2_files'
-MODELS_DIR = 'models'
+AF2_DIR = Path('AF2_files')
+MODELS_DIR = Path('models')
 
 logger = logging.getLogger(__name__)
 
@@ -111,18 +111,17 @@ class ModelData(object):
 
     def __str__(self):
         attrs = [k for k in self.__dict__.keys() if not k.startswith('_')]
-        line_template = "  {} : {}\n"
-        out_str = "Class: {}\nData:\n".format(self.__class__)
+        out_str = f"Class: {self.__class__}\nData:\n"
         for a in sorted(attrs):
-            out_str += line_template.format(a, self.__dict__[a])
+            out_str += f"  {a} : {self.__dict__[a]}\n"
         return out_str
 
 
 def models_from_hits(hits, plddt_cutoff):
-    if not os.path.isdir(AF2_DIR):
-        os.mkdir(AF2_DIR)
-    if not os.path.isdir(MODELS_DIR):
-        os.mkdir(MODELS_DIR)
+    if not AF2_DIR.exists():
+        AF2_DIR.mkdir()
+    if not MODELS_DIR.exists():
+        MODELS_DIR.mkdir()
 
     db_ver = get_afdb_version()
     models = OrderedDict()
@@ -136,7 +135,7 @@ def models_from_hits(hits, plddt_cutoff):
             mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, \
             mlog.date_made, mlog.plddt_regions = prepare_pdb(hit, plddt_cutoff, db_ver)
         except PdbModelException as e:
-            logger.critical("Error processing pdb: %s", e.message)
+            logger.critical(f"Error processing pdb: {e}")
             continue
         models[mlog.name] = mlog
     return models
@@ -155,7 +154,7 @@ def prepare_pdb(hit, plddt_cutoff, database_version):
     trucate to required residues
     calculate the MW
     """
-    pdb_name = "AF-{0}-F1-model_{1}.pdb".format(hit.pdb_id, database_version)
+    pdb_name = f"AF-{hit.pdb_id}-F1-model_{database_version}.pdb"
     pdb_struct = PdbStructure()
     try:
         pdb_string = download_model(pdb_name)
@@ -163,17 +162,17 @@ def prepare_pdb(hit, plddt_cutoff, database_version):
         date_made = pdb_string.split('\n')[0].split()[-1]
     except RuntimeError:
         # SIMBAD currently raises an empty RuntimeError for download problems.
-        raise PdbModelException("Error downloading PDB file for: {}".format(hit.pdb_id))
+        raise PdbModelException(f"Error downloading PDB file for: {hit.pdb_id}")
 
-    pdb_file = os.path.join(AF2_DIR, pdb_name)
-    pdb_struct.save(pdb_file)
+    pdb_file = AF2_DIR.joinpath(pdb_name)
+    pdb_struct.save(str(pdb_file))
 
     seqid_range = range(hit.hit_start, hit.hit_stop + 1)
     try:
         pdb_struct.select_residues(to_keep_idx=seqid_range)
     except IndexError:
         # SIMBAD occasionally raises an empty IndexError when selecting residues.
-        raise PdbModelException("Error selecting residues for: {}".format(hit.pdb_id))
+        raise PdbModelException(f"Error selecting residues for: {hit.pdb_id}")
 
     avg_plddt = calculate_avg_plddt(pdb_struct.structure)
     sum_plddt = calculate_sum_plddt(pdb_struct.structure)
@@ -188,11 +187,11 @@ def prepare_pdb(hit, plddt_cutoff, database_version):
     # Convert plddt to bfactor score
     pdb_struct.structure = convert_plddt_to_bfactor(pdb_struct.structure)
 
-    truncated_pdb_name = "{}_{}_{}-{}.pdb".format(hit.pdb_id, database_version, hit.hit_start, hit.hit_stop)
-    truncated_pdb_path = os.path.join(MODELS_DIR, truncated_pdb_name)
-    pdb_struct.save(truncated_pdb_path,
-                    remarks=["PHASER ENSEMBLE MODEL 1 ID {}".format(hit.local_sequence_identity)])
-    return truncated_pdb_path, int(pdb_struct.molecular_weight), avg_plddt, sum_plddt, h_score, date_made, plddt_regions
+    truncated_pdb_name = f"{hit.pdb_id}_{database_version}_{hit.hit_start}-{hit.hit_stop}.pdb"
+    truncated_pdb_path = MODELS_DIR.joinpath(truncated_pdb_name)
+    pdb_struct.save(str(truncated_pdb_path),
+                    remarks=[f"PHASER ENSEMBLE MODEL 1 ID {hit.local_sequence_identity}"])
+    return str(truncated_pdb_path), int(pdb_struct.molecular_weight), avg_plddt, sum_plddt, h_score, date_made, plddt_regions
 
 
 def calculate_quality_threshold(struct, plddt_threshold=70):
@@ -295,8 +294,6 @@ def _convert_plddt_to_bfactor(plddt):
         return 657.97  # Same as the b-factor value with an rmsd estimate of 5.0
     rmsd_est = (0.6 / (lddt ** 3))
     bfactor = ((8 * (np.pi ** 2)) / 3.0) * (rmsd_est ** 2)
-    if bfactor > 999.99:
-        return 999.99
     return bfactor
 
 

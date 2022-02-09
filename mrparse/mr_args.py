@@ -1,11 +1,7 @@
 import argparse
 import os
-import sys
-
-if sys.version_info.major < 3:
-    import ConfigParser
-else:
-    import configparser as ConfigParser
+from pathlib import Path
+import configparser as ConfigParser
 
 from mrparse.mr_version import __version__
 
@@ -53,13 +49,13 @@ def mrparse_argparse(parser):
 def parse_command_line():
     """Parse MrParse command line arguments"""
     # Read config file, check for local config file for documentation
-    if os.path.isfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "mrparse.config")):
-        config_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "mrparse.config")
+    if Path(__file__).joinpath("..", "data", "mrparse.config").exists():
+        config_file = Path(__file__).joinpath("..", "data", "mrparse.config")
     else:
-        config_file = os.path.join(os.environ["CCP4"], "share", "mrparse", "data", "mrparse.config")
+        config_file = Path(os.environ["CCP4"], "share", "mrparse", "data", "mrparse.config")
     defaults = {}
     config = ConfigParser.SafeConfigParser()
-    config.read(config_file)
+    config.read(str(config_file))
     defaults.update(dict(config.items("Defaults")))
     defaults.update(dict(config.items("Executables")))
     defaults.update(dict(config.items("Databases")))

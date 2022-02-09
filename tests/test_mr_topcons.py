@@ -21,6 +21,7 @@ def test_parse(test_data):
     assert annotation.scores[212] > 0.6, annotation.scores[212] 
     assert annotation.scores[232] > 0.6, annotation.scores[232] 
 
+
 @pytest.mark.skip(reason="TMPred server is missing the WSDL description file so can't be used.")
 def test_run(test_data):
     seq_info = Sequence(test_data.Q13586_fasta)
@@ -34,6 +35,7 @@ def test_run(test_data):
     assert len(annotation.scores) == 685
     assert annotation.scores[212] > 0.6, annotation.scores[212] 
     assert annotation.scores[232] > 0.6, annotation.scores[232]
+
 
 if __name__ == '__main__':
     import sys

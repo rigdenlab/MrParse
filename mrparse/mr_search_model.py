@@ -36,15 +36,15 @@ class SearchModelFinder(object):
         to the pool and instance methods don't work, so we add the object to the pool and define __call__
         https://stackoverflow.com/questions/1816958/cant-pickle-type-instancemethod-when-using-multiprocessing-pool-map/6975654#6975654
         """
-        logger.debug('SearchModelFinder started at %s' % now())
+        logger.debug(f'SearchModelFinder started at {now()}')
         self.find_homolog_regions()
-        logger.debug('SearchModelFinder homolog regions done at %s' % now())
+        logger.debug(f'SearchModelFinder homolog regions done at {now()}')
         self.prepare_homologs()
-        logger.debug('SearchModelFinder homologs done at %s' % now())
+        logger.debug(f'SearchModelFinder homologs done at {now()}')
         self.find_model_regions()
-        logger.debug('SearchModelFinder model regions done at %s' % now())
+        logger.debug(f'SearchModelFinder model regions done at {now()}')
         self.prepare_models()
-        logger.debug('SearchModelFinder models done at %s' % now())
+        logger.debug(f'SearchModelFinder models done at {now()}')
         return self
     
     def find_homolog_regions(self):

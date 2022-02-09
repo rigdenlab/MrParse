@@ -13,19 +13,19 @@ from builtins import range
 import colorsys
 
 
-def get_N_HexCol(N=5):
-    HSV_tuples = [(x * 1.0 / N, 0.5, 0.5) for x in range(N)]
+def get_n_hexcol(n=5):
+    hsv_tuples = [(x * 1.0 / n, 0.5, 0.5) for x in range(n)]
     hex_out = []
-    for rgb in HSV_tuples:
-        rgb = map(lambda x: int(x * 255), colorsys.hsv_to_rgb(*rgb))
-        hex_out.append("".join(map(lambda x: str(x).encode("utf-8").hex(), rgb)))
+    for rgb in hsv_tuples:
+        rgb = list(map(lambda x: int(x * 255), colorsys.hsv_to_rgb(*rgb)))
+        hex_out.append("".join(map(lambda x: chr(x).encode("utf-8").hex(), rgb)))
     return ['#' + h for h in hex_out]
 
 
 def add_pfam_dict_to_homologs(homologs, sequence_length):
     # Need a better way of getting the number of regions
     nregions = len(set([h.region_id for h in homologs.values()]))
-    region_colors = get_N_HexCol(nregions)
+    region_colors = get_n_hexcol(nregions)
     for h in homologs.values():
         start = h.query_start
         stop = h.query_stop
@@ -40,8 +40,8 @@ def add_pfam_dict_to_homologs(homologs, sequence_length):
              'aliEnd': stop,
              'colour': region_colors[h.region_index],
              'text': name,
-             'metadata': {"description": "Homolog {} from region #{}".format(name, region_id),
-                          "database": "{} search".format(search_engine.upper()),
+             'metadata': {"description": f"Homolog {name} from region #{region_id}",
+                          "database": f"{search_engine.upper()} search",
                           "start": start,
                           "end": stop}
              }
@@ -67,7 +67,7 @@ def add_pfam_dict_to_models(models, sequence_length):
              'aliEnd': stop,
              'colour': '#d3d3d3',
              'text': "",
-             'metadata': {"description": "Model {} from region #{}".format(name, region_id),
+             'metadata': {"description": f"Model {name} from region #{region_id}",
                           "database": "EBI AlphaFold database",
                           "start": start,
                           "end": stop}
@@ -106,6 +106,9 @@ def pfam_dict_from_annotation(annotation):
 
 
 def pfam_dict_from_chunks(chunk_data, seqlen):
+    colour = "#000000"
+    text = ""
+    meta_desc = ""
     if not chunk_data:
         return None
     regions = []

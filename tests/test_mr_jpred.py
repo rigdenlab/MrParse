@@ -4,6 +4,7 @@ import conftest
 
 import logging
 import os
+from pathlib import Path
 import shutil
 import pytest
 from mrparse.mr_jpred import JPred
@@ -31,12 +32,13 @@ def test_get_prediction_local(test_data):
 
 def test_upack_and_parse(test_data):
     # Need to setup a directory to run in
-    tgz = os.path.basename(test_data.jpred_tgz)
+    tgz = Path(test_data.jpred_tgz).name
     dir_name = tgz.split('.')[0]
-    os.mkdir(dir_name)
+    if not Path(dir_name).exists():
+        Path(dir_name).mkdir()
     shutil.copy(test_data.jpred_tgz, dir_name)
-    download_tgz = os.path.join(dir_name ,tgz)
-    p = JPred().get_prediction(download_tgz=download_tgz)
+    download_tgz = Path(dir_name ,tgz)
+    p = JPred().get_prediction(download_tgz=str(download_tgz))
     assert len(p) == 171
     assert p.annotation[22:25] == '-E-', p.annotation[19:22]
     shutil.rmtree(dir_name)
