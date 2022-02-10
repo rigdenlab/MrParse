@@ -17,7 +17,7 @@ install(
 
 install(
     FILES
-        CHANGELOG.rst CONTRIB.rst LICENSE README.md
+        CHANGELOG.rst CONTRIB.rst LICENSE README.rst
     DESTINATION
         share/mrparse
 )
