@@ -7,6 +7,7 @@ from Bio import SearchIO
 from collections import OrderedDict
 import json
 import logging
+import numpy as np
 import os
 from pathlib import Path
 from pyjob.script import EXE_EXT
@@ -148,8 +149,8 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
             alignment = "".join(hsp.aln[1].upper())  # assume the first Sequence is always the target
             sh.alignment = alignment
             local, overall = simpleSeqID().getPercent(alignment, target_alignment, target_sequence)
-            sh.local_sequence_identity = local
-            sh.overall_sequence_identity = overall
+            sh.local_sequence_identity = np.round(local)
+            sh.overall_sequence_identity = np.round(overall)
 
             if searchio_type == "hmmer3-text":
                 sh.score = hit.bitscore
@@ -189,8 +190,8 @@ def _find_json_hits(json_file, target_sequence):
                 sh.target_alignment = alignment
                 sh.alignment = target_alignment
                 local, overall = simpleSeqID().getPercent(alignment, target_alignment, target_sequence)
-                sh.local_sequence_identity = local
-                sh.overall_sequence_identity = overall
+                sh.local_sequence_identity = np.round(local)
+                sh.overall_sequence_identity = np.round(overall)
 
                 sh.score = hit['score']
                 hit_name = hit['name'] + "_" + str(hit['ndom'])
