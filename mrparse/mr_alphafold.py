@@ -180,8 +180,7 @@ def prepare_pdb(hit, plddt_cutoff, database_version):
     plddt_regions = get_plddt_regions(pdb_struct.structure, hit.seq_ali)
 
     # Remove residues below threshold
-    if plddt_cutoff != "None":
-        logger.debug(plddt_cutoff)
+    if plddt_cutoff is not None:
         pdb_struct.structure = remove_residues_below_plddt_threshold(pdb_struct.structure, int(plddt_cutoff))
 
     # Convert plddt to bfactor score

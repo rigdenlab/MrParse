@@ -175,10 +175,21 @@ def prepare_pdb(hit, pdb_dir):
 
     pdb_struct.standardize()
     pdb_struct.select_chain_by_id(hit.chain_id)
+    res_ids = [x.seqid.num for x in pdb_struct.structure[0][0]]
+    first_res_id = min(res_ids)
+    start = hit.hit_start + int(first_res_id)
+    stop = hit.hit_stop + int(first_res_id)
+    to_keep_seqid_range = range(start, stop + 1)
 
-    seqid_range = range(hit.hit_start, hit.hit_stop + 1)
-    pdb_struct.select_residues(to_keep_idx=seqid_range)
-    truncated_pdb_name = f"{hit.pdb_id}_{hit.chain_id}_{hit.hit_start}-{hit.hit_start}.pdb"
+    to_remove = []
+    chain = pdb_struct.structure[0][0]
+    for i, residue in enumerate(chain):
+        if residue.seqid.num not in to_keep_seqid_range:
+            to_remove.append(i)
+    for i in to_remove[::-1]:
+        del chain[i]
+
+    truncated_pdb_name = f"{hit.pdb_id}_{hit.chain_id}_{start}-{stop}.pdb"
     truncated_pdb_path = HOMOLOGS_DIR.joinpath(truncated_pdb_name)
     pdb_struct.save(str(truncated_pdb_path),
                     remarks=[f"PHASER ENSEMBLE MODEL 1 ID {hit.local_sequence_identity}"])
