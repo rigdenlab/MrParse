@@ -10,7 +10,6 @@ from pathlib import Path
 from Bio.Seq import Seq
 from Bio import SeqIO
 from Bio.SeqUtils import molecular_weight
-from Bio.Alphabet import generic_protein
 from Bio.SeqRecord import SeqRecord
 
 SUFFIX_TO_TYPE = {'fasta': 'fasta',
@@ -33,7 +32,7 @@ class Sequence(object):
         if seq_file:
             self._read_sequence_file(seq_file, sequence_type)
         elif sequence:
-            self._bio_seq = Seq(sequence, generic_protein)
+            self._bio_seq = Seq(sequence)
             self._bio_seq_record = SeqRecord(self._bio_seq, id="")
         self.nresidues = len(self._bio_seq)
         self.sequence = str(self._bio_seq)
@@ -50,7 +49,7 @@ class Sequence(object):
                 raise RuntimeError(f"Cannot determine sequence type from file: {seq_file}")
 
         try:
-            self._bio_seq_record = SeqIO.read(seq_file, sequence_type, alphabet=generic_protein)
+            self._bio_seq_record = SeqIO.read(seq_file, sequence_type)
             self._bio_seq = self._bio_seq_record.seq
         except ValueError:
             raise MultipleSequenceException
@@ -124,7 +123,7 @@ def merge_multiple_sequences(seq_file):
     sequence = ""
     identifier = []
     previous_seqs = []
-    for seq in SeqIO.parse(seq_file, sequence_type, alphabet=generic_protein):
+    for seq in SeqIO.parse(seq_file, sequence_type):
         if seq.seq in previous_seqs:
             continue
         sequence += seq.seq
