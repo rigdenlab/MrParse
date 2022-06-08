@@ -49,5 +49,5 @@ Classifiers
 +++++++++++
 * secondary structure classification is currently carried by submitting jobs to the `JPRED <http://www.compbio.dundee.ac.uk/jpred/>`_ server.
 * If installed, coiled-Coil classification is carried out with `Deepcoil <https://github.com/labstructbioinf/DeepCoil>`_.
-* If installed, transmembrane classification is carried out with `TMHMM <https://github.com/dansondergaard/tmhmm.py>`_.
+* If installed, transmembrane classification is carried out with `DeepTMHMM <https://dtu.biolib.com/DeepTMHMM/>`_.
 

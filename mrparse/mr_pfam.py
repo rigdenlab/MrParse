@@ -4,7 +4,7 @@ Created on 16 Nov 2018
 @author: jmht
 """
 
-from mrparse.mr_topcons import TM
+from mrparse.mr_deeptmhmm import TM_alpha, TM_beta
 from mrparse.mr_deepcoil import CC
 from mrparse.mr_jpred import HELIX, SHEET
 from mrparse.mr_annotation import get_annotation_chunks
@@ -118,10 +118,14 @@ def pfam_dict_from_chunks(chunk_data, seqlen):
             colour = "#00ff00"
             text = CC.name
             meta_desc = "Coiled-coil region #%d" % idx
-        elif chunk.annotation == TM:
-            colour = "#aaaaaa"
-            text = TM.name
-            meta_desc = "Transmembrane region #%d" % idx
+        elif chunk.annotation == TM_alpha:
+            colour = "#997570"
+            text = TM_alpha.name
+            meta_desc = "Alpha Helix transmembrane region #%d" % idx
+        elif chunk.annotation == TM_beta:
+            colour = "#6699CC"
+            text = TM_beta.name
+            meta_desc = "Beta Sheet transmembrane region #%d" % idx
         elif chunk.annotation == HELIX:
             colour = "#ff0000"
             text = HELIX.name

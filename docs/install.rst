@@ -30,20 +30,16 @@ DeepCoil requires ``python>=3.6.1`` and ``pip>=19.0`` for installation. The most
 
 Full installation instructions can be found on the `Deepcoil Github page <https://github.com/labstructbioinf/DeepCoil>`_.
 
-TMHMM
-+++++
+DeepTMHMM
++++++++++
 
-TMHMM supports ``python>=3.5``. The most simple way to install TMHMM is with ``pip``:
+DeepTMHMM supports ``python>=3.5``. The most simple way to install DeepTMHMM is with ``pip3``:
 
 .. code-block:: bash
 
-   pip install tmhmm.py
+   pip3 install pybiolib
 
-Full installation instructions can be found on the `TMHMM Github page <https://github.com/dansondergaard/tmhmm.py>`_.
-
-.. note::
-
-   The GitHub page says TMHMM is only supported on Linux, but we have also be able to run it on MacOS.
+Full installation instructions can be found on the `DeepTMHMM webpage <https://dtu.biolib.com/DeepTMHMM/>`_.
 
 HHSEARCH
 ++++++++

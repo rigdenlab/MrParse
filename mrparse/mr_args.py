@@ -35,8 +35,8 @@ def mrparse_argparse(parser):
     sg.add_argument('-seq', '--seqin', action=FilePathAction, help='Sequence file')
     sg.add_argument('--search_engine', help="Select search engine", default="phmmer",
                     choices=['phmmer', 'hhsearch'])
-    sg.add_argument('--tmhmm_exe', action=FilePathAction,
-                    help="Location of TMHMM executable for transmembrane classification")
+    sg.add_argument('--deeptmhmm_exe', action=FilePathAction,
+                    help="Location of DeepTMHMM executable for transmembrane classification")
     sg.add_argument('--deepcoil_exe', action=FilePathAction,
                     help="Location of Deepcoil executable for coiled-coil classification")
     sg.add_argument('--hhsearch_exe', action=FilePathAction,
@@ -67,8 +67,8 @@ def parse_command_line():
 
     # Add executables and databases to config file so that it only needs to be specified once
     update_config = False
-    if args.tmhmm_exe != defaults['tmhmm_exe']:
-        config.set('Executables', 'tmhmm_exe', args.tmhmm_exe)
+    if args.deeptmhmm_exe != defaults['deeptmhmm_exe']:
+        config.set('Executables', 'deeptmhmm_exe', args.deeptmhmm_exe)
         update_config = True
     if args.deepcoil_exe != defaults['deepcoil_exe']:
         config.set('Executables', 'deepcoil_exe', args.deepcoil_exe)

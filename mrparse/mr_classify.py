@@ -8,7 +8,7 @@ import threading
 import sys
 
 from mrparse.mr_deepcoil import CCPred
-from mrparse.mr_tmhmm import TMPred
+from mrparse.mr_deeptmhmm import TMPred
 from mrparse.mr_jpred import JPred
 from mrparse.mr_pfam import pfam_dict_from_annotation
 
@@ -31,13 +31,13 @@ class PredictorThread(threading.Thread):
 
 
 class MrClassifier(object):
-    def __init__(self, seq_info, do_ss_predictor=True, do_cc_predictor=True, do_tm_predictor=True, tmhmm_exe=None,
+    def __init__(self, seq_info, do_ss_predictor=True, do_cc_predictor=True, do_tm_predictor=True, deeptmhmm_exe=None,
                  deepcoil_exe=None):
         self.seq_info = seq_info
         self.do_ss_predictor = do_ss_predictor
         self.do_cc_predictor = do_cc_predictor
         self.do_tm_predictor = do_tm_predictor
-        self.tmhmm_exe = tmhmm_exe
+        self.deeptmhmm_exe = deeptmhmm_exe
         self.deepcoil_exe = deepcoil_exe
         self.ss_prediction = None
         self.classification_prediction = None
@@ -79,7 +79,7 @@ class MrClassifier(object):
             logger.info('Coiled-Coil predictor finished')
 
         if self.do_tm_predictor:
-            tm_predictor = TMPred(self.seq_info, self.tmhmm_exe)
+            tm_predictor = TMPred(self.seq_info, self.deeptmhmm_exe)
             tm_thread = PredictorThread(tm_predictor)
             tm_thread.start()
             tm_thread.join()

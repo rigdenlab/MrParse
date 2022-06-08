@@ -22,7 +22,7 @@ def main():
                               phmmer_dblvl=args.phmmer_dblvl,
                               plddt_cutoff=args.plddt_cutoff,
                               search_engine=args.search_engine,
-                              tmhmm_exe=args.tmhmm_exe,
+                              deeptmhmm_exe=args.deeptmhmm_exe,
                               deepcoil_exe=args.deepcoil_exe,
                               hhsearch_exe=args.hhsearch_exe,
                               hhsearch_db=args.hhsearch_db,

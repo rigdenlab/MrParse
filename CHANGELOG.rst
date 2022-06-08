@@ -1,3 +1,12 @@
+**[0.3.4]**
+
+*Changed*
+
+- Bypass FTP database version search when FTP port is closed
+- Replaced TMHMM with DeepTMHMM
+- Added local AFDB search when EBI phmmer server down
+
+
 **[0.2.5]**
 
 *Changed*

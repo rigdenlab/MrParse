@@ -34,7 +34,7 @@ def run(seqin, **kwargs):
     phmmer_dblvl = kwargs.get('phmmer_dblvl', '95')
     plddt_cutoff = kwargs.get('plddt_cutoff', '70')
     search_engine = kwargs.get('search_engine', 'phmmer')
-    tmhmm_exe = kwargs.get('tmhmm_exe', None)
+    deeptmhmm_exe = kwargs.get('deeptmhmm_exe', None)
     deepcoil_exe = kwargs.get('deepcoil_exe', None)
     hhsearch_exe = kwargs.get('hhsearch_exe', None)
     hhsearch_db = kwargs.get('hhsearch_db', None)
@@ -81,7 +81,7 @@ def run(seqin, **kwargs):
 
     classifier = None
     if do_classify:
-        classifier = MrClassifier(seq_info=seq_info, tmhmm_exe=tmhmm_exe, deepcoil_exe=deepcoil_exe)
+        classifier = MrClassifier(seq_info=seq_info, deeptmhmm_exe=deeptmhmm_exe, deepcoil_exe=deepcoil_exe)
 
     if run_serial:
         run_analyse_serial(search_model_finder, classifier, hkl_info, do_classify)
