@@ -4,12 +4,14 @@ Created on 23 Jul 2021
 @author: hlasimpk
 """
 from collections import OrderedDict
+import configparser as ConfigParser
 import ftplib
 import gemmi
 from itertools import groupby
 import logging
 import numpy as np
 from operator import itemgetter
+import os
 from pathlib import Path
 from pkg_resources import parse_version
 import requests
@@ -214,13 +216,21 @@ def calculate_quality_h_score(struct):
 
 def get_afdb_version():
     """Query the FTP site to find the latest version of the AFDB"""
-    ftp_host = "ftp.ebi.ac.uk"
-    ftp_user = "anonymous"
-    ftp_pass = ""
-    ftp = ftplib.FTP(ftp_host, ftp_user, ftp_pass)
-    ftp.cwd('/pub/databases/alphafold/')
-    versions = [x for x in ftp.nlst() if x.startswith('v')]
-    return max(versions, key=parse_version)
+    try:
+        ftp_host = "ftp.ebi.ac.uk"
+        ftp_user = "anonymous"
+        ftp_pass = ""
+        ftp = ftplib.FTP(ftp_host, ftp_user, ftp_pass)
+        ftp.cwd('/pub/databases/alphafold/')
+        versions = [x for x in ftp.nlst() if x.startswith('v')]
+        return max(versions, key=parse_version)
+    except ftplib.all_errors as e:
+        logger.debug(f"FTP failed with {e}")
+        logger.debug("Using database version specified in mrparse.config")
+        config_file = Path(os.environ["CCP4"], "share", "mrparse", "data", "mrparse.config")
+        config = ConfigParser.SafeConfigParser()
+        config.read(str(config_file))
+        return dict(config.items("Databases"))['afdb_version']
 
 
 def get_plddt(struct):
