@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 from pyjob.script import EXE_EXT
 import requests
+import uuid
 
 from mrparse.mr_util import run_cmd
 from mrbump.seq_align.simpleSeqID import simpleSeqID
@@ -100,23 +101,33 @@ class SequenceHit:
 
 def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, phmmer_dblvl=95):
     target_sequence = seq_info.sequence
+    af2 = False
     if search_engine == PHMMER:
         if phmmer_dblvl == "af2":
-            json_file = run_phmmer_alphafold_api(seq_info)
-            return _find_json_hits(json_file, target_sequence=seq_info)
-        else:
-            logfile = run_phmmer(seq_info, dblvl=phmmer_dblvl)
+            try:
+                json_file = run_phmmer_alphafold_api(seq_info)
+                hits = _find_json_hits(json_file, target_sequence=seq_info)
+                return hits
+            except json.JSONDecodeError:
+                logger.debug("Phmmer API unavailable, running local phmmer search of AFDB")
+                af2 = True
+        logfile = run_phmmer(seq_info, dblvl=phmmer_dblvl)
         searchio_type = 'hmmer3-text'
     elif search_engine == HHSEARCH:
         searchio_type = 'hhsuite2-text'
         logfile = run_hhsearch(seq_info, hhsearch_exe, hhsearch_db)
     else:
         raise RuntimeError(f"Unrecognised search_engine: {search_engine}")
-    return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence)
+    return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence, af2=af2)
 
 
-def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
+def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False):
     assert logfile and searchio_type and target_sequence
+
+    if af2:
+        fix_af_phmmer_log(logfile, "phmmer_af2_fixed.log")
+        logfile = "phmmer_af2_fixed.log"
+
     try:
         io = SearchIO.read(logfile, searchio_type)
     except ValueError:
@@ -133,7 +144,10 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
         for hsp in hit.hsps:
             sh = SequenceHit()
             sh.rank = rank
-            sh.pdb_id, sh.chain_id = hsp.hit_id.split('_')
+            if af2:
+                sh.pdb_id = hsp.hit_id.split("-")[1]
+            else:
+                sh.pdb_id, sh.chain_id = hsp.hit_id.split('_')
             sh.evalue = hsp.evalue  # is i-Evalue - possibly evalue_cond in later BioPython
             hstart = hsp.hit_start
             hstop = hsp.hit_end
@@ -152,7 +166,11 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None):
             sh.local_sequence_identity = np.round(local)
             sh.overall_sequence_identity = np.round(overall)
 
-            if searchio_type == "hmmer3-text":
+            if af2:
+                sh.score = hit.bitscore
+                hit_name = hit.id.split('-')[1] + "_" + str(hsp.domain_index)
+                sh.search_engine = "phmmer"
+            elif searchio_type == "hmmer3-text":
                 sh.score = hit.bitscore
                 hit_name = hit.id + "_" + str(hsp.domain_index)
                 sh.search_engine = "phmmer"
@@ -201,6 +219,23 @@ def _find_json_hits(json_file, target_sequence):
             except Exception:
                 logger.debug(f"Issue with target {hit['name']}")
     return hitDict
+
+
+def fix_af_phmmer_log(input_log, output_log):
+    """Function to fix locally run alphafold phmmer results when there are duplicate entries"""
+    last_entry = ""
+    with open(output_log, 'w') as f_out:
+        with open(input_log, 'r') as f_in:
+            line = f_in.readline()
+            while line:
+                if "AFDB release_date" in line:
+                    entry = line.split()[8]
+                    if entry != last_entry:
+                        last_entry = entry
+                    else:
+                        line = line.replace(entry, f"{entry}_{uuid.uuid4()}")
+                f_out.write(line)
+                line = f_in.readline()
 
 
 def sort_hits_by_size(hits, ascending=False):
