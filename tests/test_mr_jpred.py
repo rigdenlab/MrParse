@@ -74,7 +74,7 @@ name: jens_test_job
 
 Created JPred job with jobid: jp_H_5vG49
 You can check the status of the job using the following URL: http://www.compbio.dundee.ac.uk/jpred4/cgi-bin/chklog?jp_H_5vG49
-...or using 'perl jpredapi status jobid=jp_H_5vG49 getResults=yes checkEvery=60 silent' command
+...or using 'perl jpredapi.pl status jobid=jp_H_5vG49 getResults=yes checkEvery=60 silent' command
 (Check documentation for more details.)"""
 
     jobid, status_url = JPred.parse_status_url(submission_output)

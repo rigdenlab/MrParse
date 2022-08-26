@@ -73,7 +73,7 @@ class MrClassifier(object):
             cc_thread.start()
             cc_thread.join()
             if cc_thread.exception:
-                logger.critical(f"Coiled-Coil predictor raised an exception: {cc_thread.exception}")
+                logger.warning(f"Coiled-Coil predictor raised an exception: {cc_thread.exception}")
                 logger.debug("Traceback is:", exc_info=cc_thread.exc_info)
                 self.do_cc_predictor = False
             logger.info('Coiled-Coil predictor finished')
@@ -84,7 +84,7 @@ class MrClassifier(object):
             tm_thread.start()
             tm_thread.join()
             if tm_thread.exception:
-                logger.critical(f"Transmembrane predictor raised an exception: {tm_thread.exception}")
+                logger.warning(f"Transmembrane predictor raised an exception: {tm_thread.exception}")
                 logger.debug("Traceback is:", exc_info=tm_thread.exc_info)
                 self.do_tm_predictor = False
             logger.info('TM predictor finished')
@@ -94,7 +94,7 @@ class MrClassifier(object):
             ss_thread.start()
             ss_thread.join()
             if ss_thread.exception:
-                logger.critical(f"JPred predictor raised error: {ss_thread.exception}")
+                logger.warning(f"JPred predictor raised error: {ss_thread.exception}")
                 logger.debug("Traceback is:", exc_info=ss_thread.exc_info)
                 self.do_ss_predictor = False
             logger.info('SS predictor finished')

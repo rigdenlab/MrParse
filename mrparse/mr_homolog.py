@@ -136,7 +136,7 @@ def homologs_from_hits(hits, pdb_dir=None):
         try:
             hlog.pdb_file, hlog.molecular_weight, hlog.resolution = prepare_pdb(hit, pdb_dir)
         except PdbModelException as e:
-            logger.critical(f"Error processing hit pdb {e.message}")
+            logger.critical(f"Error processing hit pdb {e}")
         homologs[hlog.name] = hlog
     return homologs
 

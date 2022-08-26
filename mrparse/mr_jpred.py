@@ -34,7 +34,7 @@ class OutOfTimeException(Exception):
 class JPred(object):
     def __init__(self, seq_info=None):
         self.seq_info = seq_info
-        self.jpred_script = str(Path(__file__).parent.resolve().joinpath('scripts', 'jpredapi'))
+        self.jpred_script = str(Path(__file__).parent.resolve().joinpath('scripts', 'jpredapi.pl'))
         self.prediction = None
         self.exception = None
 
@@ -103,7 +103,7 @@ class JPred(object):
 
         Created JPred job with jobid: jp_H_5vG49
         You can check the status of the job using the following URL: http://www.compbio.dundee.ac.uk/jpred4/cgi-bin/chklog?jp_H_5vG49
-        ...or using 'perl jpredapi status jobid=jp_H_5vG49 getResults=yes checkEvery=60 silent' command
+        ...or using 'perl jpredapi.pl status jobid=jp_H_5vG49 getResults=yes checkEvery=60 silent' command
         (Check documentation for more details.)
 
         """

@@ -1,7 +1,7 @@
 """
 Created on 18 Oct 2018
 
-@author: jmht & hlasimpk
+@author: jmht & hlasimpk & rmk65
 """
 from Bio import SearchIO
 from collections import OrderedDict
@@ -191,7 +191,7 @@ def _find_json_hits(json_file, target_sequence):
             try:
                 sh = SequenceHit()
                 sh.rank = i + 1
-                sh.pdb_id = hit['name']
+                sh.pdb_id = hit['name'].split("_")[0]
                 sh.evalue = hit['evalue']
 
                 alignment_info = hit['domains'][0]
@@ -212,7 +212,7 @@ def _find_json_hits(json_file, target_sequence):
                 sh.overall_sequence_identity = np.round(overall)
 
                 sh.score = hit['score']
-                hit_name = hit['name'] + "_" + str(hit['ndom'])
+                hit_name = hit['name'].split("_")[0] + "_" + str(hit['ndom'])
                 sh.name = hit_name
                 sh.search_engine = "phmmer"
                 hitDict[hit_name] = sh
@@ -262,7 +262,7 @@ def run_phmmer(seq_info, dblvl=95):
            '--tblout', phmmerTblout,
            '--domtblout', phmmerDomTblout,
            '-A', alnfile,
-           seq_info.sequence_file, str(seqdb)]
+           str(seq_info.sequence_file), str(seqdb)]
     stdout = run_cmd(cmd)
     if os.name == 'nt':
         lines = stdout.split('\n')
@@ -290,7 +290,7 @@ def run_hhsearch(seq_info, hhsearch_exe, hhsearch_db):
 
 def run_phmmer_alphafold_api(seq_info):
     params = {
-        'seqdb': 'alphafold',
+        'seqdb': 'uniprotkb',
         'seq': f'>Seq\n{seq_info.sequence}'
     }
 
