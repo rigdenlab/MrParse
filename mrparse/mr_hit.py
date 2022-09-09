@@ -99,7 +99,7 @@ class SequenceHit:
         return out_str
 
 
-def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, phmmer_dblvl=95):
+def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, phmmer_dblvl=95):
     target_sequence = seq_info.sequence
     af2 = False
     if search_engine == PHMMER:
@@ -111,7 +111,7 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
             except json.JSONDecodeError:
                 logger.debug("Phmmer API unavailable, running local phmmer search of AFDB")
                 af2 = True
-        logfile = run_phmmer(seq_info, dblvl=phmmer_dblvl)
+        logfile = run_phmmer(seq_info, afdb_seqdb=afdb_seqdb, dblvl=phmmer_dblvl)
         searchio_type = 'hmmer3-text'
     elif search_engine == HHSEARCH:
         searchio_type = 'hhsuite2-text'
@@ -243,7 +243,7 @@ def sort_hits_by_size(hits, ascending=False):
     return OrderedDict(sorted(hits.items(), key=lambda x: x[1].length, reverse=reverse))
 
 
-def run_phmmer(seq_info, dblvl=95):
+def run_phmmer(seq_info, afdb_seqdb=None, dblvl=95):
     logfile = f"phmmer_{dblvl}.log"
     alnfile = f"phmmerAlignment_{dblvl}.log"
     phmmerTblout = f"phmmerTblout_{dblvl}.log"
@@ -251,13 +251,26 @@ def run_phmmer(seq_info, dblvl=95):
     phmmerEXE = Path(os.environ["CCP4"], "libexec", "phmmer")
     delete_db = False
     if dblvl == "af2":
-        seqdb = Path(os.environ["CCP4"], "share", "mrbump", "data", "afdb.fasta")
+        if afdb_seqdb is not None:
+            seqdb = afdb_seqdb
+        else:
+            seqdb = Path(os.environ["CCP4"], "share", "mrbump", "data", "afdb.fasta")
     else:
         sb = makeSeqDB.sequenceDatabase()
         seqdb = Path(sb.makePhmmerFasta(RLEVEL=dblvl))
         delete_db = True
 
-    cmd = [str(phmmerEXE) + EXE_EXT,
+    if afdb_seqdb is not None and dblvl == "af2":
+        cmd = [str(phmmerEXE) + EXE_EXT,
+           '--notextw',
+           '--tblout', phmmerTblout,
+           '--domtblout', phmmerDomTblout,
+           '--F1', '1e-15',
+           '--F2', '1e-15',
+           '-A', alnfile,
+           str(seq_info.sequence_file), str(seqdb)]
+    else:
+        cmd = [str(phmmerEXE) + EXE_EXT,
            '--notextw',
            '--tblout', phmmerTblout,
            '--domtblout', phmmerDomTblout,
