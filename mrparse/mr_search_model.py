@@ -24,6 +24,7 @@ class SearchModelFinder(object):
         self.plddt_cutoff = kwargs.get("plddt_cutoff", 70)
         self.hhsearch_exe = kwargs.get("hhsearch_exe", None)
         self.hhsearch_db = kwargs.get("hhsearch_db", None)
+        self.afdb_seqdb = kwargs.get("afdb_seqdb", None)
         self.hits = None
         self.model_hits = None
         self.regions = None
@@ -50,7 +51,7 @@ class SearchModelFinder(object):
     def find_homolog_regions(self):
         self.hits = mr_hit.find_hits(self.seq_info, search_engine=self.search_engine,
                                      hhsearch_exe=self.hhsearch_exe, hhsearch_db=self.hhsearch_db,
-                                     phmmer_dblvl=self.phmmer_dblvl)
+                                     afdb_seqdb=self.afdb_seqdb, phmmer_dblvl=self.phmmer_dblvl)
         if not self.hits:
             logger.critical('SearchModelFinder PDB search could not find any hits!')
             return None
@@ -59,7 +60,7 @@ class SearchModelFinder(object):
 
     def find_model_regions(self):
         self.model_hits = mr_hit.find_hits(self.seq_info, search_engine="phmmer",
-                                           hhsearch_exe=None, hhsearch_db=None, phmmer_dblvl="af2")
+                                           hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, phmmer_dblvl="af2")
         if not self.model_hits:
             logger.critical('SearchModelFinder EBI Alphafold database search could not find any hits!')
             return None

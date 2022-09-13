@@ -26,6 +26,7 @@ def main():
                               deepcoil_exe=args.deepcoil_exe,
                               hhsearch_exe=args.hhsearch_exe,
                               hhsearch_db=args.hhsearch_db,
+                              afdb_seqdb=args.afdb_seqdb,
                               ccp4cloud=args.ccp4cloud)
     except KeyboardInterrupt:
         sys.stderr.write("Interrupted by keyboard!")

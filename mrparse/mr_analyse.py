@@ -38,6 +38,7 @@ def run(seqin, **kwargs):
     deepcoil_exe = kwargs.get('deepcoil_exe', None)
     hhsearch_exe = kwargs.get('hhsearch_exe', None)
     hhsearch_db = kwargs.get('hhsearch_db', None)
+    afdb_seqdb = kwargs.get('afdb_seqdb', None)
     ccp4cloud = kwargs.get('ccp4cloud', None)
 
     # Need to make a work directory first as all logs go into there
@@ -77,7 +78,7 @@ def run(seqin, **kwargs):
 
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir, phmmer_dblvl=phmmer_dblvl,
                                             plddt_cutoff=plddt_cutoff, search_engine=search_engine,
-                                            hhsearch_exe=hhsearch_exe, hhsearch_db=hhsearch_db)
+                                            hhsearch_exe=hhsearch_exe, hhsearch_db=hhsearch_db, afdb_seqdb=afdb_seqdb)
 
     classifier = None
     if do_classify:
