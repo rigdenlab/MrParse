@@ -212,7 +212,6 @@ class Phmmer:
                 # Check the following line to make sure its not outside the threshold
                 if "No individual domains that satisfy reporting thresholds" not in lines[count+1]:
                     if "ECOD" not in DB:
-                        print(">>>>", line)
                         if "AFDB" in DB:
                             hit = line.split()[1].split(":")[1] + "_PHR"
                         elif "AFCCP4" in DB:
