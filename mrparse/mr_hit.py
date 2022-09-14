@@ -99,17 +99,21 @@ class SequenceHit:
         return out_str
 
 
-def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, phmmer_dblvl=95):
+def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, phmmer_dblvl=95, localrun=False, max_hits=10):
     target_sequence = seq_info.sequence
     af2 = False
     if search_engine == PHMMER:
-        if phmmer_dblvl == "af2":
-            try:
-                json_file = run_phmmer_alphafold_api(seq_info)
-                hits = _find_json_hits(json_file, target_sequence=seq_info)
-                return hits
-            except json.JSONDecodeError:
-                logger.debug("Phmmer API unavailable, running local phmmer search of AFDB")
+        if not localrun:
+            if phmmer_dblvl == "af2":
+                try:
+                    json_file = run_phmmer_alphafold_api(seq_info)
+                    hits = _find_json_hits(json_file, target_sequence=seq_info, max_hits=max_hits)
+                    return hits
+                except json.JSONDecodeError:
+                    logger.debug("Phmmer API unavailable, running local phmmer search of AFDB")
+                    af2 = True
+        else:
+            if phmmer_dblvl == "af2":
                 af2 = True
         logfile = run_phmmer(seq_info, afdb_seqdb=afdb_seqdb, dblvl=phmmer_dblvl)
         searchio_type = 'hmmer3-text'
@@ -118,72 +122,121 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
         logfile = run_hhsearch(seq_info, hhsearch_exe, hhsearch_db)
     else:
         raise RuntimeError(f"Unrecognised search_engine: {search_engine}")
-    return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence, af2=af2)
+    return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence, af2=af2, max_hits=max_hits)
 
 
-def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False):
+def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False, max_hits=10):
     assert logfile and searchio_type and target_sequence
 
-    if af2:
-        fix_af_phmmer_log(logfile, "phmmer_af2_fixed.log")
-        logfile = "phmmer_af2_fixed.log"
-
-    try:
-        io = SearchIO.read(logfile, searchio_type)
-    except ValueError:
-        logger.exception("ValueError while running Biopython")
-        raise RuntimeError('Problem running Biopython SearchIO - you may need to update your version of Biopython.')
-    except:
-        logger.exception("Unexpected error while running Biopython")
-        raise
-
-    included = io.hit_filter(lambda x: x.is_included)
     hitDict = OrderedDict()
-    for i, hit in enumerate(included):
-        rank = i + 1
-        for hsp in hit.hsps:
+    if af2 or searchio_type == "hmmer3-text":
+        if af2:
+            fix_af_phmmer_log(logfile, "phmmer_af2_fixed.log")
+            logfile = "phmmer_af2_fixed.log"
+    
+        # Read logfile with searchDB
+        from mrparse.searchDB import Phmmer  
+    
+        plog=open(logfile, "r")
+        phmmerALNLog=plog.readlines()
+        plog.close()
+    
+        phr=Phmmer()
+        phr.logfile=logfile
+        if af2:
+            phr.getPhmmerAlignments(targetSequence=target_sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB='AFDB', seqMetaDB=None)
+        else:
+            phr.getPhmmerAlignments(targetSequence=target_sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB='PDB', seqMetaDB=None)
+        for hitname in (phr.resultsDict):
+    
             sh = SequenceHit()
-            sh.rank = rank
+            sh.rank = phr.resultsDict[hitname].rank
             if af2:
-                sh.pdb_id = hsp.hit_id.split("-")[1]
+                sh.pdb_id = phr.resultsDict[hitname].afdbName
             else:
-                sh.pdb_id, sh.chain_id = hsp.hit_id.split('_')
-            sh.evalue = hsp.evalue  # is i-Evalue - possibly evalue_cond in later BioPython
-            hstart = hsp.hit_start
-            hstop = hsp.hit_end
-            qstart, qstop = hsp.query_range
-            seq_ali = zip(range(qstart, qstop), hsp.hit.seq)
+                sh.pdb_id, sh.chain_id = phr.resultsDict[hitname].afdbName, phr.resultsDict[hitname].chainID
+    
+            sh.evalue = phr.resultsDict[hitname].evalue
+    
+            sh.query_start = phr.resultsDict[hitname].tarRange[0]
+            sh.query_stop = phr.resultsDict[hitname].tarRange[1]
+            sh.hit_start = int(phr.resultsDict[hitname].alnRange.split("-")[0])
+            sh.hit_stop = int(phr.resultsDict[hitname].alnRange.split("-")[1])
+            sh.target_alignment = phr.resultsDict[hitname].targetAlignment
+            sh.alignment = phr.resultsDict[hitname].alignment
+
+            hstart = sh.hit_start
+            hstop = sh.hit_stop
+            qstart, qstop = sh.query_start, sh.query_stop
+    
+            seq_ali = zip(range(qstart, qstop), sh.alignment)
             sh.seq_ali = [x[0] for x in seq_ali if x[1] != '-']
-            sh.query_start = qstart
-            sh.query_stop = qstop
-            sh.hit_start = hstart
-            sh.hit_stop = hstop
-            target_alignment = "".join(hsp.aln[0].upper())  # assume the first Sequence is always the target
-            sh.target_alignment = target_alignment
-            alignment = "".join(hsp.aln[1].upper())  # assume the first Sequence is always the target
-            sh.alignment = alignment
-            local, overall = simpleSeqID().getPercent(alignment, target_alignment, target_sequence)
+    
+            local, overall = phr.resultsDict[hitname].localSEQID, phr.resultsDict[hitname].overallSEQID
             sh.local_sequence_identity = np.round(local)
             sh.overall_sequence_identity = np.round(overall)
-
+    
             if af2:
-                sh.score = hit.bitscore
-                hit_name = hit.id.split('-')[1] + "_" + str(hsp.domain_index)
+                sh.score = phr.resultsDict[hitname].score
+                hit_name = phr.resultsDict[hitname].afdbName + "_" + str(phr.resultsDict[hitname].domainID)
                 sh.search_engine = "phmmer"
             elif searchio_type == "hmmer3-text":
-                sh.score = hit.bitscore
-                hit_name = hit.id + "_" + str(hsp.domain_index)
+                sh.score = phr.resultsDict[hitname].score
+                hit_name = phr.resultsDict[hitname].afdbName + "_" + phr.resultsDict[hitname].chainID + "_" + str(phr.resultsDict[hitname].domainID)
                 sh.search_engine = "phmmer"
-            else:
+            sh.name = hit_name
+            if sh.rank <= max_hits:
+                hitDict[hit_name] = sh
+        
+    else:
+        try:
+            io = SearchIO.read(logfile, searchio_type)
+        except ValueError:
+            logger.exception("ValueError while running Biopython")
+            raise RuntimeError('Problem running Biopython SearchIO - you may need to update your version of Biopython.')
+        except:
+            logger.exception("Unexpected error while running Biopython")
+            raise
+    
+        included = io.hit_filter(lambda x: x.is_included)
+        for i, hit in enumerate(included):
+            rank = i + 1
+            for hsp in hit.hsps:
+                sh = SequenceHit()
+                sh.rank = rank
+                if af2:
+                    sh.pdb_id = hsp.hit_id.split("-")[1]
+                else:
+                    sh.pdb_id, sh.chain_id = hsp.hit_id.split('_')
+                sh.evalue = hsp.evalue  # is i-Evalue - possibly evalue_cond in later BioPython
+                hstart = hsp.hit_start
+                hstop = hsp.hit_end
+                qstart, qstop = hsp.query_range
+                seq_ali = zip(range(qstart, qstop), hsp.hit.seq)
+                sh.seq_ali = [x[0] for x in seq_ali if x[1] != '-']
+                sh.query_start = qstart
+                sh.query_stop = qstop
+                sh.hit_start = hstart
+                sh.hit_stop = hstop
+                target_alignment = "".join(hsp.aln[0].upper())  # assume the first Sequence is always the target
+                sh.target_alignment = target_alignment
+                alignment = "".join(hsp.aln[1].upper())  # assume the first Sequence is always the target
+                sh.alignment = alignment
+                local, overall = simpleSeqID().getPercent(alignment, target_alignment, target_sequence)
+                sh.local_sequence_identity = np.round(local)
+                sh.overall_sequence_identity = np.round(overall)
+    
                 sh.score = hit.score
                 hit_name = hit.id + "_" + str(hsp.output_index)
                 sh.search_engine = "hhsearch"
-            sh.name = hit_name
-            hitDict[hit_name] = sh
+                sh.name = hit_name
+                if sh.rank <= max_hits:
+                    hitDict[hit_name] = sh
+
     return hitDict
 
 
-def _find_json_hits(json_file, target_sequence):
+def _find_json_hits(json_file, target_sequence, max_hits=10):
     hitDict = OrderedDict()
     with open(json_file, 'r') as f_in:
         data = json.load(f_in)
@@ -215,7 +268,8 @@ def _find_json_hits(json_file, target_sequence):
                 hit_name = hit['name'].split("_")[0] + "_" + str(hit['ndom'])
                 sh.name = hit_name
                 sh.search_engine = "phmmer"
-                hitDict[hit_name] = sh
+                if sh.rank <= max_hits:
+                    hitDict[hit_name] = sh
             except Exception:
                 logger.debug(f"Issue with target {hit['name']}")
     return hitDict

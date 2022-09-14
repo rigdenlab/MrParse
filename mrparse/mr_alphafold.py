@@ -156,7 +156,8 @@ def prepare_pdb(hit, plddt_cutoff, database_version):
     trucate to required residues
     calculate the MW
     """
-    pdb_name = f"AF-{hit.pdb_id}-F1-model_{database_version}.pdb"
+    #pdb_name = f"AF-{hit.pdb_id}-F1-model_{database_version}.pdb"
+    pdb_name = f"{hit.pdb_id}-model_{database_version}.pdb"
     pdb_struct = PdbStructure()
     try:
         pdb_string = download_model(pdb_name)
