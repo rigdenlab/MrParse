@@ -102,6 +102,7 @@ class SequenceHit:
 def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, phmmer_dblvl=95, localrun=False, max_hits=10):
     target_sequence = seq_info.sequence
     af2 = False
+    dbtype = None
     if search_engine == PHMMER:
         if not localrun:
             if phmmer_dblvl == "af2":
@@ -115,17 +116,17 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
         else:
             if phmmer_dblvl == "af2":
                 af2 = True
-        logfile = run_phmmer(seq_info, afdb_seqdb=afdb_seqdb, dblvl=phmmer_dblvl)
+        logfile, dbtype = run_phmmer(seq_info, afdb_seqdb=afdb_seqdb, dblvl=phmmer_dblvl)
         searchio_type = 'hmmer3-text'
     elif search_engine == HHSEARCH:
         searchio_type = 'hhsuite2-text'
         logfile = run_hhsearch(seq_info, hhsearch_exe, hhsearch_db)
     else:
         raise RuntimeError(f"Unrecognised search_engine: {search_engine}")
-    return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence, af2=af2, max_hits=max_hits)
+    return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence, af2=af2, max_hits=max_hits, dbtype=dbtype)
 
 
-def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False, max_hits=10):
+def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False, max_hits=10, dbtype=None):
     assert logfile and searchio_type and target_sequence
 
     hitDict = OrderedDict()
@@ -144,7 +145,7 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
         phr=Phmmer()
         phr.logfile=logfile
         if af2:
-            phr.getPhmmerAlignments(targetSequence=target_sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB='AFDB', seqMetaDB=None)
+            phr.getPhmmerAlignments(targetSequence=target_sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB=dbtype, seqMetaDB=None)
         else:
             phr.getPhmmerAlignments(targetSequence=target_sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB='PDB', seqMetaDB=None)
         for hitname in (phr.resultsDict):
@@ -304,11 +305,14 @@ def run_phmmer(seq_info, afdb_seqdb=None, dblvl=95):
     phmmerDomTblout = f"phmmerDomTblout_{dblvl}.log"
     phmmerEXE = Path(os.environ["CCP4"], "libexec", "phmmer")
     delete_db = False
+    dbtype = None
     if dblvl == "af2":
         if afdb_seqdb is not None:
             seqdb = afdb_seqdb
+            dbtype = "AFDB"
         else:
             seqdb = Path(os.environ["CCP4"], "share", "mrbump", "data", "afdb.fasta")
+            dbtype= "AFCCP4"
     else:
         sb = makeSeqDB.sequenceDatabase()
         seqdb = Path(sb.makePhmmerFasta(RLEVEL=dblvl))
@@ -341,7 +345,7 @@ def run_phmmer(seq_info, afdb_seqdb=None, dblvl=95):
     if delete_db:
         seqdb.unlink()
 
-    return logfile
+    return logfile, dbtype
 
 
 def run_hhsearch(seq_info, hhsearch_exe, hhsearch_db):

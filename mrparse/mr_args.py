@@ -82,9 +82,9 @@ def parse_command_line():
     if args.hhsearch_db != defaults['hhsearch_db']:
         config.set('Databases', 'hhsearch_db', args.hhsearch_db)
         update_config = True
-    if args.afdb_seqdb != defaults['afdb_seqdb']:
-        config.set('Databases', 'afdb_seqdb', args.afdb_seqdb)
-        update_config = True
+    #if args.afdb_seqdb != defaults['afdb_seqdb']:
+    #    config.set('Databases', 'afdb_seqdb', args.afdb_seqdb)
+    #    update_config = True
     if update_config:
         with open(config_file, 'w') as f:
             config.write(f)

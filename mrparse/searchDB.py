@@ -140,15 +140,21 @@ class Phmmer:
                         if "ECOD" not in DB:
                             if "AFDB" in DB:
                                 hitName=hit[8].split(":")[1] + "_PHR"
+                            elif "AFCCP4" in DB:
+                                hitName=hit[8].split("_")[0].replace("-model","") + "_PHR"
                             else:
                                 hitName=hit[8] + "_PHR"
                             TEMPresultsDict[hitName] = PHHit()
-                            if hit[8].split(":")[0] == "AFDB":
+                            if "AFDB" in DB:
                                 TEMPresultsDict[hitName].afdbName = hit[8].split(":")[1]
                                 TEMPresultsDict[hitName].chainID = "A"
                                 TEMPresultsDict[hitName].expdta = "AFDB"
                                 #TEMPresultsDict[hitName].resolution = float(hit[10])
                                 #TEMPresultsDict[hitName].releaseDate = hit[14]
+                            elif "AFCCP4" in DB:
+                                TEMPresultsDict[hitName].afdbName = hit[8].split("_")[0].replace("-model","")
+                                TEMPresultsDict[hitName].chainID = "A"
+                                TEMPresultsDict[hitName].expdta = "AFDB"
                             else:
                                 TEMPresultsDict[hitName].afdbName = hit[8][0:4]
                                 if len(hit[8]) >= 6:
@@ -206,8 +212,11 @@ class Phmmer:
                 # Check the following line to make sure its not outside the threshold
                 if "No individual domains that satisfy reporting thresholds" not in lines[count+1]:
                     if "ECOD" not in DB:
+                        print(">>>>", line)
                         if "AFDB" in DB:
                             hit = line.split()[1].split(":")[1] + "_PHR"
+                        elif "AFCCP4" in DB:
+                            hit = line.split()[1].split("_")[0].replace("-model","") + "_PHR"
                         else:
                             hit = line.split()[1] + "_PHR"
                     else:
