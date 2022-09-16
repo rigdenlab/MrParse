@@ -131,7 +131,7 @@ def models_from_hits(hits, plddt_cutoff):
         mlog = ModelData()
         mlog.hit = hit
         hit._homolog = mlog
-        mlog.model_url = AF_BASE_URL + hit.pdb_id
+        mlog.model_url = AF_BASE_URL + (hit.pdb_id.split("-")[0] + "-" + hit.pdb_id.split("-")[1])
         try:
             mlog.pdb_file, mlog.molecular_weight, \
             mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, \

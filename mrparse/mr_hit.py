@@ -179,11 +179,11 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
     
             if af2:
                 sh.score = phr.resultsDict[hitname].score
-                hit_name = phr.resultsDict[hitname].afdbName + "_" + str(phr.resultsDict[hitname].domainID)
+                hit_name = phr.resultsDict[hitname].afdbName # + "_" + str(phr.resultsDict[hitname].domainID)
                 sh.search_engine = "phmmer"
             elif searchio_type == "hmmer3-text":
                 sh.score = phr.resultsDict[hitname].score
-                hit_name = phr.resultsDict[hitname].afdbName + "_" + phr.resultsDict[hitname].chainID + "_" + str(phr.resultsDict[hitname].domainID)
+                hit_name = phr.resultsDict[hitname].afdbName + "_" + phr.resultsDict[hitname].chainID # + "_" + str(phr.resultsDict[hitname].domainID)
                 sh.search_engine = "phmmer"
             sh.name = hit_name
             if sh.rank <= max_hits:
