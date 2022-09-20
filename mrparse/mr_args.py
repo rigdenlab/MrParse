@@ -46,6 +46,7 @@ def mrparse_argparse(parser):
     sg.add_argument('--ccp4cloud', action='store_true', help="specify running through CCP4Cloud")
     sg.add_argument('--run_local', action='store_true', help='run searches using locally stored databases only')
     sg.add_argument('--max_hits', required=False, type=int, choices=range(1,101), metavar="[1-100]", default=10, help='maximum number of models to download and prepare for each database search')
+    sg.add_argument('--nproc', required=False, type=int, default=1, help='number of cores to use in phmmer search')
     sg.add_argument('-v', '--version', action='version', version='%(prog)s version: ' + __version__)
 
 

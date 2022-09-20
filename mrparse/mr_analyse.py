@@ -42,6 +42,7 @@ def run(seqin, **kwargs):
     ccp4cloud = kwargs.get('ccp4cloud', None)
     run_local = kwargs.get('run_local', None)
     max_hits = kwargs.get('max_hits', 10)
+    nproc = kwargs.get('nproc', 1)
 
     # Need to make a work directory first as all logs go into there
     work_dir = make_workdir()
@@ -81,7 +82,7 @@ def run(seqin, **kwargs):
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir, phmmer_dblvl=phmmer_dblvl,
                                             plddt_cutoff=plddt_cutoff, search_engine=search_engine,
                                             hhsearch_exe=hhsearch_exe, hhsearch_db=hhsearch_db, afdb_seqdb=afdb_seqdb, 
-                                            run_local=run_local, max_hits=max_hits)
+                                            run_local=run_local, max_hits=max_hits, nproc=nproc)
 
     classifier = None
     if do_classify:

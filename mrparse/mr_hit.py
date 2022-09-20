@@ -99,7 +99,7 @@ class SequenceHit:
         return out_str
 
 
-def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, phmmer_dblvl=95, localrun=False, max_hits=10):
+def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, phmmer_dblvl=95, localrun=False, max_hits=10, nproc=1):
     target_sequence = seq_info.sequence
     af2 = False
     dbtype = None
@@ -116,7 +116,7 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
         else:
             if phmmer_dblvl == "af2":
                 af2 = True
-        logfile, dbtype = run_phmmer(seq_info, afdb_seqdb=afdb_seqdb, dblvl=phmmer_dblvl)
+        logfile, dbtype = run_phmmer(seq_info, afdb_seqdb=afdb_seqdb, dblvl=phmmer_dblvl, nproc=nproc)
         searchio_type = 'hmmer3-text'
     elif search_engine == HHSEARCH:
         searchio_type = 'hhsuite2-text'
@@ -298,7 +298,7 @@ def sort_hits_by_size(hits, ascending=False):
     return OrderedDict(sorted(hits.items(), key=lambda x: x[1].length, reverse=reverse))
 
 
-def run_phmmer(seq_info, afdb_seqdb=None, dblvl=95):
+def run_phmmer(seq_info, afdb_seqdb=None, dblvl=95, nproc=1):
     logfile = f"phmmer_{dblvl}.log"
     alnfile = f"phmmerAlignment_{dblvl}.log"
     phmmerTblout = f"phmmerTblout_{dblvl}.log"
@@ -325,6 +325,7 @@ def run_phmmer(seq_info, afdb_seqdb=None, dblvl=95):
            '--domtblout', phmmerDomTblout,
            '--F1', '1e-15',
            '--F2', '1e-15',
+           '--cpu', str(nproc),
            '-A', alnfile,
            str(seq_info.sequence_file), str(seqdb)]
     else:
@@ -332,6 +333,7 @@ def run_phmmer(seq_info, afdb_seqdb=None, dblvl=95):
            '--notextw',
            '--tblout', phmmerTblout,
            '--domtblout', phmmerDomTblout,
+           '--cpu', str(nproc),
            '-A', alnfile,
            str(seq_info.sequence_file), str(seqdb)]
     stdout = run_cmd(cmd)

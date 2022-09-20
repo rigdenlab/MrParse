@@ -29,7 +29,8 @@ def main():
                               afdb_seqdb=args.afdb_seqdb,
                               ccp4cloud=args.ccp4cloud,
                               run_local=args.run_local,
-                              max_hits=args.max_hits)
+                              max_hits=args.max_hits,
+                              nproc=args.nproc)
     except KeyboardInterrupt:
         sys.stderr.write("Interrupted by keyboard!")
         return 0
