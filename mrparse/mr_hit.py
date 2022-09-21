@@ -100,12 +100,12 @@ class SequenceHit:
         return out_str
 
 
-def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, phmmer_dblvl=95, localrun=False, max_hits=10, nproc=1):
+def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, phmmer_dblvl=95, use_api=False, max_hits=10, nproc=1):
     target_sequence = seq_info.sequence
     af2 = False
     dbtype = None
     if search_engine == PHMMER:
-        if not localrun:
+        if use_api:
             if phmmer_dblvl == "af2":
                 logger.info("Attempting to run phmmer alphafold database search through EBI API..")
                 try:

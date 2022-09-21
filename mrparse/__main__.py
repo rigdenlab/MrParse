@@ -29,7 +29,7 @@ def main():
                               hhsearch_db=args.hhsearch_db,
                               afdb_seqdb=args.afdb_seqdb,
                               ccp4cloud=args.ccp4cloud,
-                              run_local=args.run_local,
+                              use_api=args.use_api,
                               max_hits=args.max_hits,
                               nproc=args.nproc)
     except KeyboardInterrupt:
