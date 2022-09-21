@@ -34,7 +34,8 @@ class PHHit:
         self.ndomains = 0
         self.domScores = dict([])
         self.alignment = ""
-        self.alnRange = ""
+        #self.alnRange = ""
+        self.alnRange = [0,0]
         self.ecodRange = []
         self.tarRange = [0,0]
         self.tarExtent = 0
@@ -250,9 +251,11 @@ class Phmmer:
                             start = (lines[count + 8 + domCount + (6 * s)]).split()[1].upper()
                             end = (lines[count + 8 + domCount + (6 * s)]).split()[-1].upper()
                             if self.resultsDict[hitname].modelResStart is not None:
-                                self.resultsDict[hitname].alnRange = "%d-%d" % (int(start)+self.resultsDict[hitname].modelResStart, int(end)+self.resultsDict[hitname].modelResStart)
+                                #self.resultsDict[hitname].alnRange = "%d-%d" % (int(start)+self.resultsDict[hitname].modelResStart, int(end)+self.resultsDict[hitname].modelResStart)
+                                self.resultsDict[hitname].alnRange = [int(start)+self.resultsDict[hitname].modelResStart, int(end)+self.resultsDict[hitname].modelResStart]
                             else:
-                                self.resultsDict[hitname].alnRange = "%s-%s" % (start, end)
+                                #self.resultsDict[hitname].alnRange = "%s-%s" % (start, end)
+                                self.resultsDict[hitname].alnRange = [int(start.replace("(","")), int(end.replace(")",""))]
                             if "SW" in line.split()[1].split("-")[-1]:
                                 self.resultsDict[hitname].modelResRange="[" + line.split("[")[-1]
                             else:

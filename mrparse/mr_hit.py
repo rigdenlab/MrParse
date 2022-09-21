@@ -13,6 +13,7 @@ from pathlib import Path
 from pyjob.script import EXE_EXT
 import requests
 import uuid
+import time
 
 from mrparse.mr_util import run_cmd
 from mrbump.seq_align.simpleSeqID import simpleSeqID
@@ -106,6 +107,7 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
     if search_engine == PHMMER:
         if not localrun:
             if phmmer_dblvl == "af2":
+                logger.info("Attempting to run phmmer alphafold database search through EBI API..")
                 try:
                     json_file = run_phmmer_alphafold_api(seq_info)
                     hits = _find_json_hits(json_file, target_sequence=seq_info, max_hits=max_hits)
@@ -115,6 +117,11 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
                     af2 = True
         else:
             if phmmer_dblvl == "af2":
+                logger.info("Running phmmer alphafold database search locally..")
+                if afdb_seqdb is not None:
+                    logger.info("Database file: %s" % afdb_seqdb)
+                else:
+                    logger.info("Using CCP4 afdb sequence file..")
                 af2 = True
         logfile, dbtype = run_phmmer(seq_info, afdb_seqdb=afdb_seqdb, dblvl=phmmer_dblvl, nproc=nproc)
         searchio_type = 'hmmer3-text'
@@ -128,6 +135,14 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
 
 def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False, max_hits=10, dbtype=None):
     assert logfile and searchio_type and target_sequence
+
+    if not af2:
+        #startT=time.time()
+        # Read in the header meta data from the PDB ALL database file
+        from mrbump.tools import MRBUMP_utils
+        gr = MRBUMP_utils.getPDBres()
+        seqMetaDB=gr.readPDBALL()
+        #print("Time to read sequence meta data: %.2lf seconds" % (time.time()-startT))
 
     hitDict = OrderedDict()
     if af2 or searchio_type == "hmmer3-text":
@@ -147,7 +162,7 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
         if af2:
             phr.getPhmmerAlignments(targetSequence=target_sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB=dbtype, seqMetaDB=None)
         else:
-            phr.getPhmmerAlignments(targetSequence=target_sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB='PDB', seqMetaDB=None)
+            phr.getPhmmerAlignments(targetSequence=target_sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB='PDB', seqMetaDB=seqMetaDB)
         for hitname in (phr.resultsDict):
     
             sh = SequenceHit()
@@ -161,8 +176,10 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
     
             sh.query_start = phr.resultsDict[hitname].tarRange[0]
             sh.query_stop = phr.resultsDict[hitname].tarRange[1]
-            sh.hit_start = int(phr.resultsDict[hitname].alnRange.split("-")[0])
-            sh.hit_stop = int(phr.resultsDict[hitname].alnRange.split("-")[1])
+            #sh.hit_start = int(phr.resultsDict[hitname].alnRange.split("-")[0])
+            sh.hit_start = int(phr.resultsDict[hitname].alnRange[0])
+            #sh.hit_stop = int(phr.resultsDict[hitname].alnRange.split("-")[1])
+            sh.hit_stop = int(phr.resultsDict[hitname].alnRange[1])
             sh.target_alignment = phr.resultsDict[hitname].targetAlignment
             sh.alignment = phr.resultsDict[hitname].alignment
 

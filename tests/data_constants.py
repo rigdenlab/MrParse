@@ -1,7 +1,7 @@
 TWOUVO_SEQ = 'ERCGEQGSNMECPNNLCCSQYGYCGMGGDYCGKGCQNGACWTSKRCGSQAGGATCTNNQCCSQYGYCGFGAEYCGAGCQGGPCRADIKCGSQAGGKLCPNNLCCSQWGFCGLGSEFCGGGCQSGACSTDKPCGKDAGGRVCTNNYCCSKWGSCGIGPGYCGAGCQSGGCDG'
 FIVEHXG_SEQ = 'MRYFFMAEPIRAMEGDLLGVEIITHFASSPARPLHPEFVISSWDNSQKRRFLLDLLRTIAAKHGWFLRHGLFCIVNIDRGMAQLVLQDKDIRALLHAMLFVELQVAEHFSCQDNVLVDPLIHALHKQPNPLWLGDLGVGNATAAPLVCGCFSGVKLDRSFFVSQIEKMTFPLLVKHIRHYCDKIVVGGQENARYLPALKTAGIWATQGTLFPSVALEEIETLLLGSRMNTLRESNMGTMHTSELLKHIYDINLSYLLLAQRLIVQDKASAMFRLGINEEMANTLGALSLPQMVKLAETNQLVCHFRFDDHQTITRLTQDSRVDDLQQIHTGIMLSTRLLNEVDDTARKKRA'
 
-PHMMER_LOG_TXT = """# phmmer :: search a protein sequence against a protein database
+PHMMER_LOG_TXT_OLD = """# phmmer :: search a protein sequence against a protein database
 # HMMER 3.1b1 (May 2013); http://hmmer.org/
 # Copyright (C) 2013 Howard Hughes Medical Institute.
 # Freely distributed under the GNU General Public License (GPLv3).
@@ -464,3 +464,190 @@ PHMMER_AF_JSON = '{"results":{"hits":[{"archScore":"8","ph":"Streptophyta","arch
                  ':5893,"sys":0,"n_past_fwd":38,"total":4,"nmodels":1,"nincluded":"36","n_past_vit":541,"nreported":"' \
                  '36","domZ":36},"uuid":"B401DCCA-8999-11EC-BB2E-100EE976C163","_internal":{"lowevalue":"1.5e-07","hi' \
                  'ghevalue":"5.4e-74"}}}'
+
+
+PHMMER_LOG_TXT = """# phmmer :: search a protein sequence against a protein database
+# HMMER 3.3.2 (Nov 2020); http://hmmer.org/
+# Copyright (C) 2020 Howard Hughes Medical Institute.
+# Freely distributed under the BSD open source license.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query sequence file:             /home/rmk65/opt/repos/github/MrParse/data/2uvoA.fasta
+# target sequence database:        /tmp/rmk65/phmmer_r95_a100.fasta
+# MSA of hits saved to file:       phmmerAlignment_95.log
+# per-seq hits tabular output:     phmmerTblout_95.log
+# per-dom hits tabular output:     phmmerDomTblout_95.log
+# max ASCII text line length:      unlimited
+# number of worker threads:        1
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       2UVO:A|PDBID|CHAIN|SEQUENCE  [L=171]
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence Description
+    ------- ------ -----    ------- ------ -----   ---- --  -------- -----------
+     2e-109  366.5  96.9   2.2e-109  366.3  96.9    1.0  1  2uvo_F    resolution: 1.40 experiment: XRAY release_date: 2008-05-27 [ 196262 : ALL ] ['2-171'] <RLEVEL>95<RLEVEL>
+    5.8e-62  211.3  96.0      1e-61  210.5  96.0    1.4  1  6stq_B    resolution: 1.50 experiment: XRAY release_date: 2021-07-14 [ 228730 : ALL ] ['1-170'] <RLEVEL>95<RLEVEL>
+    2.6e-26   94.8  53.8    6.5e-26   93.5  53.8    1.5  1  1ulk_B    resolution: 1.80 experiment: XRAY release_date: 2003-12-23 [ 420299 : ALL ] ['201-326'] <RLEVEL>95<RLEVEL>
+    1.5e-18   69.4  33.2    1.6e-18   69.3  33.2    1.0  1  1uha_A    resolution: 1.50 experiment: XRAY release_date: 2004-04-13 [ 343113 : ALL ] ['1-82'] <RLEVEL>95<RLEVEL>
+    8.9e-12   47.3  10.8    8.9e-12   47.3  10.8    1.0  1  4wp4_A    resolution: 1.43 experiment: XRAY release_date: 2015-03-04 [ 395476 : ALL ] ['1-43'] <RLEVEL>95<RLEVEL>
+    1.7e-11   46.4  37.0    1.9e-11   46.2  37.0    1.1  1  1en2_A    resolution: 1.40 experiment: XRAY release_date: 2000-06-21 [ 386248 : ALL ] ['2-86'] <RLEVEL>95<RLEVEL>
+      7e-11   44.4  36.1    7.9e-11   44.2  36.1    1.1  1  1iqb_B    resolution: 1.90 experiment: XRAY release_date: 2001-11-07 [ 423878 : ALL ] ['2-89'] <RLEVEL>95<RLEVEL>
+    6.3e-09   38.0  16.0    6.6e-09   37.9  16.0    1.0  1  4mpi_B    resolution: 1.60 experiment: XRAY release_date: 2014-08-27 [ 443733 : ALL ] ['-1-43'] <RLEVEL>95<RLEVEL>
+    2.7e-08   35.9  19.7    2.7e-08   35.9  19.7    2.5  3  2dkv_A    resolution: 2.00 experiment: XRAY release_date: 2007-05-01 [ 405547 : ALL ] ['33-330'] <RLEVEL>95<RLEVEL>
+  ------ inclusion threshold ------
+      0.029   16.2  18.7      0.029   16.2  18.7    1.1  1  1p9g_A    resolution: 0.84 experiment: XRAY release_date: 2004-06-01 [ 432396 : ALL ] ['2-41'] <RLEVEL>95<RLEVEL>
+
+
+Domain annotation for each sequence (and alignments):
+>> 2uvo_F  resolution: 1.40 experiment: XRAY release_date: 2008-05-27 [ 196262 : ALL ] ['2-171'] <RLEVEL>95<RLEVEL>
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !  366.3  96.9  3.7e-113  2.2e-109       2     171 .]       1     170 []       1     170 [] 1.00
+
+  Alignments for each domain:
+  == domain 1  score: 366.3 bits;  conditional E-value: 3.7e-113
+  2UVO:A|PDBID|CHAIN|SEQUENCE   2 rcgeqgsnmecpnnlccsqygycgmggdycgkgcqngacwtskrcgsqaggatctnnqccsqygycgfgaeycgagcqggpcradikcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacstdkpcgkdaggrvctnnyccskwgscgigpgycgagcqsggcdg 171
+                                  rcgeqgsnmecpnnlccsqygycgmggdycgkgcqngacwtskrcgsqaggatctnnqccsqygycgfgaeycgagcqggpcradikcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacstdkpcgkdaggrvctnnyccskwgscgigpgycgagcqsggcdg
+                       2uvo_F   1 RCGEQGSNMECPNNLCCSQYGYCGMGGDYCGKGCQNGACWTSKRCGSQAGGATCTNNQCCSQYGYCGFGAEYCGAGCQGGPCRADIKCGSQAGGKLCPNNLCCSQWGFCGLGSEFCGGGCQSGACSTDKPCGKDAGGRVCTNNYCCSKWGSCGIGPGYCGAGCQSGGCDG 170
+                                  8************************************************************************************************************************************************************************8 PP
+
+>> 6stq_B  resolution: 1.50 experiment: XRAY release_date: 2021-07-14 [ 228730 : ALL ] ['1-170'] <RLEVEL>95<RLEVEL>
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !  210.5  96.0   1.7e-65     1e-61       2     169 ..       3     169 ..       2     170 .] 0.98
+
+  Alignments for each domain:
+  == domain 1  score: 210.5 bits;  conditional E-value: 1.7e-65
+  2UVO:A|PDBID|CHAIN|SEQUENCE   2 rcgeqgsnmecpnnlccsqygycgmggdycgkgcqngacwtskrcgsqaggatctnnqccsqygycgfgaeycgagcqggpcradikcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacstdkpcgkdaggrvctnnyccskwgscgigpgycgagcqsggc 169
+                                  +cg+qg    cpnn ccs+ygycg+g  ycg gcq+g c   krcg qa+g tc nn ccs+ gycgfg+eycgagcqggpcrad  cg     +lcp+nlccsqwgfcglg efcg gcqsgac +   cg+ a g  ctnnycc   g cg+g  ycgagcqsg c
+                       6stq_B   3 ECGKQGGGALCPNNKCCSRYGYCGFGPAYCGTGCQSGGCCPGKRCGDQANGETCPNNLCCSEDGYCGFGSEYCGAGCQGGPCRADKLCGXXXXXQLCPDNLCCSQWGFCGLGVEFCGDGCQSGACCS-MRCGRQADGAKCTNNYCCGASGYCGLGGDYCGAGCQSGPC 169
+                                  6****************************************************************************************************************************87.56************************************99 PP
+
+>> 1ulk_B  resolution: 1.80 experiment: XRAY release_date: 2003-12-23 [ 420299 : ALL ] ['201-326'] <RLEVEL>95<RLEVEL>
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.5  53.8   1.1e-29   6.5e-26      46     166 ..       4     120 ..       1     124 [. 0.54
+
+  Alignments for each domain:
+  == domain 1  score: 93.5 bits;  conditional E-value: 1.1e-29
+  2UVO:A|PDBID|CHAIN|SEQUENCE  46 cgsqaggatctnnqccsqygycgfgaeycgagcqggpcradikcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacstdkpcgkdaggrvctnnyccskwgscgigpgycgagcqs 166
+                                  cg +a+g  c +  ccsq+gycg   eycg gcq+  c  + +cg + ggk c + lccsq+g+cg +   cg gcqs  cs    cgkd ggr+ct + ccs++g cg+   +c  gcqs
+                       1ulk_B   4 CGVRASGRVCPDGYCCSQWGYCGTTEEYCGKGCQS-QCDYN-RCGKEFGGKECHDELCCSQYGWCGNSDGHCGEGCQS-QCSYW-RCGKDFGGRLCTEDMCCSQYGWCGLTDDHCEDGCQS 120
+                                  55556666666666666666666666666666654.34432.566666666666666666666666555566666655.35443.366666666666666666666666666666666655 PP
+
+>> 1uha_A  resolution: 1.50 experiment: XRAY release_date: 2004-04-13 [ 343113 : ALL ] ['1-82'] <RLEVEL>95<RLEVEL>
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   69.3  33.2   2.7e-22   1.6e-18      88     169 ..       3      81 ..       1      82 [] 0.88
+
+  Alignments for each domain:
+  == domain 1  score: 69.3 bits;  conditional E-value: 2.7e-22
+  2UVO:A|PDBID|CHAIN|SEQUENCE  88 kcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgacstdkpcgkdaggrvctnnyccskwgscgigpgycgagcqsggc 169
+                                  +cg +a+gk cpn  ccsqwg+cg    +cg gcqs  c     cg+d ggr+c  + ccsk+g cg +  +c  gcqs  c
+                       1uha_A   3 ECGERASGKRCPNGKCCSQWGYCGTTDNYCGQGCQSQ-CDY-WRCGRDFGGRLCEEDMCCSKYGWCGYSDDHCEDGCQSQ-C 81 
+                                  6999999999999999999999999999999999985.765.46999999999999999999999999999999999984.5 PP
+
+>> 4wp4_A  resolution: 1.43 experiment: XRAY release_date: 2015-03-04 [ 395476 : ALL ] ['1-43'] <RLEVEL>95<RLEVEL>
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   47.3  10.8   1.5e-15   8.9e-12      88     124 ..       2      40 ..       1      43 [] 0.87
+
+  Alignments for each domain:
+  == domain 1  score: 47.3 bits;  conditional E-value: 1.5e-15
+  2UVO:A|PDBID|CHAIN|SEQUENCE  88 kcgsqaggklcpnnlccsqwgfcglgsefcgg..gcqsg 124
+                                  +cg qaggklcpnnlccsqwg+cg   e+c+   +cqs+
+                       4wp4_A   2 QCGRQAGGKLCPNNLCCSQWGWCGSTDEYCSPdhNCQSN 40 
+                                  6*****************************852268875 PP
+
+>> 1en2_A  resolution: 1.40 experiment: XRAY release_date: 2000-06-21 [ 386248 : ALL ] ['2-86'] <RLEVEL>95<RLEVEL>
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   46.2  37.0   3.1e-15   1.9e-11       2      79 ..       1      82 [.       1      85 [] 0.76
+
+  Alignments for each domain:
+  == domain 1  score: 46.2 bits;  conditional E-value: 3.1e-15
+  2UVO:A|PDBID|CHAIN|SEQUENCE  2 rcgeqgsnmecpnnlccsqygycgmggdycgkgcqngacwtsk....rcgsqaggatctnnqccsqygycgfgaeycgag.cq 79
+                                 rcg qg    cp   ccs +g+cg +  ycg+ c+n  cw+ +    rcg+  g+  c  ++ccs +g+cg g +yc+ g cq
+                       1en2_A  1 RCGSQGGGSTCPGLRCCSIWGWCGDSEPYCGRTCEN-KCWSGErsdhRCGAAVGNPPCGQDRCCSVHGWCGGGNDYCSGGnCQ 82
+                                 788888888888888888888888888888888887.5887542223688888888888888888888888888888554255 PP
+
+>> 1iqb_B  resolution: 1.90 experiment: XRAY release_date: 2001-11-07 [ 423878 : ALL ] ['2-89'] <RLEVEL>95<RLEVEL>
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   44.2  36.1   1.3e-14   7.9e-11       2      79 ..       1      82 [.       1      88 [] 0.82
+
+  Alignments for each domain:
+  == domain 1  score: 44.2 bits;  conditional E-value: 1.3e-14
+  2UVO:A|PDBID|CHAIN|SEQUENCE  2 rcgeqgsnmecpnnlccsqygycgmggdycgkgcqngacwtsk....rcgsqaggatctnnqccsqygycgfgaeyc.gagcq 79
+                                 rcg qg    cp   ccs +g+cg +  ycg+ c+n  cw+ +    rcg+  g+  c  ++ccs +g+cg g +yc g+ cq
+                       1iqb_B  1 RCGSQGGGGTCPALWCCSIWGWCGDSEPYCGRTCEN-KCWSGErsdhRCGAAVGNPPCGQDRCCSVHGWCGGGNDYCsGSKCQ 82
+                                 899999999999999999999999999999999998.6997652223799999999999999999999999999999445566 PP
+
+>> 4mpi_B  resolution: 1.60 experiment: XRAY release_date: 2014-08-27 [ 443733 : ALL ] ['-1-43'] <RLEVEL>95<RLEVEL>
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   37.9  16.0   1.1e-12   6.6e-09      88     124 ..       4      40 ..       1      44 [. 0.79
+
+  Alignments for each domain:
+  == domain 1  score: 37.9 bits;  conditional E-value: 1.1e-12
+  2UVO:A|PDBID|CHAIN|SEQUENCE  88 kcgsqaggklcpnnlccsqwgfcglgsefcgggcqsg 124
+                                  +cg qagg lcp  lccsq+g+c+   e+cg+gcqs 
+                       4mpi_B   4 QCGRQAGGALCPGGLCCSQYGWCANTPEYCGSGCQSQ 40 
+                                  6888888888888888888888888888888888874 PP
+
+>> 2dkv_A  resolution: 2.00 experiment: XRAY release_date: 2007-05-01 [ 405547 : ALL ] ['33-330'] <RLEVEL>95<RLEVEL>
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   35.9  19.7   4.5e-12   2.7e-08      88     126 ..       2      39 ..       1      46 [. 0.92
+   2 ?   -3.0   0.3       3.6   2.2e+04      17      17 ..     152     152 ..     135     173 .. 0.47
+   3 ?   -1.8   1.8       1.5   9.2e+03      52      77 ..     256     281 ..     236     294 .. 0.66
+
+  Alignments for each domain:
+  == domain 1  score: 35.9 bits;  conditional E-value: 4.5e-12
+  2UVO:A|PDBID|CHAIN|SEQUENCE  88 kcgsqaggklcpnnlccsqwgfcglgsefcgggcqsgac 126
+                                  +cg+qagg  cpn lccs+wg+cg  s+fcg gcqs  c
+                       2dkv_A   2 QCGAQAGGARCPNCLCCSRWGWCGTTSDFCGDGCQSQ-C 39 
+                                  6**********************************95.4 PP
+
+  == domain 2  score: -3.0 bits;  conditional E-value: 3.6
+  2UVO:A|PDBID|CHAIN|SEQUENCE  17 c 17 
+                                  c
+                       2dkv_A 152 C 152
+                                  2 PP
+
+  == domain 3  score: -1.8 bits;  conditional E-value: 1.5
+  2UVO:A|PDBID|CHAIN|SEQUENCE  52 gatctnnqccsqygycgfgaeycgag 77 
+                                  g  c +       +  gf   ycga 
+                       2dkv_A 256 GLECGHGPDDRVANRIGFYQRYCGAF 281
+                                  44455444444455566777777763 PP
+
+>> 1p9g_A  resolution: 0.84 experiment: XRAY release_date: 2004-06-01 [ 432396 : ALL ] ['2-41'] <RLEVEL>95<RLEVEL>
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 ?   16.2  18.7   4.7e-06     0.029      53      84 ..       8      39 ..       1      40 [] 0.74
+
+  Alignments for each domain:
+  == domain 1  score: 16.2 bits;  conditional E-value: 4.7e-06
+  2UVO:A|PDBID|CHAIN|SEQUENCE 53 atctnnqccsqygycgfgaeycgagcqggpcr 84
+                                   c    ccs ygycg ga ycgag     cr
+                       1p9g_A  8 RPCNAGLCCSIYGYCGSGAAYCGAGNCRCQCR 39
+                                 46888999999999999999999985555555 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (171 nodes)
+Target sequences:                      60247  (16131101 residues searched)
+Passed MSV filter:                      1923  (0.0319186); expected 1204.9 (0.02)
+Passed bias filter:                      726  (0.0120504); expected 1204.9 (0.02)
+Passed Vit filter:                        60  (0.0009959); expected 60.2 (0.001)
+Passed Fwd filter:                        10  (0.000165983); expected 0.6 (1e-05)
+Initial search space (Z):              60247  [actual number of targets]
+Domain search space  (domZ):              10  [number of targets reported over threshold]
+# CPU time: 0.19u 0.00s 00:00:00.19 Elapsed: 00:00:00.12
+# Mc/sec: 22343.36
+//
+# Alignment of 9 hits satisfying inclusion thresholds saved to: phmmerAlignment_95.log
+[ok]
+"""

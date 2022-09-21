@@ -31,6 +31,7 @@ def run(seqin, **kwargs):
     run_serial = kwargs.get('run_serial', None)
     do_classify = kwargs.get('do_classify', None)
     pdb_dir = kwargs.get('pdb_dir', None)
+    pdb_local = kwargs.get('pdb_local', None)
     phmmer_dblvl = kwargs.get('phmmer_dblvl', '95')
     plddt_cutoff = kwargs.get('plddt_cutoff', '70')
     search_engine = kwargs.get('search_engine', 'phmmer')
@@ -82,7 +83,7 @@ def run(seqin, **kwargs):
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir, phmmer_dblvl=phmmer_dblvl,
                                             plddt_cutoff=plddt_cutoff, search_engine=search_engine,
                                             hhsearch_exe=hhsearch_exe, hhsearch_db=hhsearch_db, afdb_seqdb=afdb_seqdb, 
-                                            run_local=run_local, max_hits=max_hits, nproc=nproc)
+                                            run_local=run_local, max_hits=max_hits, nproc=nproc, pdb_local=pdb_local)
 
     classifier = None
     if do_classify:

@@ -27,6 +27,7 @@ def mrparse_argparse(parser):
     sg.add_argument('--do_classify', action='store_true',
                     help='Run the SS/TM/CC classifiers - requires internet access.')
     sg.add_argument('--pdb_dir', action=FilePathAction, help='Directory of PDB files')
+    sg.add_argument('--pdb_local', action=FilePathAction, help='Path to locally stored PDB mirror')
     sg.add_argument('--phmmer_dblvl', help='Redundancy level of PDB database used by Phmmer', default='95',
                     choices=['50', '70', '90', '95', '100'])
     sg.add_argument('--plddt_cutoff', help='Removes residues from AFDB models below this pLDDT threshold',

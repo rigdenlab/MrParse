@@ -19,6 +19,7 @@ class SearchModelFinder(object):
         self.seq_info = seq_info
         self.hkl_info = kwargs.get("hkl_info", None)
         self.pdb_dir = kwargs.get("pdb_dir", None)
+        self.pdb_local = kwargs.get("pdb_local", None)
         self.search_engine = kwargs.get("search_engine", "phmmer")
         self.phmmer_dblvl = kwargs.get("phmmer_dblvl", 95)
         self.plddt_cutoff = kwargs.get("plddt_cutoff", 70)
@@ -75,7 +76,7 @@ class SearchModelFinder(object):
     def prepare_homologs(self):
         if not self.hits and self.regions:
             return None
-        self.homologs = mr_homolog.homologs_from_hits(self.hits, self.pdb_dir)
+        self.homologs = mr_homolog.homologs_from_hits(self.hits, self.pdb_dir, self.pdb_local)
         if self.hkl_info:
             mr_homolog.calculate_ellg(self.homologs, self.hkl_info)
         return self.homologs
