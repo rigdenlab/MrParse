@@ -78,7 +78,7 @@ class Domains:
         return out_str
 
 
-class Phmmer:
+class phmmer:
     def __init__(self):
         self.phmmerEXE = os.path.join(os.environ["CCP4"], "libexec", "phmmer")
         self.cpu = 1
@@ -431,7 +431,7 @@ if __name__ == "__main__":
     gr = MRBUMP_utils.getPDBres()
     seqMetaDB=gr.readPDBALL()
 
-    ph = Phmmer()
+    ph = phmmer()
     ph.runPhmmer(
         seqin=seqin,
         seqdb=seqdb,

@@ -109,7 +109,7 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
             if phmmer_dblvl == "af2":
                 logger.info("Attempting to run phmmer alphafold database search through EBI API..")
                 try:
-                    json_file = run_phmmer_alphafold_api(seq_info)
+                    json_file = run_phmmer_alphafold_api(seq_info, max_hits=max_hits)
                     hits = _find_json_hits(json_file, target_sequence=seq_info, max_hits=max_hits)
                     return hits
                 except json.JSONDecodeError:
@@ -151,13 +151,13 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
             logfile = "phmmer_af2_fixed.log"
     
         # Read logfile with searchDB
-        from mrparse.searchDB import Phmmer  
+        from mrparse.searchDB import phmmer  
     
-        plog=open(logfile, "r")
-        phmmerALNLog=plog.readlines()
+        plog = open(logfile, "r")
+        phmmerALNLog = plog.readlines()
         plog.close()
     
-        phr=Phmmer()
+        phr=phmmer()
         phr.logfile=logfile
         if af2:
             phr.getPhmmerAlignments(targetSequence=target_sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB=dbtype, seqMetaDB=None)
@@ -262,7 +262,7 @@ def _find_json_hits(json_file, target_sequence, max_hits=10):
             try:
                 sh = SequenceHit()
                 sh.rank = i + 1
-                sh.pdb_id = hit['name'].split("_")[0]
+                sh.pdb_id = "AF-" + hit['name'].split("_")[0] + "-F1"
                 sh.evalue = hit['evalue']
 
                 alignment_info = hit['domains'][0]
@@ -378,7 +378,8 @@ def run_hhsearch(seq_info, hhsearch_exe, hhsearch_db):
     return logfile
 
 
-def run_phmmer_alphafold_api(seq_info):
+        #'seqdb': 'alphafold',
+def run_phmmer_alphafold_api(seq_info, max_hits=10):
     params = {
         'seqdb': 'uniprotkb',
         'seq': f'>Seq\n{seq_info.sequence}'
@@ -390,7 +391,7 @@ def run_phmmer_alphafold_api(seq_info):
     # modify the range, format and presence of alignments in your results here
     res_params = {
         'output': 'json',
-        'range': '1,10'
+        'range': '1,%d' % max_hits
     }
 
     # send a GET request to the server
