@@ -22,6 +22,7 @@ class PdbModelException(Exception):
     pass
 
 
+#AF_BASE_URL = 'https://alphafold.ebi.ac.uk/files/'
 AF_BASE_URL = 'https://alphafold.ebi.ac.uk/entry/'
 AF2_DIR = Path('AF2_files')
 MODELS_DIR = Path('models')
@@ -131,7 +132,7 @@ def models_from_hits(hits, plddt_cutoff):
         mlog = ModelData()
         mlog.hit = hit
         hit._homolog = mlog
-        mlog.model_url = AF_BASE_URL + hit.pdb_id + "-model_" + db_ver + ".pdb"
+        mlog.model_url = AF_BASE_URL + hit.pdb_id.split("-")[1] 
         try:
             mlog.pdb_file, mlog.molecular_weight, \
             mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, \
