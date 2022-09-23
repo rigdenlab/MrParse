@@ -22,7 +22,6 @@ class PdbModelException(Exception):
     pass
 
 
-#AF_BASE_URL = 'https://alphafold.ebi.ac.uk/files/'
 AF_BASE_URL = 'https://alphafold.ebi.ac.uk/entry/'
 AF2_DIR = Path('AF2_files')
 MODELS_DIR = Path('models')
