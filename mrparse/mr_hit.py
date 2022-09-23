@@ -176,9 +176,7 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
     
             sh.query_start = phr.resultsDict[hitname].tarRange[0]
             sh.query_stop = phr.resultsDict[hitname].tarRange[1]
-            #sh.hit_start = int(phr.resultsDict[hitname].alnRange.split("-")[0])
             sh.hit_start = int(phr.resultsDict[hitname].alnRange[0])
-            #sh.hit_stop = int(phr.resultsDict[hitname].alnRange.split("-")[1])
             sh.hit_stop = int(phr.resultsDict[hitname].alnRange[1])
             sh.target_alignment = phr.resultsDict[hitname].targetAlignment
             sh.alignment = phr.resultsDict[hitname].alignment
