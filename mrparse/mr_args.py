@@ -27,6 +27,7 @@ def mrparse_argparse(parser):
     sg.add_argument('--do_classify', action='store_true',
                     help='Run the SS/TM/CC classifiers - requires internet access.')
     sg.add_argument('--pdb_dir', action=FilePathAction, help='Directory of PDB files')
+    sg.add_argument('--pdb_local', action=FilePathAction, help='Path to locally stored PDB mirror')
     sg.add_argument('--phmmer_dblvl', help='Redundancy level of PDB database used by Phmmer', default='95',
                     choices=['50', '70', '90', '95', '100'])
     sg.add_argument('--plddt_cutoff', help='Removes residues from AFDB models below this pLDDT threshold',
@@ -42,8 +43,11 @@ def mrparse_argparse(parser):
     sg.add_argument('--hhsearch_exe', action=FilePathAction,
                     help="Location of hhsearch executable")
     sg.add_argument('--hhsearch_db', help="Location of hhsearch database")
-    sg.add_argument('--afdb_seqdb', help="Location of alphafold sequence database")
-    sg.add_argument('--ccp4cloud', action='store_true', help="specify running through CCP4Cloud")
+    sg.add_argument('--afdb_seqdb', help="Location of alternative alphafold sequence database. To search the entire alphafold database, download the latest sequence listing here: https://ftp.ebi.ac.uk/pub/databases/alphafold/sequences.fasta and set path to file using this option. Note: very large file size!")
+    sg.add_argument('--ccp4cloud', action='store_true', help="Specify running through CCP4Cloud")
+    sg.add_argument('--use_api', action='store_true', help='Run alphafold database search using EBI API database search')
+    sg.add_argument('--max_hits', required=False, type=int, choices=range(1,101), metavar="[1-100]", default=10, help='Maximum number of models to download and prepare for each database search')
+    sg.add_argument('--nproc', required=False, type=int, default=1, help='Number of cores to use in phmmer search')
     sg.add_argument('-v', '--version', action='version', version='%(prog)s version: ' + __version__)
 
 
@@ -80,9 +84,9 @@ def parse_command_line():
     if args.hhsearch_db != defaults['hhsearch_db']:
         config.set('Databases', 'hhsearch_db', args.hhsearch_db)
         update_config = True
-    if args.afdb_seqdb != defaults['afdb_seqdb']:
-        config.set('Databases', 'afdb_seqdb', args.afdb_seqdb)
-        update_config = True
+    #if args.afdb_seqdb != defaults['afdb_seqdb']:
+    #    config.set('Databases', 'afdb_seqdb', args.afdb_seqdb)
+    #    update_config = True
     if update_config:
         with open(config_file, 'w') as f:
             config.write(f)
