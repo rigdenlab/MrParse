@@ -19,11 +19,16 @@ class SearchModelFinder(object):
         self.seq_info = seq_info
         self.hkl_info = kwargs.get("hkl_info", None)
         self.pdb_dir = kwargs.get("pdb_dir", None)
+        self.pdb_local = kwargs.get("pdb_local", None)
         self.search_engine = kwargs.get("search_engine", "phmmer")
         self.phmmer_dblvl = kwargs.get("phmmer_dblvl", 95)
         self.plddt_cutoff = kwargs.get("plddt_cutoff", 70)
         self.hhsearch_exe = kwargs.get("hhsearch_exe", None)
         self.hhsearch_db = kwargs.get("hhsearch_db", None)
+        self.afdb_seqdb = kwargs.get("afdb_seqdb", None)
+        self.use_api = kwargs.get("use_api", False)
+        self.max_hits = kwargs.get("max_hits", 10)
+        self.nproc = kwargs.get("nproc", 1)
         self.hits = None
         self.model_hits = None
         self.regions = None
@@ -50,7 +55,8 @@ class SearchModelFinder(object):
     def find_homolog_regions(self):
         self.hits = mr_hit.find_hits(self.seq_info, search_engine=self.search_engine,
                                      hhsearch_exe=self.hhsearch_exe, hhsearch_db=self.hhsearch_db,
-                                     phmmer_dblvl=self.phmmer_dblvl)
+                                     afdb_seqdb=self.afdb_seqdb, phmmer_dblvl=self.phmmer_dblvl, 
+                                     use_api=self.use_api, max_hits=self.max_hits, nproc=self.nproc)
         if not self.hits:
             logger.critical('SearchModelFinder PDB search could not find any hits!')
             return None
@@ -59,7 +65,8 @@ class SearchModelFinder(object):
 
     def find_model_regions(self):
         self.model_hits = mr_hit.find_hits(self.seq_info, search_engine="phmmer",
-                                           hhsearch_exe=None, hhsearch_db=None, phmmer_dblvl="af2")
+                                           hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, phmmer_dblvl="af2", 
+                                           use_api=self.use_api, max_hits=self.max_hits, nproc=self.nproc)
         if not self.model_hits:
             logger.critical('SearchModelFinder EBI Alphafold database search could not find any hits!')
             return None
@@ -69,7 +76,7 @@ class SearchModelFinder(object):
     def prepare_homologs(self):
         if not self.hits and self.regions:
             return None
-        self.homologs = mr_homolog.homologs_from_hits(self.hits, self.pdb_dir)
+        self.homologs = mr_homolog.homologs_from_hits(self.hits, self.pdb_dir, self.pdb_local)
         if self.hkl_info:
             mr_homolog.calculate_ellg(self.homologs, self.hkl_info)
         return self.homologs

@@ -131,7 +131,7 @@ def models_from_hits(hits, plddt_cutoff):
         mlog = ModelData()
         mlog.hit = hit
         hit._homolog = mlog
-        mlog.model_url = AF_BASE_URL + hit.pdb_id
+        mlog.model_url = AF_BASE_URL + hit.pdb_id + "-model_" + db_ver + ".pdb"
         try:
             mlog.pdb_file, mlog.molecular_weight, \
             mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, \
@@ -156,7 +156,10 @@ def prepare_pdb(hit, plddt_cutoff, database_version):
     trucate to required residues
     calculate the MW
     """
-    pdb_name = f"AF-{hit.pdb_id}-F1-model_{database_version}.pdb"
+
+    print("Retrieving and preparing model: %s" % hit.name)
+
+    pdb_name = f"{hit.pdb_id}-model_{database_version}.pdb"
     pdb_struct = PdbStructure()
     try:
         pdb_string = download_model(pdb_name)

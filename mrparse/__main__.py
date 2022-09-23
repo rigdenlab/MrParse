@@ -19,6 +19,7 @@ def main():
                               run_serial=args.run_serial,
                               do_classify=args.do_classify,
                               pdb_dir=args.pdb_dir,
+                              pdb_local=args.pdb_local,
                               phmmer_dblvl=args.phmmer_dblvl,
                               plddt_cutoff=args.plddt_cutoff,
                               search_engine=args.search_engine,
@@ -26,7 +27,11 @@ def main():
                               deepcoil_exe=args.deepcoil_exe,
                               hhsearch_exe=args.hhsearch_exe,
                               hhsearch_db=args.hhsearch_db,
-                              ccp4cloud=args.ccp4cloud)
+                              afdb_seqdb=args.afdb_seqdb,
+                              ccp4cloud=args.ccp4cloud,
+                              use_api=args.use_api,
+                              max_hits=args.max_hits,
+                              nproc=args.nproc)
     except KeyboardInterrupt:
         sys.stderr.write("Interrupted by keyboard!")
         return 0

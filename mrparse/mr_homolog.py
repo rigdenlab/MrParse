@@ -6,6 +6,9 @@ Created on 18 Oct 2018
 from collections import OrderedDict
 import copy
 import logging
+import os, sys
+import gzip
+import shutil
 from pathlib import Path
 from simbad.util.pdb_util import PdbStructure
 
@@ -124,7 +127,7 @@ class HomologData(object):
         return out_str
 
 
-def homologs_from_hits(hits, pdb_dir=None):
+def homologs_from_hits(hits, pdb_dir=None, pdb_local=None):
     if not HOMOLOGS_DIR.exists():
         HOMOLOGS_DIR.mkdir()
     homologs = OrderedDict()
@@ -134,31 +137,49 @@ def homologs_from_hits(hits, pdb_dir=None):
         hit._homolog = hlog
         hlog.pdb_url = PDB_BASE_URL + hit.pdb_id
         try:
-            hlog.pdb_file, hlog.molecular_weight, hlog.resolution = prepare_pdb(hit, pdb_dir)
+            hlog.pdb_file, hlog.molecular_weight, hlog.resolution = prepare_pdb(hit, pdb_dir, pdb_local)
         except PdbModelException as e:
-            logger.critical(f"Error processing hit pdb {e.message}")
+            logger.critical(f"Error processing hit pdb {e}")
         homologs[hlog.name] = hlog
     return homologs
 
 
-def prepare_pdb(hit, pdb_dir):
+def prepare_pdb(hit, pdb_dir, pdb_local):
     """
-    Download pdb or take file from cache
-    trucate to required residues
+    Download pdb or take file from cache or local PDB mirror
+    truncate to required residues
     calculate the MW
 
     """
 
-    if pdb_dir != "None":
-        pdb_dir = Path(pdb_dir)
-        entry = list(pdb_dir.glob("*/*"))[0]
-        prefix, ext = entry.stem[:-4], entry.suffix
-        pdb_file = pdb_dir.joinpath(hit.pdb_id[1:3].lower(), f"{prefix}{hit.pdb_id.lower()}.{ext}")
+    print("Retrieving and preparing model: %s" % hit.name)
+  
+    localfile=False
+    if pdb_local is not None:
+        pdb_local_gzfile=os.path.join(pdb_local, hit.pdb_id[1:3], "pdb" + hit.pdb_id + ".ent.gz")
+        if not os.path.isfile(pdb_local_gzfile):
+            logger.info("pdb file not found in local mirror (%s)" % pdb_local_gzfile)
+            logger.info("attempting to download or take file from directory instead..")
+        else:
+            localfile=True
+            if not PDB_DIR.exists():
+                PDB_DIR.mkdir()
+            pdb_file = PDB_DIR.joinpath(f"{hit.pdb_id.lower()}.pdb")
+            with gzip.open(pdb_local_gzfile, 'rb') as f_in:
+                with open(pdb_file, 'wb') as f_out:
+                    shutil.copyfileobj(f_in, f_out)
 
-    else:
-        if not PDB_DIR.exists():
-            PDB_DIR.mkdir()
-        pdb_file = PDB_DIR.joinpath(f"{hit.pdb_id.lower()}.pdb")
+    if not localfile:
+        if pdb_dir != "None":
+            pdb_dir = Path(pdb_dir)
+            entry = list(pdb_dir.glob("*/*"))[0]
+            prefix, ext = entry.stem[:-4], entry.suffix
+            pdb_file = pdb_dir.joinpath(hit.pdb_id[1:3].lower(), f"{prefix}{hit.pdb_id.lower()}.{ext}")
+    
+        else:
+            if not PDB_DIR.exists():
+                PDB_DIR.mkdir()
+            pdb_file = PDB_DIR.joinpath(f"{hit.pdb_id.lower()}.pdb")
 
     pdb_struct = PdbStructure()
     if pdb_file.exists():
