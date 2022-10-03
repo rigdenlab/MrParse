@@ -28,6 +28,7 @@ def main():
                               hhsearch_exe=args.hhsearch_exe,
                               hhsearch_db=args.hhsearch_db,
                               afdb_seqdb=args.afdb_seqdb,
+                              pdb_seqdb=args.pdb_seqdb,
                               ccp4cloud=args.ccp4cloud,
                               use_api=args.use_api,
                               max_hits=args.max_hits,

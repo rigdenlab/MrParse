@@ -13,7 +13,7 @@ from pathlib import Path
 from pyjob.script import EXE_EXT
 import requests
 import uuid
-import time
+import time, random
 
 from mrparse.mr_util import run_cmd
 from mrbump.seq_align.simpleSeqID import simpleSeqID
@@ -100,7 +100,7 @@ class SequenceHit:
         return out_str
 
 
-def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, phmmer_dblvl=95, use_api=False, max_hits=10, nproc=1):
+def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, pdb_seqdb=None, phmmer_dblvl=95, use_api=False, max_hits=10, nproc=1):
     target_sequence = seq_info.sequence
     af2 = False
     dbtype = None
@@ -123,7 +123,13 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
                 else:
                     logger.info("Using CCP4 afdb sequence file..")
                 af2 = True
-        logfile, dbtype = run_phmmer(seq_info, afdb_seqdb=afdb_seqdb, dblvl=phmmer_dblvl, nproc=nproc)
+            else:
+                logger.info("Running phmmer pdb database search locally..")
+                if pdb_seqdb is not None:
+                    logger.info("Database file: %s" % pdb_seqdb)
+                else:
+                    logger.info("Using CCP4 pdb sequence file..")
+        logfile, dbtype = run_phmmer(seq_info, afdb_seqdb=afdb_seqdb, pdb_seqdb=pdb_seqdb, dblvl=phmmer_dblvl, nproc=nproc)
         searchio_type = 'hmmer3-text'
     elif search_engine == HHSEARCH:
         searchio_type = 'hhsuite2-text'
@@ -313,7 +319,7 @@ def sort_hits_by_size(hits, ascending=False):
     return OrderedDict(sorted(hits.items(), key=lambda x: x[1].length, reverse=reverse))
 
 
-def run_phmmer(seq_info, afdb_seqdb=None, dblvl=95, nproc=1):
+def run_phmmer(seq_info, afdb_seqdb=None, pdb_seqdb=None, dblvl=95, nproc=1):
     logfile = f"phmmer_{dblvl}.log"
     alnfile = f"phmmerAlignment_{dblvl}.log"
     phmmerTblout = f"phmmerTblout_{dblvl}.log"
@@ -330,8 +336,20 @@ def run_phmmer(seq_info, afdb_seqdb=None, dblvl=95, nproc=1):
             dbtype= "AFCCP4"
     else:
         sb = makeSeqDB.sequenceDatabase()
-        seqdb = Path(sb.makePhmmerFasta(RLEVEL=dblvl))
-        delete_db = True
+        if pdb_seqdb is not None:
+            seq_protein_file=Path(os.environ["CCP4_SCR"], "pdb_seqres_protein_%s.txt" % random.randint(0, 9999999)) 
+            get_seqres_protein(pdb_seqdb, seq_protein_file)
+            if os.path.isfile(seq_protein_file):
+                seqdb = seq_protein_file
+            else:
+                logger.exception("Failed to create PDB sequence file: %s" % seq_protein_file)
+                raise
+            dbtype= "PDB"
+            delete_db = True
+        else:
+            seqdb = Path(sb.makePhmmerFasta(RLEVEL=dblvl))
+            dbtype= "PDBCCP4"
+            delete_db = True
 
     if afdb_seqdb is not None and dblvl == "af2":
         cmd = [str(phmmerEXE) + EXE_EXT,
@@ -400,3 +418,22 @@ def run_phmmer_alphafold_api(seq_info, max_hits=10):
         f_out.write(data.text)
 
     return logfile
+
+def get_seqres_protein(pdbseqfile, outfile):
+    """ extract the protein sequences from the full pdb_seqres.txt file """
+
+    inf=open(pdbseqfile, "r")
+    inflines=inf.readlines()
+    inf.close()
+
+    protlist=""
+    count=0
+    for line in inflines:
+        if ">" in line and "mol:na" not in line:
+            protlist+=line
+            protlist+=inflines[count+1]
+        count+=1
+
+    outf=open(outfile, "w")
+    outf.write(protlist)
+    outf.close()
