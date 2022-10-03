@@ -40,6 +40,7 @@ def run(seqin, **kwargs):
     hhsearch_exe = kwargs.get('hhsearch_exe', None)
     hhsearch_db = kwargs.get('hhsearch_db', None)
     afdb_seqdb = kwargs.get('afdb_seqdb', None)
+    pdb_seqdb = kwargs.get('pdb_seqdb', None)
     ccp4cloud = kwargs.get('ccp4cloud', None)
     use_api = kwargs.get('use_api', None)
     max_hits = kwargs.get('max_hits', 10)
@@ -81,8 +82,8 @@ def run(seqin, **kwargs):
             raise RuntimeError("HHSearch database needs to be defined with --hhsearch_db")
 
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir, phmmer_dblvl=phmmer_dblvl,
-                                            plddt_cutoff=plddt_cutoff, search_engine=search_engine,
-                                            hhsearch_exe=hhsearch_exe, hhsearch_db=hhsearch_db, afdb_seqdb=afdb_seqdb, 
+                                            plddt_cutoff=plddt_cutoff, search_engine=search_engine, hhsearch_exe=hhsearch_exe, 
+                                            hhsearch_db=hhsearch_db, afdb_seqdb=afdb_seqdb, pdb_seqdb=pdb_seqdb,
                                             use_api=use_api, max_hits=max_hits, nproc=nproc, pdb_local=pdb_local)
 
     classifier = None

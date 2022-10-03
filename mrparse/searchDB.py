@@ -156,7 +156,7 @@ class phmmer:
                                 TEMPresultsDict[hitName].afdbName = hit[8].split("_")[0].replace("-model","")
                                 TEMPresultsDict[hitName].chainID = "A"
                                 TEMPresultsDict[hitName].expdta = "AFDB"
-                            else:
+                            elif "PDBCCP4" in DB:
                                 TEMPresultsDict[hitName].afdbName = hit[8][0:4]
                                 if len(hit[8]) >= 6:
                                     TEMPresultsDict[hitName].chainID = hit[8][5:]
@@ -172,6 +172,22 @@ class phmmer:
                                 elif len(tempRange) == 4:
                                     TEMPresultsDict[hitName].modelResStart= -(int(tempRange[-3]))
                                     TEMPresultsDict[hitName].modelResEnd  = -(int(tempRange[-1]))
+                            else:
+                                TEMPresultsDict[hitName].afdbName = hit[8][0:4]
+                                if len(hit[8]) >= 6:
+                                    TEMPresultsDict[hitName].chainID = hit[8][5:]
+                                else:
+                                    TEMPresultsDict[hitName].chainID = "A"
+                                #tempRange=hit[20].replace("['", "").replace("']","").split("-")
+                                #if len(tempRange) == 2:
+                                #    TEMPresultsDict[hitName].modelResStart= int(tempRange[-2])
+                                #    TEMPresultsDict[hitName].modelResEnd  = int(tempRange[-1])
+                                #elif len(tempRange) == 3:
+                                #    TEMPresultsDict[hitName].modelResStart= -(int(tempRange[-2]))
+                                #    TEMPresultsDict[hitName].modelResEnd  = int(tempRange[-1])
+                                #elif len(tempRange) == 4:
+                                #    TEMPresultsDict[hitName].modelResStart= -(int(tempRange[-3]))
+                                #    TEMPresultsDict[hitName].modelResEnd  = -(int(tempRange[-1]))
                         else:
                             hitName=hit[8].split("|")[1][1:5] + "_" + hit[8].split("|")[1][5:] + "_PHR"
                             TEMPresultsDict[hitName] = PHHit()
