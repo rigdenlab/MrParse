@@ -32,6 +32,7 @@ def main():
                               ccp4cloud=args.ccp4cloud,
                               use_api=args.use_api,
                               max_hits=args.max_hits,
+                              database=args.database,
                               nproc=args.nproc)
     except KeyboardInterrupt:
         sys.stderr.write("Interrupted by keyboard!")

@@ -29,6 +29,7 @@ class SearchModelFinder(object):
         self.pdb_seqdb = kwargs.get("pdb_seqdb", None)
         self.use_api = kwargs.get("use_api", False)
         self.max_hits = kwargs.get("max_hits", 10)
+        self.database = kwargs.get("database", "all")
         self.nproc = kwargs.get("nproc", 1)
         self.hits = None
         self.model_hits = None
@@ -42,15 +43,17 @@ class SearchModelFinder(object):
         to the pool and instance methods don't work, so we add the object to the pool and define __call__
         https://stackoverflow.com/questions/1816958/cant-pickle-type-instancemethod-when-using-multiprocessing-pool-map/6975654#6975654
         """
-        logger.debug(f'SearchModelFinder started at {now()}')
-        self.find_homolog_regions()
-        logger.debug(f'SearchModelFinder homolog regions done at {now()}')
-        self.prepare_homologs()
-        logger.debug(f'SearchModelFinder homologs done at {now()}')
-        self.find_model_regions()
-        logger.debug(f'SearchModelFinder model regions done at {now()}')
-        self.prepare_models()
-        logger.debug(f'SearchModelFinder models done at {now()}')
+        if self.database in ["all", "pdb"]:
+            logger.debug(f'SearchModelFinder started at {now()}')
+            self.find_homolog_regions()
+            logger.debug(f'SearchModelFinder homolog regions done at {now()}')
+            self.prepare_homologs()
+        if self.database in ["all", "afdb"]: 
+            logger.debug(f'SearchModelFinder homologs done at {now()}')
+            self.find_model_regions()
+            logger.debug(f'SearchModelFinder model regions done at {now()}')
+            self.prepare_models()
+            logger.debug(f'SearchModelFinder models done at {now()}')
         return self
     
     def find_homolog_regions(self):

@@ -17,7 +17,9 @@ from mrparse.mr_version import __version__
 
 THIS_DIR = Path(__file__).parent.resolve()
 HTML_DIR = THIS_DIR.joinpath('html')
-HTML_TEMPLATE = HTML_DIR.joinpath('mrparse.html.jinja2')
+HTML_TEMPLATE_ALL = HTML_DIR.joinpath('mrparse_all.html.jinja2')
+HTML_TEMPLATE_PDB = HTML_DIR.joinpath('mrparse_pdb.html.jinja2')
+HTML_TEMPLATE_AFDB = HTML_DIR.joinpath('mrparse_afdb.html.jinja2')
 HTML_OUT = 'mrparse.html'
 HOMOLOGS_JS = 'homologs.json'
 MODELS_JS = 'models.json'
@@ -44,6 +46,7 @@ def run(seqin, **kwargs):
     ccp4cloud = kwargs.get('ccp4cloud', None)
     use_api = kwargs.get('use_api', None)
     max_hits = kwargs.get('max_hits', 10)
+    database = kwargs.get('database', 'all')
     nproc = kwargs.get('nproc', 1)
 
     # Need to make a work directory first as all logs go into there
@@ -84,7 +87,7 @@ def run(seqin, **kwargs):
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir, phmmer_dblvl=phmmer_dblvl,
                                             plddt_cutoff=plddt_cutoff, search_engine=search_engine, hhsearch_exe=hhsearch_exe, 
                                             hhsearch_db=hhsearch_db, afdb_seqdb=afdb_seqdb, pdb_seqdb=pdb_seqdb,
-                                            use_api=use_api, max_hits=max_hits, nproc=nproc, pdb_local=pdb_local)
+                                            use_api=use_api, max_hits=max_hits, database=database, nproc=nproc, pdb_local=pdb_local)
 
     classifier = None
     if do_classify:
@@ -98,7 +101,7 @@ def run(seqin, **kwargs):
                                                                          hkl_info,
                                                                          do_classify)
 
-    html_out = write_output_files(search_model_finder, hkl_info=hkl_info, classifier=classifier, ccp4cloud=ccp4cloud)
+    html_out = write_output_files(search_model_finder, hkl_info=hkl_info, classifier=classifier, ccp4cloud=ccp4cloud, database=database)
     logger.info(f"Wrote MrParse output file: {html_out}")
 
     if not ccp4cloud:
@@ -166,7 +169,7 @@ def run_analyse_parallel(search_model_finder, classifier, hkl_info, do_classify)
     return search_model_finder, classifier, hkl_info
 
 
-def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4cloud=None):
+def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4cloud=None, database="all"):
     # write out homologs for CCP4cloud
     # This code should be updated to separate the storing of homologs from the PFAM directives
 
@@ -203,6 +206,13 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4
         if ccp4cloud:
             del results_dict['hkl_info']['hklin']
     results_json = json.dumps(results_dict)
+
+    if "all" in database:
+        HTML_TEMPLATE=HTML_TEMPLATE_ALL
+    elif "pdb" in database:
+        HTML_TEMPLATE=HTML_TEMPLATE_PDB
+    elif "afdb" in database:
+        HTML_TEMPLATE=HTML_TEMPLATE_AFDB
 
     html_out = Path(HTML_OUT).resolve()
     render_template(HTML_TEMPLATE, html_out,
