@@ -198,8 +198,8 @@ def prepare_pdb(hit, pdb_dir, pdb_local):
     pdb_struct.select_chain_by_id(hit.chain_id)
     res_ids = [x.seqid.num for x in pdb_struct.structure[0][0]]
     first_res_id = min(res_ids)
-    start = hit.hit_start 
-    stop = hit.hit_stop 
+    start = hit.hit_start+int(first_res_id) 
+    stop = hit.hit_stop+int(first_res_id) 
     to_keep_seqid_range = range(start, stop + 1)
 
     to_remove = []
