@@ -254,7 +254,7 @@ def calculate_ellg(homologs, hkl_info):
             search_models.append(hname)
         else:
             d.ellg = -1  # Set to -1 so that sorting works properly
-            logger.warn(f"Cannot calculate eLLG for homolog {hname} due to missing data.")
+            logger.warning(f"Cannot calculate eLLG for homolog {hname} due to missing data.")
     ellginput.addSEAR_ENSE_OR_ENSE_NUM(search_models, 1)
     runellg = phaser.runMR_ELLG(ellginput)
 
