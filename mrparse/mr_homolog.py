@@ -198,8 +198,8 @@ def prepare_pdb(hit, pdb_dir, pdb_local):
     pdb_struct.select_chain_by_id(hit.chain_id)
     res_ids = [x.seqid.num for x in pdb_struct.structure[0][0]]
     first_res_id = min(res_ids)
-    start = hit.hit_start 
-    stop = hit.hit_stop 
+    start = hit.hit_start+int(first_res_id) 
+    stop = hit.hit_stop+int(first_res_id) 
     to_keep_seqid_range = range(start, stop + 1)
 
     to_remove = []
@@ -254,7 +254,7 @@ def calculate_ellg(homologs, hkl_info):
             search_models.append(hname)
         else:
             d.ellg = -1  # Set to -1 so that sorting works properly
-            logger.warn(f"Cannot calculate eLLG for homolog {hname} due to missing data.")
+            logger.warning(f"Cannot calculate eLLG for homolog {hname} due to missing data.")
     ellginput.addSEAR_ENSE_OR_ENSE_NUM(search_models, 1)
     runellg = phaser.runMR_ELLG(ellginput)
 
