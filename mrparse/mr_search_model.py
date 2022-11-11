@@ -6,6 +6,7 @@ Created on 18 Oct 2018
 import logging
 from mrparse import mr_homolog 
 from mrparse import mr_alphafold
+from mrparse import mr_esmatlas
 from mrparse import mr_hit
 from mrparse.mr_region import RegionFinder
 from mrparse import mr_pfam
@@ -32,11 +33,12 @@ class SearchModelFinder(object):
         self.database = kwargs.get("database", "all")
         self.nproc = kwargs.get("nproc", 1)
         self.hits = None
-        self.model_hits = None
+        self.af_model_hits = None
         self.regions = None
-        self.model_regions = None
+        self.af_model_regions = None
         self.homologs = {}
-        self.models = {}
+        self.af_models = {}
+        self.esm_models = {}
 
     def __call__(self):
         """Required so that we can use multiprocessing pool. We need to be able to pickle the object passed
@@ -48,34 +50,38 @@ class SearchModelFinder(object):
             self.find_homolog_regions()
             logger.debug(f'SearchModelFinder homolog regions done at {now()}')
             self.prepare_homologs()
-        if self.database in ["all", "afdb"]: 
             logger.debug(f'SearchModelFinder homologs done at {now()}')
-            self.find_model_regions()
-            logger.debug(f'SearchModelFinder model regions done at {now()}')
-            self.prepare_models()
-            logger.debug(f'SearchModelFinder models done at {now()}')
+        if self.database in ["all", "afdb"]: 
+            self.find_af2_model_regions()
+            logger.debug(f'SearchModelFinder AF2 model regions done at {now()}')
+            self.prepare_af2_models()
+            logger.debug(f'SearchModelFinder AF2 models done at {now()}')
+        if self.database in ['all', 'esmfold']:
+            self.prepare_esm_model()
+            logger.debug(f'SearchModelFinder ESM models done at {now()}')
         return self
     
     def find_homolog_regions(self):
-        self.hits = mr_hit.find_hits(self.seq_info, search_engine=self.search_engine,
-                                     hhsearch_exe=self.hhsearch_exe, hhsearch_db=self.hhsearch_db,
-                                     afdb_seqdb=self.afdb_seqdb, pdb_seqdb=self.pdb_seqdb, phmmer_dblvl=self.phmmer_dblvl, 
-                                     use_api=self.use_api, max_hits=self.max_hits, nproc=self.nproc)
+        self.hits = mr_hit.find_hits(self.seq_info, search_engine=self.search_engine, hhsearch_exe=self.hhsearch_exe,
+                                     hhsearch_db=self.hhsearch_db, afdb_seqdb=self.afdb_seqdb, pdb_seqdb=self.pdb_seqdb,
+                                     phmmer_dblvl=self.phmmer_dblvl, use_api=self.use_api, max_hits=self.max_hits,
+                                     nproc=self.nproc)
         if not self.hits:
             logger.critical('SearchModelFinder PDB search could not find any hits!')
             return None
         self.regions = RegionFinder().find_regions_from_hits(self.hits)
         return self.regions
 
-    def find_model_regions(self):
-        self.model_hits = mr_hit.find_hits(self.seq_info, search_engine="phmmer",
-                                           hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, pdb_seqdb=self.pdb_seqdb, 
-                                           phmmer_dblvl="af2", use_api=self.use_api, max_hits=self.max_hits, nproc=self.nproc)
-        if not self.model_hits:
+    def find_af2_model_regions(self):
+        self.af_model_hits = mr_hit.find_hits(self.seq_info, search_engine="phmmer", hhsearch_exe=None,
+                                              hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, pdb_seqdb=self.pdb_seqdb,
+                                              phmmer_dblvl="af2", use_api=self.use_api, max_hits=self.max_hits,
+                                              nproc=self.nproc)
+        if not self.af_model_hits:
             logger.critical('SearchModelFinder EBI Alphafold database search could not find any hits!')
             return None
-        self.model_regions = RegionFinder().find_regions_from_hits(self.model_hits)
-        return self.model_regions
+        self.af_model_regions = RegionFinder().find_regions_from_hits(self.af_model_hits)
+        return self.af_model_regions
 
     def prepare_homologs(self):
         if not self.hits and self.regions:
@@ -85,11 +91,15 @@ class SearchModelFinder(object):
             mr_homolog.calculate_ellg(self.homologs, self.hkl_info)
         return self.homologs
 
-    def prepare_models(self):
-        if not self.model_hits and self.model_regions:
+    def prepare_af2_models(self):
+        if not self.af_model_hits and self.af_model_regions:
             return None
-        self.models = mr_alphafold.models_from_hits(self.model_hits, self.plddt_cutoff)
-        return self.models
+        self.af_models = mr_alphafold.models_from_hits(self.af_model_hits, self.plddt_cutoff)
+        return self.af_models
+
+    def prepare_esm_model(self):
+        self.esm_models = mr_esmatlas.models_from_hits(self.seq_info.sequence, self.plddt_cutoff)
+        return self.esm_models
 
     def homologs_as_dicts(self):
         """Return a list of per homlog dictionaries serializable to JSON"""
@@ -97,11 +107,14 @@ class SearchModelFinder(object):
             raise RuntimeError("No regions generated by SearchModelFinder")
         return [h.static_dict for h in self.homologs.values()]
 
-    def models_as_dicts(self):
+    def af_models_as_dicts(self):
         """Return a list of per model dictionaries serializable to JSON"""
-        if not (self.model_regions and len(self.model_regions)):
+        if not (self.af_model_regions and len(self.af_model_regions)):
             raise RuntimeError("No regions generated by SearchModelFinder")
-        return sorted([m.static_dict for m in self.models.values()], key=lambda k: k['sum_plddt'], reverse=True)[:20]
+        return sorted([m.static_dict for m in self.af_models.values()], key=lambda k: k['sum_plddt'], reverse=True)[:20]
+
+    def esm_models_as_dicts(self):
+        return [m.static_dict for m in self.esm_models.values()]
 
     def homologs_with_graphics(self):
         """List of homologs including PFAM graphics directives
@@ -115,14 +128,26 @@ class SearchModelFinder(object):
         mr_pfam.add_pfam_dict_to_homologs(self.homologs, self.seq_info.nresidues)
         return self.homologs_as_dicts()
 
-    def models_with_graphics(self):
+    def af_models_with_graphics(self):
         """List of models including PFAM graphics directives
 
         This needs to be done better - the PFAM graphics shouldn't be stored in the
         list of models - this was just done because it made development quicker.
         The list of models and PFAM graphics needs to be kept separate
         """
-        if not (self.model_regions and len(self.model_regions)):
+        if not (self.af_model_regions and len(self.af_model_regions)):
             raise RuntimeError("No regions generated by SearchModelFinder")
-        mr_pfam.add_pfam_dict_to_models(self.models, self.seq_info.nresidues)
-        return self.models_as_dicts()
+        mr_pfam.add_pfam_dict_to_models(self.af_models, self.seq_info.nresidues, database="EBI AlphaFold database")
+        return self.af_models_as_dicts()
+
+    def esm_models_with_graphics(self):
+        """List of models including PFAM graphics directives
+
+        This needs to be done better - the PFAM graphics shouldn't be stored in the
+        list of models - this was just done because it made development quicker.
+        The list of models and PFAM graphics needs to be kept separate
+        """
+        if not self.esm_models:
+            raise RuntimeError("No regions generated by SearchModelFinder")
+        mr_pfam.add_pfam_dict_to_models(self.esm_models, self.seq_info.nresidues, database='ESMfold Atlas database')
+        return self.esm_models_as_dicts()

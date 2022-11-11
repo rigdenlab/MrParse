@@ -25,7 +25,12 @@ body, h1, h2, h3, h4, h5, h6 {
   float: left;
 }
 
-.model-table {
+.af-model-table {
+  width: 47%;
+  float: left;
+}
+
+.esm-model-table {
   width: 47%;
   float: left;
 }
@@ -35,7 +40,12 @@ body, h1, h2, h3, h4, h5, h6 {
   /* clear: left; */
 }
 
-.model-pfam-graphics {
+.af-model-pfam-graphics {
+  margin-left: 47%;
+  /* clear: left; */
+}
+
+.esm-model-pfam-graphics {
   margin-left: 47%;
   /* clear: left; */
 }
@@ -88,18 +98,32 @@ thead th {
   background: #efefef;
 }
 
-.model-table th > a {
+.af-model-table th > a {
   text-decoration: none;
   color: #3b3b3dff;
 }
 
-.model-table th > a:hover {
+.af-model-table th > a:hover {
   text-decoration: none ! important;
 }
 
-.model-table tr:nth-child(even) {
+.af-model-table tr:nth-child(even) {
   background: #efefef;
 }
+
+.esm-model-table th > a {
+  text-decoration: none;
+  color: #3b3b3dff;
+}
+
+.esm-model-table th > a:hover {
+  text-decoration: none ! important;
+}
+
+.esm-model-table tr:nth-child(even) {
+  background: #efefef;
+}
+
 
 /* responsive structures */
 @media screen and (max-width: 1308px) {
@@ -107,7 +131,11 @@ thead th {
     margin-left: 0px;
     clear: left;
   }
-  .model-pfam-graphics {
+  .af-model-pfam-graphics {
+    margin-left: 0px;
+    clear: left;
+  }
+  .esm-model-pfam-graphics {
     margin-left: 0px;
     clear: left;
   }

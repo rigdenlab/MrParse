@@ -20,9 +20,11 @@ HTML_DIR = THIS_DIR.joinpath('html')
 HTML_TEMPLATE_ALL = HTML_DIR.joinpath('mrparse_all.html.jinja2')
 HTML_TEMPLATE_PDB = HTML_DIR.joinpath('mrparse_pdb.html.jinja2')
 HTML_TEMPLATE_AFDB = HTML_DIR.joinpath('mrparse_afdb.html.jinja2')
+HTML_TEMPLATE_ESM = HTML_DIR.joinpath('mrparse_esm.html.jinja2')
 HTML_OUT = 'mrparse.html'
 HOMOLOGS_JS = 'homologs.json'
-MODELS_JS = 'models.json'
+AF_MODELS_JS = 'af_models.json'
+ESM_MODELS_JS = 'esm_models.json'
 
 logger = None
 
@@ -185,20 +187,33 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4
     except RuntimeError:
         logger.debug('No homologues found')
 
-    models_pfam = {}
+    af_models_pfam = {}
     try:
-        models = search_model_finder.models_as_dicts()
-        models_js_out = Path(MODELS_JS).resolve()
-        with open(models_js_out, 'w') as w:
-            w.write(json.dumps(models))
-        models_pfam = search_model_finder.models_with_graphics()
+        af_models = search_model_finder.af_models_as_dicts()
+        af_models_js_out = Path(AF_MODELS_JS).resolve()
+        with open(af_models_js_out, 'w') as w:
+            w.write(json.dumps(af_models))
+        af_models_pfam = search_model_finder.af_models_with_graphics()
         if ccp4cloud:
-            for model in models_pfam:
-                del model['pdb_file']
+            for af_model in af_models_pfam:
+                del af_model['pdb_file']
     except RuntimeError:
         logger.debug('No models found')
 
-    results_dict = {'pfam': {'homologs': homologs_pfam, 'models': models_pfam}}
+    esm_models_pfam = {}
+    try:
+        esm_models = search_model_finder.esm_models_as_dicts()
+        esm_models_js_out = Path(ESM_MODELS_JS).resolve()
+        with open(esm_models_js_out, 'w') as w:
+            w.write(json.dumps(esm_models))
+        esm_models_pfam = search_model_finder.esm_models_with_graphics()
+        if ccp4cloud:
+            for esm_model in esm_models_pfam:
+                del esm_model['pdb_file']
+    except RuntimeError:
+        logger.debug('No models found')
+
+    results_dict = {'pfam': {'homologs': homologs_pfam, 'af_models': af_models_pfam, 'esm_models': esm_models_pfam}}
     if classifier:
         results_dict['pfam'].update(classifier.pfam_dict())
     if hkl_info:
@@ -213,6 +228,8 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4
         HTML_TEMPLATE=HTML_TEMPLATE_PDB
     elif "afdb" in database:
         HTML_TEMPLATE=HTML_TEMPLATE_AFDB
+    elif "esmfold" in database:
+        HTML_TEMPLATE = HTML_TEMPLATE_ESM
 
     html_out = Path(HTML_OUT).resolve()
     render_template(HTML_TEMPLATE, html_out,
