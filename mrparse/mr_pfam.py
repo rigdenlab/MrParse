@@ -50,7 +50,7 @@ def add_pfam_dict_to_homologs(homologs, sequence_length):
         h._pfam_json = jdict
 
 
-def add_pfam_dict_to_models(models, sequence_length):
+def add_pfam_dict_to_models(models, sequence_length, database):
     # Need a better way of getting the number of regions
     for m in models.values():
         start = m.query_start
@@ -68,7 +68,7 @@ def add_pfam_dict_to_models(models, sequence_length):
              'colour': '#d3d3d3',
              'text': "",
              'metadata': {"description": f"Model {name} from region #{region_id}",
-                          "database": "EBI AlphaFold database",
+                          "database": database,
                           "start": start,
                           "end": stop}
              }
@@ -82,7 +82,7 @@ def add_pfam_dict_to_models(models, sequence_length):
                 plddt_region_start, plddt_region_end = plddt_region
                 md = {'colour': colors[quality],
                       'metadata': {"description": quality,
-                                   "database": "EBI AlphaFold database",
+                                   "database": database,
                                    "type": "Quality",
                                    "end": plddt_region_end,
                                    "start": plddt_region_start},
