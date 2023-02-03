@@ -27,6 +27,8 @@ function add_graphic(region, parent, residueWidth = 1.0) {
 /* EventBus is used to pass changes between components */
 const EventBus1 = new Vue();
 const EventBus2 = new Vue();
+const EventBus3 = new Vue();
+const EventBus4 = new Vue();
 
 
 Vue.filter("decimalPlaces", (value, num = 2) => {
@@ -111,6 +113,28 @@ Vue.component('esm-model-pfam-graphics', {
   `
 });
 
+Vue.component('esmatlas-model-pfam-graphics', {
+    data: function () {
+        return {
+            esmatlas_models: this.$root.esmatlas_models,
+        }
+    },
+    /* When the model table has been sorted, the models are put on the EventBus so we set this components
+       models to be the sorted set from the EventBus */
+    created: function () {
+        EventBus4.$on("sortedData4", sortedData => {
+            this.esmatlas_models = sortedData;
+        })
+    },
+    template: `
+  <div class="esmatlas-model-pfam-graphics" ref=esmatlasmodelpfamgraphics>
+	<h2 style="font-size:15px;color:#3b3b3dff;font-weight:normal;">Visualisation of Regions</h2>
+    <esmatlas-model-pfam-region v-for="esmatlas_model in esmatlas_models" :key="esmatlas_model.name" :id="esmatlas_model.name" :region="esmatlas_model._pfam_json"/>
+  </div>
+  `
+});
+
+
 Vue.component('pfam-region', {
     props: {
         region: Object
@@ -142,6 +166,17 @@ Vue.component('esm-model-pfam-region', {
         add_graphic(this.region, this.$refs.cdiv3, residueWidth);
     },
     template: '<div id=id ref=cdiv3></div>'
+});
+
+Vue.component('esmatlas-model-pfam-region', {
+    props: {
+        region: Object
+    },
+    mounted: function () {
+        let residueWidth = Math.max(1.0, this.$parent.$refs.esmatlasmodelpfamgraphics.clientWidth / this.region.length);
+        add_graphic(this.region, this.$refs.cdiv4, residueWidth);
+    },
+    template: '<div id=id ref=cdiv4></div>'
 });
 
 Vue.component('hkl-info-table', {
@@ -509,6 +544,113 @@ Vue.component('esm-model-table', {
     `
 })
 
+Vue.component('esmatlas-model-table', {
+    data: function () {
+        return {
+            esmatlas_models: this.$root.esmatlas_models,
+            sortKey: 'domain',
+            order: 'desc',
+            columns: [{
+                'attr': 'name',
+                'title': 'Name',
+                'popup': 'Name of the model'
+            },
+                {
+                    'attr': 'model_id',
+                    'title': 'model',
+                    'popup': 'Code of model'
+                },
+                {
+                    'attr': 'date_made',
+                    'title': 'Date Made',
+                    'popup': 'The date the model was made (or released)'
+                },
+                {
+                    'attr': 'region_id',
+                    'title': 'Region',
+                    'popup': 'Number of the region'
+                },
+                {
+                    'attr': 'range',
+                    'title': 'Range',
+                    'popup': 'Start - stop coordinates of the model'
+                },
+                {
+                    'attr': 'length',
+                    'title': 'Length',
+                    'popup': 'Length of the model in residues'
+                },
+                {
+                    'attr': 'avg_plddt',
+                    'title': 'Avg. pLDDT',
+                    'popup': 'The average pLDDT score in the model'
+                },
+                {
+                    'attr': 'h_score',
+                    'title': 'H-score',
+                    'popup': 'H-index style quality score measuring percentage of model vs pLDDT'
+                },
+                {
+                    'attr': 'seq_ident',
+                    'title': 'Seq. Ident.',
+                    'popup': 'Sequence Identity to template'
+                }],
+        }
+    },
+
+    methods: {
+        sortBy: function (sortKey) {
+            if (this.sortKey == sortKey) {
+                if (this.order == 'asc') {
+                    this.order = 'desc';
+                } else {
+                    this.order = 'asc';
+                }
+            }
+            this.sortKey = sortKey;
+            /* sorting is done using _.orderBy from the loadsh libary */
+            this.esmatlas_models = _.orderBy(this.esmatlas_models, this.sortKey, this.order);
+            /* We've sorted the models, so put them on the EventBus so that the graphics will be updated */
+            EventBus4.$emit("sortedData4", this.esmatlas_models);
+            return
+        },
+    },
+    mounted: function () {
+        this.sortBy('seq_ident')
+    },
+    template: `
+  <div class="esmatlas-model-table">
+  <table id="esmatlas-models">
+      <thead>
+        <tr>
+          <th v-for="column in columns">
+            <a href="#" @click="sortBy(column.attr)" v-bind:title="column.popup">
+              {{ column.title }}
+            </a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="esmatlasmodel in esmatlas_models">
+          <td>
+          <a v-if="esmatlasmodel.pdb_file" :href="esmatlasmodel.pdb_file">{{ esmatlasmodel.name }}</a>
+          <a v-else>{{ esmatlasmodel.name }}</a>
+          </td>
+          <td><a v-bind:href="esmatlasmodel.model_url" target="_blank">{{ esmatlasmodel.model_id }}</a></td>
+          <td>{{ esmatlasmodel.date_made }}</td>
+          <td>{{ esmatlasmodel.region_id }}</td>
+          <td>{{ esmatlasmodel.range }}</td>
+          <td>{{ esmatlasmodel.length }}</td>
+          <td>{{ esmatlasmodel.avg_plddt | decimalPlaces }}</td>
+          <td>{{ esmatlasmodel.h_score }}</td>
+          <td>{{ esmatlasmodel.seq_ident }}</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    `
+})
+
 new Vue({
     el: '#app',
     data: {
@@ -517,6 +659,7 @@ new Vue({
         classification: mrparse_data.pfam.classification,
         hklinfo: mrparse_data.hkl_info,
         af_models: mrparse_data.pfam.af_models,
-        esm_models: mrparse_data.pfam.esm_models
+        esm_models: mrparse_data.pfam.esm_models,
+        esmatlas_models: mrparse_data.pfam.esmatlas_models
     },
 })

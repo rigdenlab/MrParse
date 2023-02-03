@@ -35,6 +35,11 @@ body, h1, h2, h3, h4, h5, h6 {
   float: left;
 }
 
+.esmatlas-model-table {
+  width: 47%;
+  float: left;
+}
+
 .pfam-graphics {
   margin-left: 47%;
   /* clear: left; */
@@ -46,6 +51,11 @@ body, h1, h2, h3, h4, h5, h6 {
 }
 
 .esm-model-pfam-graphics {
+  margin-left: 47%;
+  /* clear: left; */
+}
+
+.esmatlas-model-pfam-graphics {
   margin-left: 47%;
   /* clear: left; */
 }
@@ -124,6 +134,19 @@ thead th {
   background: #efefef;
 }
 
+.esmatlas-model-table th > a {
+  text-decoration: none;
+  color: #3b3b3dff;
+}
+
+.esmatlas-model-table th > a:hover {
+  text-decoration: none ! important;
+}
+
+.esmatlas-model-table tr:nth-child(even) {
+  background: #efefef;
+}
+
 
 /* responsive structures */
 @media screen and (max-width: 1308px) {
@@ -136,6 +159,10 @@ thead th {
     clear: left;
   }
   .esm-model-pfam-graphics {
+    margin-left: 0px;
+    clear: left;
+  }
+  .esmatlas-model-pfam-graphics {
     margin-left: 0px;
     clear: left;
   }
