@@ -143,6 +143,8 @@ class phmmer:
                                 hitName=hit[8].split(":")[1] + "_PHR"
                             elif "AFCCP4" in DB:
                                 hitName=hit[8].split("_")[0].replace("-model","") + "_PHR"
+                            elif "ESMADB" in DB:
+                                hitName=hit[8] + "_PHR"
                             else:
                                 hitName=hit[8] + "_PHR"
                             TEMPresultsDict[hitName] = PHHit()
@@ -156,6 +158,10 @@ class phmmer:
                                 TEMPresultsDict[hitName].afdbName = hit[8].split("_")[0].replace("-model","")
                                 TEMPresultsDict[hitName].chainID = "A"
                                 TEMPresultsDict[hitName].expdta = "AFDB"
+                            elif "ESMADB" in DB:
+                                TEMPresultsDict[hitName].afdbName = hit[8]
+                                TEMPresultsDict[hitName].chainID = "A"
+                                TEMPresultsDict[hitName].expdta = "ESMADB"
                             elif "PDBCCP4" in DB:
                                 TEMPresultsDict[hitName].afdbName = hit[8][0:4]
                                 if len(hit[8]) >= 6:
@@ -233,6 +239,8 @@ class phmmer:
                             hit = line.split()[1].split(":")[1] + "_PHR"
                         elif "AFCCP4" in DB:
                             hit = line.split()[1].split("_")[0].replace("-model","") + "_PHR"
+                        elif "ESMADB" in DB:
+                            hit = line.split()[1] + "_PHR"
                         else:
                             hit = line.split()[1] + "_PHR"
                     else:
@@ -296,7 +304,7 @@ class phmmer:
                             self.resultsDict[hitname].localSEQID = local
                             self.resultsDict[hitname].overallSEQID = overall
                             gr = MRBUMP_utils.getPDBres()
-                            if self.resultsDict[hitname].expdta != "AFDB":
+                            if self.resultsDict[hitname].expdta != "AFDB" and  self.resultsDict[hitname].expdta != "ESMADB":
                                 self.resultsDict[hitname].resolution, self.resultsDict[hitname].expdta, self.resultsDict[hitname].releaseDate \
                                     =  gr.getResolution(pdbCODE=self.resultsDict[hitname].afdbName, PDBLOCAL=PDBLOCAL, seqMetaDB=seqMetaDB)
                         

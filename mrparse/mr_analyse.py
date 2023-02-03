@@ -21,10 +21,12 @@ HTML_TEMPLATE_ALL = HTML_DIR.joinpath('mrparse_all.html.jinja2')
 HTML_TEMPLATE_PDB = HTML_DIR.joinpath('mrparse_pdb.html.jinja2')
 HTML_TEMPLATE_AFDB = HTML_DIR.joinpath('mrparse_afdb.html.jinja2')
 HTML_TEMPLATE_ESM = HTML_DIR.joinpath('mrparse_esm.html.jinja2')
+HTML_TEMPLATE_ESMATLAS = HTML_DIR.joinpath('mrparse_esmatlas.html.jinja2')
 HTML_OUT = 'mrparse.html'
 HOMOLOGS_JS = 'homologs.json'
 AF_MODELS_JS = 'af_models.json'
 ESM_MODELS_JS = 'esm_models.json'
+ESMATLAS_MODELS_JS = 'esmatlas_models.json'
 
 logger = None
 
@@ -44,6 +46,7 @@ def run(seqin, **kwargs):
     hhsearch_exe = kwargs.get('hhsearch_exe', None)
     hhsearch_db = kwargs.get('hhsearch_db', None)
     afdb_seqdb = kwargs.get('afdb_seqdb', None)
+    esmatlas_seqdb = kwargs.get('esmatlas_seqdb', None)
     pdb_seqdb = kwargs.get('pdb_seqdb', None)
     ccp4cloud = kwargs.get('ccp4cloud', None)
     use_api = kwargs.get('use_api', None)
@@ -88,7 +91,7 @@ def run(seqin, **kwargs):
 
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir, phmmer_dblvl=phmmer_dblvl,
                                             plddt_cutoff=plddt_cutoff, search_engine=search_engine, hhsearch_exe=hhsearch_exe, 
-                                            hhsearch_db=hhsearch_db, afdb_seqdb=afdb_seqdb, pdb_seqdb=pdb_seqdb,
+                                            hhsearch_db=hhsearch_db, afdb_seqdb=afdb_seqdb, esmatlas_seqdb=esmatlas_seqdb, pdb_seqdb=pdb_seqdb,
                                             use_api=use_api, max_hits=max_hits, database=database, nproc=nproc, pdb_local=pdb_local)
 
     classifier = None
@@ -198,7 +201,7 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4
             for af_model in af_models_pfam:
                 del af_model['pdb_file']
     except RuntimeError:
-        logger.debug('No models found')
+        logger.debug('No AFDB models found')
 
     esm_models_pfam = {}
     try:
@@ -211,9 +214,22 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4
             for esm_model in esm_models_pfam:
                 del esm_model['pdb_file']
     except RuntimeError:
-        logger.debug('No models found')
+        logger.debug('No ESMFold model found')
 
-    results_dict = {'pfam': {'homologs': homologs_pfam, 'af_models': af_models_pfam, 'esm_models': esm_models_pfam}}
+    esmatlas_models_pfam = {}
+    try:
+        esmatlas_models = search_model_finder.esmatlas_models_as_dicts()
+        esmatlas_models_js_out = Path(ESMATLAS_MODELS_JS).resolve()
+        with open(esmatlas_models_js_out, 'w') as w:
+            w.write(json.dumps(esmatlas_models))
+        esmatlas_models_pfam = search_model_finder.esmatlas_models_with_graphics()
+        if ccp4cloud:
+            for esmatlas_model in esmatlas_models_pfam:
+                del esmatlas_model['pdb_file']
+    except RuntimeError:
+        logger.debug('No ESMAtlas models found')
+
+    results_dict = {'pfam': {'homologs': homologs_pfam, 'af_models': af_models_pfam, 'esm_models': esm_models_pfam, 'esmatlas_models': esmatlas_models_pfam}}
     if classifier:
         results_dict['pfam'].update(classifier.pfam_dict())
     if hkl_info:
@@ -230,6 +246,8 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4
         HTML_TEMPLATE=HTML_TEMPLATE_AFDB
     elif "esmfold" in database:
         HTML_TEMPLATE = HTML_TEMPLATE_ESM
+    elif "esmatlas" in database:
+        HTML_TEMPLATE = HTML_TEMPLATE_ESMATLAS
 
     html_out = Path(HTML_OUT).resolve()
     render_template(HTML_TEMPLATE, html_out,

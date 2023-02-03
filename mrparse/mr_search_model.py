@@ -6,6 +6,7 @@ Created on 18 Oct 2018
 import logging
 from mrparse import mr_homolog 
 from mrparse import mr_alphafold
+from mrparse import mr_esmfold
 from mrparse import mr_esmatlas
 from mrparse import mr_hit
 from mrparse.mr_region import RegionFinder
@@ -27,6 +28,7 @@ class SearchModelFinder(object):
         self.hhsearch_exe = kwargs.get("hhsearch_exe", None)
         self.hhsearch_db = kwargs.get("hhsearch_db", None)
         self.afdb_seqdb = kwargs.get("afdb_seqdb", None)
+        self.esmatlas_seqdb = kwargs.get("esmatlas_seqdb", None)
         self.pdb_seqdb = kwargs.get("pdb_seqdb", None)
         self.use_api = kwargs.get("use_api", False)
         self.max_hits = kwargs.get("max_hits", 10)
@@ -34,11 +36,14 @@ class SearchModelFinder(object):
         self.nproc = kwargs.get("nproc", 1)
         self.hits = None
         self.af_model_hits = None
+        self.esmatlas_model_hits = None
         self.regions = None
         self.af_model_regions = None
+        self.esmatlas_model_regions = None
         self.homologs = {}
         self.af_models = {}
         self.esm_models = {}
+        self.esmatlas_models = {}
 
     def __call__(self):
         """Required so that we can use multiprocessing pool. We need to be able to pickle the object passed
@@ -59,13 +64,18 @@ class SearchModelFinder(object):
         if self.database in ['all', 'esmfold']:
             self.prepare_esm_model()
             logger.debug(f'SearchModelFinder ESM models done at {now()}')
+        if self.database in ['all', 'esmatlas']:
+            self.find_esmatlas_model_regions()
+            logger.debug(f'SearchModelFinder ESMAtlas model regions done at {now()}')
+            self.prepare_esmatlas_models()
+            logger.debug(f'SearchModelFinder ESMAtlas models done at {now()}')
         return self
     
     def find_homolog_regions(self):
         self.hits = mr_hit.find_hits(self.seq_info, search_engine=self.search_engine, hhsearch_exe=self.hhsearch_exe,
-                                     hhsearch_db=self.hhsearch_db, afdb_seqdb=self.afdb_seqdb, pdb_seqdb=self.pdb_seqdb,
-                                     phmmer_dblvl=self.phmmer_dblvl, use_api=self.use_api, max_hits=self.max_hits,
-                                     nproc=self.nproc)
+                                     hhsearch_db=self.hhsearch_db, afdb_seqdb=self.afdb_seqdb, esmatlas_seqdb=self.esmatlas_seqdb,
+                                     pdb_seqdb=self.pdb_seqdb, phmmer_dblvl=self.phmmer_dblvl, use_api=self.use_api, 
+                                     max_hits=self.max_hits, nproc=self.nproc)
         if not self.hits:
             logger.critical('SearchModelFinder PDB search could not find any hits!')
             return None
@@ -74,14 +84,25 @@ class SearchModelFinder(object):
 
     def find_af2_model_regions(self):
         self.af_model_hits = mr_hit.find_hits(self.seq_info, search_engine="phmmer", hhsearch_exe=None,
-                                              hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, pdb_seqdb=self.pdb_seqdb,
-                                              phmmer_dblvl="af2", use_api=self.use_api, max_hits=self.max_hits,
-                                              nproc=self.nproc)
+                                              hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, esmatlas_seqdb=self.esmatlas_seqdb,
+                                              pdb_seqdb=self.pdb_seqdb, phmmer_dblvl="af2", use_api=self.use_api, 
+                                              max_hits=self.max_hits, nproc=self.nproc)
         if not self.af_model_hits:
             logger.critical('SearchModelFinder EBI Alphafold database search could not find any hits!')
             return None
         self.af_model_regions = RegionFinder().find_regions_from_hits(self.af_model_hits)
         return self.af_model_regions
+
+    def find_esmatlas_model_regions(self):
+        self.esmatlas_model_hits = mr_hit.find_hits(self.seq_info, search_engine="phmmer", hhsearch_exe=None,
+                                              hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, esmatlas_seqdb=self.esmatlas_seqdb,
+                                              pdb_seqdb=self.pdb_seqdb, phmmer_dblvl="esma", use_api=self.use_api, 
+                                              max_hits=self.max_hits, nproc=self.nproc)
+        if not self.esmatlas_model_hits:
+            logger.critical('SearchModelFinder ESMAtlas database search could not find any hits!')
+            return None
+        self.esmatlas_model_regions = RegionFinder().find_regions_from_hits(self.esmatlas_model_hits)
+        return self.esmatlas_model_regions
 
     def prepare_homologs(self):
         if not self.hits and self.regions:
@@ -98,8 +119,14 @@ class SearchModelFinder(object):
         return self.af_models
 
     def prepare_esm_model(self):
-        self.esm_models = mr_esmatlas.models_from_hits(self.seq_info.sequence, self.plddt_cutoff)
+        self.esm_models = mr_esmfold.models_from_hits(self.seq_info.sequence, self.plddt_cutoff)
         return self.esm_models
+
+    def prepare_esmatlas_models(self):
+        if not self.esmatlas_model_hits and self.esmatlas_model_regions:
+            return None
+        self.esmatlas_models = mr_esmatlas.atlas_models_from_hits(self.esmatlas_model_hits, self.plddt_cutoff)
+        return self.esmatlas_models
 
     def homologs_as_dicts(self):
         """Return a list of per homlog dictionaries serializable to JSON"""
@@ -115,6 +142,12 @@ class SearchModelFinder(object):
 
     def esm_models_as_dicts(self):
         return [m.static_dict for m in self.esm_models.values()]
+
+    def esmatlas_models_as_dicts(self):
+        """Return a list of per model dictionaries serializable to JSON"""
+        if not (self.esmatlas_model_regions and len(self.esmatlas_model_regions)):
+            raise RuntimeError("No regions generated by SearchModelFinder")
+        return sorted([m.static_dict for m in self.esmatlas_models.values()], key=lambda k: k['sum_plddt'], reverse=True)[:20]
 
     def homologs_with_graphics(self):
         """List of homologs including PFAM graphics directives
@@ -149,5 +182,17 @@ class SearchModelFinder(object):
         """
         if not self.esm_models:
             raise RuntimeError("No regions generated by SearchModelFinder")
-        mr_pfam.add_pfam_dict_to_models(self.esm_models, self.seq_info.nresidues, database='ESMfold Atlas database')
+        mr_pfam.add_pfam_dict_to_models(self.esm_models, self.seq_info.nresidues, database='ESMfold')
         return self.esm_models_as_dicts()
+
+    def esmatlas_models_with_graphics(self):
+        """List of models including PFAM graphics directives
+
+        This needs to be done better - the PFAM graphics shouldn't be stored in the
+        list of models - this was just done because it made development quicker.
+        The list of models and PFAM graphics needs to be kept separate
+        """
+        if not (self.esmatlas_model_regions and len(self.esmatlas_model_regions)):
+            raise RuntimeError("No regions generated by SearchModelFinder")
+        mr_pfam.add_pfam_dict_to_models(self.esmatlas_models, self.seq_info.nresidues, database='ESMAtlas database')
+        return self.esmatlas_models_as_dicts()

@@ -100,9 +100,10 @@ class SequenceHit:
         return out_str
 
 
-def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, pdb_seqdb=None, phmmer_dblvl=95, use_api=False, max_hits=10, nproc=1):
+def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, esmatlas_seqdb=None, pdb_seqdb=None, phmmer_dblvl=95, use_api=False, max_hits=10, nproc=1):
     target_sequence = seq_info.sequence
     af2 = False
+    esma = False
     dbtype = None
     if search_engine == PHMMER:
         if use_api:
@@ -123,26 +124,33 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
                 else:
                     logger.info("Using CCP4 afdb sequence file..")
                 af2 = True
+        if phmmer_dblvl == "esma":
+            logger.info("Running phmmer ESMAtlas database search locally..")
+            if esmatlas_seqdb is not None:
+                logger.info("Database file: %s" % esmatlas_seqdb)
             else:
-                logger.info("Running phmmer pdb database search locally..")
-                if pdb_seqdb is not None:
-                    logger.info("Database file: %s" % pdb_seqdb)
-                else:
-                    logger.info("Using CCP4 pdb sequence file..")
-        logfile, dbtype = run_phmmer(seq_info, afdb_seqdb=afdb_seqdb, pdb_seqdb=pdb_seqdb, dblvl=phmmer_dblvl, nproc=nproc)
+                logger.exception("Error: ESMAtlas sequence database file not set (--esmatlas_seqdb)")
+            esma = True
+        elif phmmer_dblvl != "esma" and phmmer_dblvl != "af2":
+            logger.info("Running phmmer pdb database search locally..")
+            if pdb_seqdb is not None:
+                logger.info("Database file: %s" % pdb_seqdb)
+            else:
+                logger.info("Using CCP4 pdb sequence file..")
+        logfile, dbtype = run_phmmer(seq_info, afdb_seqdb=afdb_seqdb, esmatlas_seqdb=esmatlas_seqdb, pdb_seqdb=pdb_seqdb, dblvl=phmmer_dblvl, nproc=nproc)
         searchio_type = 'hmmer3-text'
     elif search_engine == HHSEARCH:
         searchio_type = 'hhsuite2-text'
         logfile = run_hhsearch(seq_info, hhsearch_exe, hhsearch_db)
     else:
         raise RuntimeError(f"Unrecognised search_engine: {search_engine}")
-    return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence, af2=af2, max_hits=max_hits, dbtype=dbtype)
+    return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence, af2=af2, esma=esma, max_hits=max_hits, dbtype=dbtype)
 
 
-def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False, max_hits=10, dbtype=None):
+def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False, esma=False, max_hits=10, dbtype=None):
     assert logfile and searchio_type and target_sequence
 
-    if not af2:
+    if not af2 and not esma:
         #startT=time.time()
         # Read in the header meta data from the PDB ALL database file
         from mrbump.tools import MRBUMP_utils
@@ -151,7 +159,7 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
         #print("Time to read sequence meta data: %.2lf seconds" % (time.time()-startT))
 
     hitDict = OrderedDict()
-    if af2 or searchio_type == "hmmer3-text":
+    if af2 or esma or searchio_type == "hmmer3-text":
         if af2:
             fix_af_phmmer_log(logfile, "phmmer_af2_fixed.log")
             logfile = "phmmer_af2_fixed.log"
@@ -165,7 +173,7 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
     
         phr=phmmer()
         phr.logfile=logfile
-        if af2:
+        if af2 or esma:
             phr.getPhmmerAlignments(targetSequence=target_sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB=dbtype, seqMetaDB=None)
         else:
             phr.getPhmmerAlignments(targetSequence=target_sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB='PDB', seqMetaDB=seqMetaDB)
@@ -174,6 +182,9 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
             sh = SequenceHit()
             sh.rank = phr.resultsDict[hitname].rank
             if af2:
+                sh.pdb_id = phr.resultsDict[hitname].afdbName
+            elif esma:
+                #FIXME
                 sh.pdb_id = phr.resultsDict[hitname].afdbName
             else:
                 sh.pdb_id, sh.chain_id = phr.resultsDict[hitname].afdbName, phr.resultsDict[hitname].chainID
@@ -199,6 +210,11 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
             sh.overall_sequence_identity = np.round(overall)
     
             if af2:
+                sh.score = phr.resultsDict[hitname].score
+                hit_name = phr.resultsDict[hitname].afdbName # + "_" + str(phr.resultsDict[hitname].domainID)
+                sh.search_engine = "phmmer"
+            elif esma:
+                #FIXME
                 sh.score = phr.resultsDict[hitname].score
                 hit_name = phr.resultsDict[hitname].afdbName # + "_" + str(phr.resultsDict[hitname].domainID)
                 sh.search_engine = "phmmer"
@@ -319,7 +335,7 @@ def sort_hits_by_size(hits, ascending=False):
     return OrderedDict(sorted(hits.items(), key=lambda x: x[1].length, reverse=reverse))
 
 
-def run_phmmer(seq_info, afdb_seqdb=None, pdb_seqdb=None, dblvl=95, nproc=1):
+def run_phmmer(seq_info, afdb_seqdb=None, esmatlas_seqdb=None, pdb_seqdb=None, dblvl=95, nproc=1):
     logfile = f"phmmer_{dblvl}.log"
     alnfile = f"phmmerAlignment_{dblvl}.log"
     phmmerTblout = f"phmmerTblout_{dblvl}.log"
@@ -334,6 +350,12 @@ def run_phmmer(seq_info, afdb_seqdb=None, pdb_seqdb=None, dblvl=95, nproc=1):
         else:
             seqdb = Path(os.environ["CCP4"], "share", "mrbump", "data", "afdb.fasta")
             dbtype= "AFCCP4"
+    if dblvl == "esma":
+        if esmatlas_seqdb is not None:
+            seqdb = esmatlas_seqdb
+            dbtype = "ESMADB"
+        else:
+            logger.exception("Error: ESMAtlas sequence database file not set. Skipping...")
     else:
         sb = makeSeqDB.sequenceDatabase()
         if pdb_seqdb is not None:
@@ -352,6 +374,16 @@ def run_phmmer(seq_info, afdb_seqdb=None, pdb_seqdb=None, dblvl=95, nproc=1):
             delete_db = True
 
     if afdb_seqdb is not None and dblvl == "af2":
+        cmd = [str(phmmerEXE) + EXE_EXT,
+           '--notextw',
+           '--tblout', phmmerTblout,
+           '--domtblout', phmmerDomTblout,
+           '--F1', '1e-15',
+           '--F2', '1e-15',
+           '--cpu', str(nproc),
+           '-A', alnfile,
+           str(seq_info.sequence_file), str(seqdb)]
+    elif esmatlas_seqdb is not None and dblvl == "esma":
         cmd = [str(phmmerEXE) + EXE_EXT,
            '--notextw',
            '--tblout', phmmerTblout,

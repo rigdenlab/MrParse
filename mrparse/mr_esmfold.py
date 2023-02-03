@@ -1,10 +1,10 @@
 """
-Created on 04 Feb 2023
+Created on 04 Nov 2022
 
 @author: rmk65 & hlasimpk
 """
 
-# Simple function to download predicted models from the ESMAtlas
+# Simple function to download a predicted model from the ESMAtlas
 
 from collections import OrderedDict
 import configparser as ConfigParser
@@ -21,10 +21,9 @@ from simbad.util.pdb_util import PdbStructure
 
 logger = logging.getLogger(__name__)
 MODELS_DIR = Path('models')
-ATLAS_MODELS_DIR = Path('atlas_models')
 
 
-class AtlasModelData(object):
+class ModelData(object):
     OBJECT_ATTRIBUTES = ['hit', 'region']
 
     def __init__(self):
@@ -39,53 +38,7 @@ class AtlasModelData(object):
         self.hit = None
         self.region = None
         self.plddt_regions = None
-
-######################################
-
-    @property
-    def length(self):
-        return self._get_child_attr('hit', 'length')
-
-    @property
-    def name(self):
-        return self._get_child_attr('hit', 'name')
-
-    @property
-    def model_id(self):
-        return self._get_child_attr('hit', 'name')
-
-    @property
-    def range(self):
-        return (self.query_start, self.query_stop)
-
-    @property
-    def region_id(self):
-        return self._get_child_attr('hit', 'region_id')
-
-    @property
-    def region_index(self):
-        return self._get_child_attr('hit', 'region_index')
-
-    @property
-    def score(self):
-        return self._get_child_attr('hit', 'score')
-
-    @property
-    def seq_ident(self):
-        seq_id = self._get_child_attr('hit', 'local_sequence_identity')
-        if seq_id:
-            return seq_id / 100.0
-        return None
-
-    @property
-    def query_start(self):
-        return self._get_child_attr('hit', 'query_start')
-
-    @property
-    def query_stop(self):
-        return self._get_child_attr('hit', 'query_stop')
-
-######################################
+        self.range = None
 
     # miscellaneous properties
     @property
@@ -117,86 +70,31 @@ class AtlasModelData(object):
             out_str += f"  {a} : {self.__dict__[a]}\n"
         return out_str
 
-#####################
 
-def atlas_models_from_hits(hits, plddt_cutoff):
+def models_from_hits(hit, plddt_cutoff):
     if not MODELS_DIR.exists():
         MODELS_DIR.mkdir()
-    if not ATLAS_MODELS_DIR.exists():
-        ATLAS_MODELS_DIR.mkdir()
 
-    #db_ver = get_afdb_version()
     models = OrderedDict()
-    for hit in hits.values():
-        mlog = AtlasModelData()
-        mlog.hit = hit
-        hit._homolog = mlog
-        mlog.model_url = "https://api.esmatlas.com/fetchPredictedStructure/%s.pdb" % hit.pdb_id 
-        try:
-            mlog.pdb_file, mlog.molecular_weight, \
-            mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, \
-            mlog.date_made, mlog.plddt_regions = prepare_pdb(hit, plddt_cutoff)
-        except PdbModelException as e:
-            logger.critical(f"Error processing pdb: {e}")
-            continue
-        models[mlog.name] = mlog
+    mlog = ModelData()
+    mlog.name = 'ESMFold_model'
+    mlog.model_id = 'ESMFold_model'
+    mlog.range = (1, len(hit))
+    mlog.query_start = 1
+    mlog.query_stop = len(hit)
+    mlog.region_id = 'A'
+    mlog.seq_ident = 1
+    mlog.length = len(hit)
+    mlog.model_url = 'https://api.esmatlas.com/'
+    try:
+        mlog.pdb_file, mlog.molecular_weight, \
+        mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, \
+        mlog.date_made, mlog.plddt_regions = get_esm_prediction(sequence=hit, plddt_cutoff=plddt_cutoff)
+    except PdbModelException as e:
+        logger.critical(f"Error processing pdb: {e}")
+        return {}
+    models[mlog.name] = mlog
     return models
-
-def download_model(pdb_name):
-    """Download ESMAtlas model"""
-    url = 'https://api.esmatlas.com/fetchPredictedStructure/%s' % pdb_name
-    query = requests.get(url)
-    return query.text
-
-def prepare_pdb(hit, plddt_cutoff):
-    """
-    Download pdb or take file from cache
-    trucate to required residues
-    calculate the MW
-    """
-
-    print("Retrieving and preparing model: %s" % hit.name)
-
-    pdb_name = f"{hit.pdb_id}.pdb"
-    pdb_struct = PdbStructure()
-    try:
-        pdb_string = download_model(pdb_name)
-        pdb_struct.structure = gemmi.read_pdb_string(pdb_string)
-        date_made = pdb_string.split('\n')[0].split()[-1]
-    except RuntimeError:
-        # SIMBAD currently raises an empty RuntimeError for download problems.
-        raise PdbModelException(f"Error downloading PDB file for: {hit.pdb_id}")
-
-    pdb_file = ATLAS_MODELS_DIR.joinpath(pdb_name)
-    pdb_struct.save(str(pdb_file))
-
-    seqid_range = range(hit.hit_start, hit.hit_stop + 1)
-    try:
-        pdb_struct.select_residues(to_keep_idx=seqid_range)
-    except IndexError:
-        # SIMBAD occasionally raises an empty IndexError when selecting residues.
-        raise PdbModelException(f"Error selecting residues for: {hit.pdb_id}")
-
-    pdb_struct.structure = convert_lddt_to_plddt(pdb_struct.structure)
-    avg_plddt = calculate_avg_plddt(pdb_struct.structure)
-    sum_plddt = calculate_sum_plddt(pdb_struct.structure)
-    h_score = calculate_quality_h_score(pdb_struct.structure)
-    plddt_regions = get_plddt_regions(pdb_struct.structure, hit.seq_ali)
-
-    # Remove residues below threshold
-    if plddt_cutoff is not None:
-        pdb_struct.structure = remove_residues_below_plddt_threshold(pdb_struct.structure, int(plddt_cutoff))
-
-    # Convert plddt to bfactor score
-    pdb_struct.structure = convert_plddt_to_bfactor(pdb_struct.structure)
-
-    truncated_pdb_name = f"{hit.pdb_id}_{hit.hit_start}-{hit.hit_stop}.pdb"
-    truncated_pdb_path = MODELS_DIR.joinpath(truncated_pdb_name)
-    pdb_struct.save(str(truncated_pdb_path),
-                    remarks=[f"PHASER ENSEMBLE MODEL 1 ID {hit.local_sequence_identity}"])
-    return str(truncated_pdb_path), int(pdb_struct.molecular_weight), avg_plddt, sum_plddt, h_score, date_made, plddt_regions
-
-####################
 
 def get_esm_prediction(sequence=None, fasta=None, plddt_cutoff=None):
     """ Get a prediction from the ESM Atlas """
@@ -278,8 +176,8 @@ if __name__ == "__main__":
     parser.add_argument('-plddt_cutoff', help="Set plddt threshold", default=70)
     args = parser.parse_args()
 
-    esmatlas_model, _, _, _, _, _, _ = get_esm_prediction(sequence=args.sequence,
+    esm_model, _, _, _, _, _, _ = get_esm_prediction(sequence=args.sequence,
                                                      fasta=args.fasta,
                                                      plddt_cutoff=args.plddt_cutoff)
 
-    print(f"ESMAtlas models output to: {esmatlas_model}")
+    print(f"ESMFold model output to: {esm_model}")
