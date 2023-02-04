@@ -131,7 +131,7 @@ def atlas_models_from_hits(hits, plddt_cutoff):
         mlog = AtlasModelData()
         mlog.hit = hit
         hit._homolog = mlog
-        mlog.model_url = "https://api.esmatlas.com/fetchPredictedStructure/%s.pdb" % hit.pdb_id 
+        mlog.model_url = "https://esmatlas.com/resources/detail/%s" % hit.pdb_id
         try:
             mlog.pdb_file, mlog.molecular_weight, \
             mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, \
