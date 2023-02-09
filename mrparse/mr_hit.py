@@ -350,7 +350,7 @@ def run_phmmer(seq_info, afdb_seqdb=None, esmatlas_seqdb=None, pdb_seqdb=None, d
         else:
             seqdb = Path(os.environ["CCP4"], "share", "mrbump", "data", "afdb.fasta")
             dbtype= "AFCCP4"
-    if dblvl == "esma":
+    elif dblvl == "esma":
         if esmatlas_seqdb is not None:
             seqdb = esmatlas_seqdb
             dbtype = "ESMADB"
