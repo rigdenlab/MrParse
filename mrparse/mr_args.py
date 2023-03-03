@@ -51,6 +51,9 @@ def mrparse_argparse(parser):
     sg.add_argument('--max_hits', required=False, type=int, choices=range(1,101), metavar="[1-100]", default=10, help='Maximum number of models to download and prepare for each database search')
     sg.add_argument('--nproc', required=False, type=int, default=1, help='Number of cores to use in phmmer search')
     sg.add_argument('--database', help='Database to search', default='all', choices=['all', 'pdb', 'afdb', 'esmfold', 'esmatlas'])
+    sg.add_argument('--phmmer_cluster',  action='store_true', help=argparse.SUPPRESS)
+    sg.add_argument('--afdb_seqs_directory', help=argparse.SUPPRESS)
+    sg.add_argument('--debug', action='store_true', help=argparse.SUPPRESS)
     sg.add_argument('-v', '--version', action='version', version='%(prog)s version: ' + __version__)
 
 

@@ -34,7 +34,10 @@ def main():
                               use_api=args.use_api,
                               max_hits=args.max_hits,
                               database=args.database,
-                              nproc=args.nproc)
+                              nproc=args.nproc,
+                              phmmer_cluster = args.phmmer_cluster,
+                              afdb_seqs_directory = args.afdb_seqs_directory,
+                              debug = args.debug)
     except KeyboardInterrupt:
         sys.stderr.write("Interrupted by keyboard!")
         return 0
