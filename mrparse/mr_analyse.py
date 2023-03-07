@@ -47,14 +47,15 @@ def run(seqin, **kwargs):
     hhsearch_db = kwargs.get('hhsearch_db', None)
     afdb_seqdb = kwargs.get('afdb_seqdb', None)
     esmatlas_seqdb = kwargs.get('esmatlas_seqdb', None)
+    esmatlas = kwargs.get('esmatlas', None)
     pdb_seqdb = kwargs.get('pdb_seqdb', None)
     ccp4cloud = kwargs.get('ccp4cloud', None)
     use_api = kwargs.get('use_api', None)
     max_hits = kwargs.get('max_hits', 10)
     database = kwargs.get('database', 'all')
     nproc = kwargs.get('nproc', 1)
-    phmmer_cluster = kwargs.get('phmmer_cluster', False)
     afdb_seqs_directory = kwargs.get('afdb_seqs_directory', None)
+    esmatlas_seqs_directory = kwargs.get('esmatlas_seqs_directory', None)
     debug = kwargs.get('debug', False)
 
     # Need to make a work directory first as all logs go into there
@@ -93,15 +94,24 @@ def run(seqin, **kwargs):
             raise RuntimeError("HHSearch database needs to be defined with --hhsearch_db")
 
     # If a slurm cluster and the split afdb sequences folder is set run phmmer in parllel and reset the afdb_seqdb to the best hits fasta
-    if not use_api and afdb_seqdb is not None and phmmer_cluster and afdb_seqs_directory is not None:
-        logger.info(f"Running phmmer cluster")
+    if not use_api and afdb_seqs_directory is not None:
+        logger.info(f"Running afdb through phmmer cluster")
         from mrparse import phmmer_cl
         afdb_seqdb=os.path.join(work_dir,"besthits_afdb.fasta")
         phmmer_cl.make_best_fasta(scratch_directory="scratch", input_fasta=seqin, output_fasta=afdb_seqdb, seqsdb=afdb_seqs_directory, maxhits=max_hits, debug=debug)
+#        phmmer_cl.make_best_fasta(scratch_directory="scratch", input_fasta=seqin, output_fasta=afdb_seqdb, seqsdb=afdb_seqs_directory, nseqs=1010, maxhits=max_hits, debug=debug)
+
+    # If a slurm cluster and the split esmatlas sequences folder is set run phmmer in parllel and reset the esmatlas_seqdb to the best hits fasta
+    if esmatlas and esmatlas_seqs_directory is not None:
+        logger.info(f"Running esmatlas through phmmer cluster")
+        from mrparse import phmmer_cl
+        esmatlas_seqdb=os.path.join(work_dir,"besthits_esmatlas.fasta")
+        phmmer_cl.make_best_fasta(scratch_directory="scratch", input_fasta=seqin, output_fasta=esmatlas_seqdb, seqsdb=esmatlas_seqs_directory, maxhits=max_hits, debug=debug)
+#        phmmer_cl.make_best_fasta(scratch_directory="scratch", input_fasta=seqin, output_fasta=esmatlas_seqdb, seqsdb=esmatlas_seqs_directory, nseqs=10, maxhits=max_hits, debug=debug)
 
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir, phmmer_dblvl=phmmer_dblvl,
-                                            plddt_cutoff=plddt_cutoff, search_engine=search_engine, hhsearch_exe=hhsearch_exe, 
-                                            hhsearch_db=hhsearch_db, afdb_seqdb=afdb_seqdb, esmatlas_seqdb=esmatlas_seqdb, pdb_seqdb=pdb_seqdb,
+                                            plddt_cutoff=plddt_cutoff, search_engine=search_engine, hhsearch_exe=hhsearch_exe, hhsearch_db=hhsearch_db,  
+                                            afdb_seqdb=afdb_seqdb, esmatlas_seqdb=esmatlas_seqdb, esmatlas=esmatlas, pdb_seqdb=pdb_seqdb,
                                             use_api=use_api, max_hits=max_hits, database=database, nproc=nproc, pdb_local=pdb_local)
 
     classifier = None

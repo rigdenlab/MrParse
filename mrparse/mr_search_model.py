@@ -29,6 +29,7 @@ class SearchModelFinder(object):
         self.hhsearch_db = kwargs.get("hhsearch_db", None)
         self.afdb_seqdb = kwargs.get("afdb_seqdb", None)
         self.esmatlas_seqdb = kwargs.get("esmatlas_seqdb", None)
+        self.esmatlas = kwargs.get("esmatlas", None)
         self.pdb_seqdb = kwargs.get("pdb_seqdb", None)
         self.use_api = kwargs.get("use_api", False)
         self.max_hits = kwargs.get("max_hits", 10)
@@ -64,7 +65,8 @@ class SearchModelFinder(object):
         if self.database in ['all', 'esmfold']:
             self.prepare_esm_model()
             logger.debug(f'SearchModelFinder ESM models done at {now()}')
-        if self.database in ['all', 'esmatlas']:
+        #if self.database in ['all', 'esmatlas'] and self.esmatlas and esmatlas_seqdb is not None:
+        if self.esmatlas and self.esmatlas_seqdb is not None:
             self.find_esmatlas_model_regions()
             logger.debug(f'SearchModelFinder ESMAtlas model regions done at {now()}')
             self.prepare_esmatlas_models()

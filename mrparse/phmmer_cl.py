@@ -23,7 +23,7 @@ def make_best_fasta(scratch_directory=None, input_fasta=None, output_fasta="outp
     
     ssub="#!/bin/bash\n"
     ssub+="#SBATCH --job-name=phmmer_%a     # Job name\n"
-    ssub+="#SBATCH --array=1-%d%%40             # set array\n" % splits
+    ssub+="#SBATCH --array=1-%d%%5             # set array\n" % splits
     ssub+="#SBATCH --ntasks=1                                   # Run on a single CPU\n"
     ssub+="#SBATCH --mem=1gb                                    # Job memory request\n"
     ssub+="#SBATCH --time=00:60:00                              # Time limit hrs:min:sec\n"
@@ -32,10 +32,18 @@ def make_best_fasta(scratch_directory=None, input_fasta=None, output_fasta="outp
     ssub+="\n"
     ssub+="source /data/ccp4/opt/ccp4-8.0/bin/ccp4.setup-sh\n"
     ssub+="\n"
+
+    #ssub+="\n"
+    #ssub+="sleep $((RANDOM%30+1))\n"
+    #ssub+="\n"
     
-    ssub+="%s -o phmmer_${SLURM_ARRAY_TASK_ID}.log %s %s/seq_${SLURM_ARRAY_TASK_ID}.fasta\n" % (phmmerEXE, input_fasta, seqsdb)  
-    #ssub+="%s --F1 1e-15 --F2 1e-15 -o phmmer_${SLURM_ARRAY_TASK_ID}.log %s %s/seq_${SLURM_ARRAY_TASK_ID}.fasta\n" % (phmmerEXE, input_fasta, seqsdb)  
-    ssub+="time ccp4-python -m mrparse.phmmer_cl -g -l phmmer_${SLURM_ARRAY_TASK_ID}.log -m %d -b temp_${SLURM_ARRAY_TASK_ID}.fasta\n" % maxhits
+    #ssub+="time cp -v %s/seq_${SLURM_ARRAY_TASK_ID}.fasta /dev/shm/seq_${SLURM_ARRAY_TASK_ID}.fasta\n" % (seqsdb)  
+    #ssub+="%s -o phmmer_${SLURM_ARRAY_TASK_ID}.log %s /dev/shm/seq_${SLURM_ARRAY_TASK_ID}.fasta\n" % (phmmerEXE, input_fasta)  
+    #ssub+="%s -o phmmer_${SLURM_ARRAY_TASK_ID}.log %s %s/seq_${SLURM_ARRAY_TASK_ID}.fasta\n" % (phmmerEXE, input_fasta, seqsdb)  
+    ssub+="%s --cpu 1 --F1 1e-15 --F2 1e-15 -o phmmer_${SLURM_ARRAY_TASK_ID}.log %s %s/seq_${SLURM_ARRAY_TASK_ID}.fasta\n" % (phmmerEXE, input_fasta, seqsdb)  
+    ssub+="time ccp4-python -m mrparse.phmmer_cl -g -l phmmer_${SLURM_ARRAY_TASK_ID}.log -m %d -b temp_${SLURM_ARRAY_TASK_ID}.fasta -s %s\n" % (maxhits, seqsdb)
+    #ssub+="time ccp4-python -m mrparse.phmmer_cl -g -l phmmer_${SLURM_ARRAY_TASK_ID}.log -m %d -b temp_${SLURM_ARRAY_TASK_ID}.fasta -s /dev/shm\n" % (maxhits)
+    #ssub+="time rm -v /dev/shm/seq_${SLURM_ARRAY_TASK_ID}.fasta\n"
     ssub+="touch FINISHED_${SLURM_ARRAY_TASK_ID}.txt"
     
     subscript="afdb.sub" 
@@ -99,8 +107,12 @@ def getmytophits(logfile=None, maxhits=10, seqsdb=None, output=None, debug=False
         myhitlist=[]
     
         for line in plines:
-            if ">> AFDB" in line:
-                name=line.split()[1].replace("AFDB:","")
+            #if ">> AFDB" in line:
+            if ">> " in line:
+                if ">> AFDB" in line: 
+                    name=line.split()[1].replace("AFDB:","")
+                elif ">> MGY" in line:
+                    name=line.split()[1]
                 myhitcount+=1
                 myhitlist.append(name)
                 if myhitcount == maxhits:
@@ -109,7 +121,7 @@ def getmytophits(logfile=None, maxhits=10, seqsdb=None, output=None, debug=False
                     mysequences=""
                     while myfline:
                         if ">" in myfline:
-                            if myfline.split()[0].replace(">AFDB:","") in myhitlist:
+                            if myfline.split()[0].replace(">AFDB:","") in myhitlist or myfline.split()[0].replace(">","") in myhitlist:
                                 myfastasequences+=myfline + myfasta.readline()
                                 hitscount+=1
                                 if hitscount >= maxhits:
@@ -124,7 +136,7 @@ def getmytophits(logfile=None, maxhits=10, seqsdb=None, output=None, debug=False
             mysequences=""
             while myfline:
                 if ">" in myfline:
-                    if myfline.split()[0].replace(">AFDB:","") in myhitlist:
+                    if myfline.split()[0].replace(">AFDB:","") in myhitlist or myfline.split()[0].replace(">","") in myhitlist:
                         myfastasequences+=myfline + myfasta.readline()
                         hitscount+=1
                         if hitscount >= myhitcount:
@@ -147,6 +159,7 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--scratch', help="scratch directory (default=scratch)", default="scratch")
     parser.add_argument('-n', '--nseqs', help="number of sequence files to use (defaults to number in seqsdb folder)", default=None)
     parser.add_argument('-o', '--output', help="output best fasta file (default output.fasta)", default="output.fasta")
+    parser.add_argument('-s', '--seqsdb', help="location of fasta files", default=None)
     
     parser.add_argument('-l', '--logfile', help="phmmer log file", default=None)
     parser.add_argument('-b', '--bestfasta', help="best hits fasta file for this job", default=None)
@@ -156,7 +169,7 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--debug', action='store_true', help="debug output")
     args = parser.parse_args()
     
-    seqsdb=os.path.join(os.sep, "data1", "opt", "db", "afdb_split", "seqs")
+    seqsdb=args.seqsdb
     workingDIR=os.getcwd()
 
     

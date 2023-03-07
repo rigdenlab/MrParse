@@ -29,14 +29,15 @@ def main():
                               hhsearch_db=args.hhsearch_db,
                               afdb_seqdb=args.afdb_seqdb,
                               esmatlas_seqdb=args.esmatlas_seqdb,
+                              esmatlas=args.esmatlas,
                               pdb_seqdb=args.pdb_seqdb,
                               ccp4cloud=args.ccp4cloud,
                               use_api=args.use_api,
                               max_hits=args.max_hits,
                               database=args.database,
                               nproc=args.nproc,
-                              phmmer_cluster = args.phmmer_cluster,
                               afdb_seqs_directory = args.afdb_seqs_directory,
+                              esmatlas_seqs_directory = args.esmatlas_seqs_directory,
                               debug = args.debug)
     except KeyboardInterrupt:
         sys.stderr.write("Interrupted by keyboard!")
