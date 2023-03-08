@@ -3,7 +3,7 @@
 import os, sys, shutil
 import argparse
 
-def make_best_fasta(scratch_directory=None, input_fasta=None, output_fasta="output.fasta", seqsdb=None, nseqs=None, maxhits=10, debug=False):
+def make_best_fasta(scratch_directory=None, input_fasta=None, output_fasta="output.fasta", seqsdb=None, nseqs=None, maxhits=10, dbtype=None, debug=False):
 
     phmmerEXE=os.path.join(os.environ["CCP4"], "libexec", "phmmer")
     workingDIR=os.getcwd()
@@ -23,14 +23,14 @@ def make_best_fasta(scratch_directory=None, input_fasta=None, output_fasta="outp
     
     ssub="#!/bin/bash\n"
     ssub+="#SBATCH --job-name=phmmer_%a     # Job name\n"
-    ssub+="#SBATCH --array=1-%d%%5             # set array\n" % splits
+    ssub+="#SBATCH --array=1-%d%%24             # set array\n" % splits
     ssub+="#SBATCH --ntasks=1                                   # Run on a single CPU\n"
     ssub+="#SBATCH --mem=1gb                                    # Job memory request\n"
     ssub+="#SBATCH --time=00:60:00                              # Time limit hrs:min:sec\n"
-    ssub+="#SBATCH --output=job_%a.log   # Standard output and error log\n" 
+    ssub+="#SBATCH --output=job_%s_%%a.log   # Standard output and error log\n" % dbtype 
     
     ssub+="\n"
-    ssub+="source /data/ccp4/opt/ccp4-8.0/bin/ccp4.setup-sh\n"
+    ssub+="source %s\n" % os.path.join(os.environ["CCP4"], "bin", "ccp4.setup-sh")
     ssub+="\n"
 
     #ssub+="\n"
@@ -40,11 +40,11 @@ def make_best_fasta(scratch_directory=None, input_fasta=None, output_fasta="outp
     #ssub+="time cp -v %s/seq_${SLURM_ARRAY_TASK_ID}.fasta /dev/shm/seq_${SLURM_ARRAY_TASK_ID}.fasta\n" % (seqsdb)  
     #ssub+="%s -o phmmer_${SLURM_ARRAY_TASK_ID}.log %s /dev/shm/seq_${SLURM_ARRAY_TASK_ID}.fasta\n" % (phmmerEXE, input_fasta)  
     #ssub+="%s -o phmmer_${SLURM_ARRAY_TASK_ID}.log %s %s/seq_${SLURM_ARRAY_TASK_ID}.fasta\n" % (phmmerEXE, input_fasta, seqsdb)  
-    ssub+="%s --cpu 1 --F1 1e-15 --F2 1e-15 -o phmmer_${SLURM_ARRAY_TASK_ID}.log %s %s/seq_${SLURM_ARRAY_TASK_ID}.fasta\n" % (phmmerEXE, input_fasta, seqsdb)  
-    ssub+="time ccp4-python -m mrparse.phmmer_cl -g -l phmmer_${SLURM_ARRAY_TASK_ID}.log -m %d -b temp_${SLURM_ARRAY_TASK_ID}.fasta -s %s\n" % (maxhits, seqsdb)
+    ssub+="%s --cpu 1 --F1 1e-15 --F2 1e-15 -o phmmer_%s_${SLURM_ARRAY_TASK_ID}.log %s %s/seq_${SLURM_ARRAY_TASK_ID}.fasta\n" % (phmmerEXE, dbtype, input_fasta, seqsdb)  
+    ssub+="time ccp4-python -m mrparse.phmmer_cl -g -l phmmer_%s_${SLURM_ARRAY_TASK_ID}.log -m %d -b temp_%s_${SLURM_ARRAY_TASK_ID}.fasta -s %s\n" % (dbtype, maxhits, dbtype, seqsdb)
     #ssub+="time ccp4-python -m mrparse.phmmer_cl -g -l phmmer_${SLURM_ARRAY_TASK_ID}.log -m %d -b temp_${SLURM_ARRAY_TASK_ID}.fasta -s /dev/shm\n" % (maxhits)
     #ssub+="time rm -v /dev/shm/seq_${SLURM_ARRAY_TASK_ID}.fasta\n"
-    ssub+="touch FINISHED_${SLURM_ARRAY_TASK_ID}.txt"
+    ssub+="touch FINISHED_%s_${SLURM_ARRAY_TASK_ID}.txt" % dbtype
     
     subscript="afdb.sub" 
     
@@ -59,19 +59,19 @@ def make_best_fasta(scratch_directory=None, input_fasta=None, output_fasta="outp
     foundlist=[]
     while pcount < splits:
         for x in range(1, (splits+1)):
-            if os.path.isfile("FINISHED_%d.txt" % x) and x not in foundlist:
-                if os.path.isfile("temp_%d.fasta" % x):
-                    myseqs=open("temp_%d.fasta" % x)
+            if os.path.isfile("FINISHED_%s_%d.txt" % (dbtype, x)) and x not in foundlist:
+                if os.path.isfile("temp_%s_%d.fasta" % (dbtype, x)):
+                    myseqs=open("temp_%s_%d.fasta" % (dbtype,  x))
                     bestfasta+="".join(myseqs.readlines())
                     myseqs.close()
                     pcount+=1
                     foundlist.append(x)
                     if not debug:
-                        os.remove("temp_%d.fasta" % x)
+                        os.remove("temp_%s_%d.fasta" % (dbtype, x))
                 else:
                     print("Warning - sequence list file not found for %d" % x)
                 if not debug:
-                    os.remove("FINISHED_%d.txt" % x)
+                    os.remove("FINISHED_%s_%d.txt" % (dbtype, x))
                     if os.path.isfile("job_%d.log" % x):
                         os.remove("job_%d.log" % x)
                     if os.path.isfile("phmmer_%d.log" % x):
@@ -101,7 +101,7 @@ def getmytophits(logfile=None, maxhits=10, seqsdb=None, output=None, debug=False
         plines=plog.readlines()
         plog.close()
     
-        myid=int(logfile.split("_")[1].replace(".log",""))
+        myid=int(logfile.split("_")[2].replace(".log",""))
     
         myhitcount=0
         myhitlist=[]
@@ -160,6 +160,7 @@ if __name__ == "__main__":
     parser.add_argument('-n', '--nseqs', help="number of sequence files to use (defaults to number in seqsdb folder)", default=None)
     parser.add_argument('-o', '--output', help="output best fasta file (default output.fasta)", default="output.fasta")
     parser.add_argument('-s', '--seqsdb', help="location of fasta files", default=None)
+    parser.add_argument('-y', '--dbtype', help="database type (afdb or esmatlas)", default=None)
     
     parser.add_argument('-l', '--logfile', help="phmmer log file", default=None)
     parser.add_argument('-b', '--bestfasta', help="best hits fasta file for this job", default=None)
@@ -189,6 +190,6 @@ if __name__ == "__main__":
         else:
             nseqs=int(args.nseqs)
     
-        make_best_fasta(scratch_directory=scratch, input_fasta=seqin, output_fasta=outfasta, seqsdb=seqsdb, nseqs=nseqs, maxhits=args.maxhits, debug=args.debug)
+        make_best_fasta(scratch_directory=scratch, input_fasta=seqin, output_fasta=outfasta, seqsdb=seqsdb, nseqs=nseqs, maxhits=args.maxhits, dbtype=args.dbtype, debug=args.debug)
     else:
         getmytophits(logfile=args.logfile, maxhits=args.maxhits, seqsdb=seqsdb, output=args.bestfasta, debug=args.debug)
