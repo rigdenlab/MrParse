@@ -13,17 +13,21 @@ def make_best_fasta(scratch_directory=None, input_fasta=None, output_fasta="outp
         os.mkdir(scratch)
     os.chdir(scratch)
     
+    splits_list=[]
     if nseqs is None:
         splits=0
         for x in os.listdir(seqsdb):
             if x.endswith(".fasta"):
                 splits+=1
+                splits_list.append(int(x.split("_")[-1].replace(".fasta", "")))
     else:
         splits=int(nseqs)
+        for x in range(1, nseqs+1):
+            splits_list.append(x)
     
     ssub="#!/bin/bash\n"
     ssub+="#SBATCH --job-name=phmmer_%a     # Job name\n"
-    ssub+="#SBATCH --array=1-%d%%24             # set array\n" % splits
+    ssub+="#SBATCH --array=1-%d%%24             # set array\n" % max(splits_list)
     ssub+="#SBATCH --ntasks=1                                   # Run on a single CPU\n"
     ssub+="#SBATCH --mem=1gb                                    # Job memory request\n"
     ssub+="#SBATCH --time=00:60:00                              # Time limit hrs:min:sec\n"
@@ -40,11 +44,14 @@ def make_best_fasta(scratch_directory=None, input_fasta=None, output_fasta="outp
     #ssub+="time cp -v %s/seq_${SLURM_ARRAY_TASK_ID}.fasta /dev/shm/seq_${SLURM_ARRAY_TASK_ID}.fasta\n" % (seqsdb)  
     #ssub+="%s -o phmmer_${SLURM_ARRAY_TASK_ID}.log %s /dev/shm/seq_${SLURM_ARRAY_TASK_ID}.fasta\n" % (phmmerEXE, input_fasta)  
     #ssub+="%s -o phmmer_${SLURM_ARRAY_TASK_ID}.log %s %s/seq_${SLURM_ARRAY_TASK_ID}.fasta\n" % (phmmerEXE, input_fasta, seqsdb)  
+    ssub+="if [[ -f %s/seq_${SLURM_ARRAY_TASK_ID}.fasta ]]\n" % seqsdb
+    ssub+="then\n"
     ssub+="%s --cpu 1 --F1 1e-15 --F2 1e-15 -o phmmer_%s_${SLURM_ARRAY_TASK_ID}.log %s %s/seq_${SLURM_ARRAY_TASK_ID}.fasta\n" % (phmmerEXE, dbtype, input_fasta, seqsdb)  
     ssub+="time ccp4-python -m mrparse.phmmer_cl -g -l phmmer_%s_${SLURM_ARRAY_TASK_ID}.log -m %d -b temp_%s_${SLURM_ARRAY_TASK_ID}.fasta -s %s\n" % (dbtype, maxhits, dbtype, seqsdb)
     #ssub+="time ccp4-python -m mrparse.phmmer_cl -g -l phmmer_${SLURM_ARRAY_TASK_ID}.log -m %d -b temp_${SLURM_ARRAY_TASK_ID}.fasta -s /dev/shm\n" % (maxhits)
     #ssub+="time rm -v /dev/shm/seq_${SLURM_ARRAY_TASK_ID}.fasta\n"
-    ssub+="touch FINISHED_%s_${SLURM_ARRAY_TASK_ID}.txt" % dbtype
+    ssub+="touch FINISHED_%s_${SLURM_ARRAY_TASK_ID}.txt\n" % dbtype
+    ssub+="fi\n"
     
     subscript="afdb.sub" 
     
@@ -58,7 +65,7 @@ def make_best_fasta(scratch_directory=None, input_fasta=None, output_fasta="outp
     pcount=0
     foundlist=[]
     while pcount < splits:
-        for x in range(1, (splits+1)):
+        for x in splits_list: #range(1, (splits+1)):
             if os.path.isfile("FINISHED_%s_%d.txt" % (dbtype, x)) and x not in foundlist:
                 if os.path.isfile("temp_%s_%d.fasta" % (dbtype, x)):
                     myseqs=open("temp_%s_%d.fasta" % (dbtype,  x))
