@@ -59,8 +59,6 @@ def make_best_fasta(scratch_directory=None, input_fasta=None, output_fasta="outp
     subfile.write(ssub)
     subfile.close()
     
-    sys.exit()
-
     os.system("sbatch %s" % subscript)
     
     bestfasta=""
