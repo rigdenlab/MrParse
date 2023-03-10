@@ -98,7 +98,7 @@ def run(seqin, **kwargs):
         logger.info(f"Running afdb through phmmer cluster")
         from mrparse import phmmer_cl
         afdb_seqdb=os.path.join(work_dir,"besthits_afdb.fasta")
-        phmmer_cl.make_best_fasta(scratch_directory="scratch", input_fasta=seqin, output_fasta=afdb_seqdb, seqsdb=afdb_seqs_directory, maxhits=max_hits, dbtype="afdb", debug=debug)
+        phmmer_cl.make_best_fasta(scratch_directory="scratch", input_fasta=seqin, output_fasta=afdb_seqdb, seqsdb=afdb_seqs_directory, maxhits=max_hits, dbtype="afdb", nproc=nproc, debug=debug)
 #        phmmer_cl.make_best_fasta(scratch_directory="scratch", input_fasta=seqin, output_fasta=afdb_seqdb, seqsdb=afdb_seqs_directory, nseqs=1010, maxhits=max_hits, debug=debug)
 
     # If a slurm cluster and the split esmatlas sequences folder is set run phmmer in parllel and reset the esmatlas_seqdb to the best hits fasta
@@ -106,7 +106,7 @@ def run(seqin, **kwargs):
         logger.info(f"Running esmatlas through phmmer cluster")
         from mrparse import phmmer_cl
         esmatlas_seqdb=os.path.join(work_dir,"besthits_esmatlas.fasta")
-        phmmer_cl.make_best_fasta(scratch_directory="scratch", input_fasta=seqin, output_fasta=esmatlas_seqdb, seqsdb=esmatlas_seqs_directory, maxhits=max_hits, dbtype="esmatlas", debug=debug)
+        phmmer_cl.make_best_fasta(scratch_directory="scratch", input_fasta=seqin, output_fasta=esmatlas_seqdb, seqsdb=esmatlas_seqs_directory, maxhits=max_hits, dbtype="esmatlas", nproc=nproc, debug=debug)
 #        phmmer_cl.make_best_fasta(scratch_directory="scratch", input_fasta=seqin, output_fasta=esmatlas_seqdb, seqsdb=esmatlas_seqs_directory, nseqs=10, maxhits=max_hits, debug=debug)
 
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir, phmmer_dblvl=phmmer_dblvl,

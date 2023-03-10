@@ -3,7 +3,7 @@
 import os, sys, shutil
 import argparse
 
-def make_best_fasta(scratch_directory=None, input_fasta=None, output_fasta="output.fasta", seqsdb=None, nseqs=None, maxhits=10, dbtype=None, debug=False):
+def make_best_fasta(scratch_directory=None, input_fasta=None, output_fasta="output.fasta", seqsdb=None, nseqs=None, maxhits=10, dbtype=None, nproc=1, debug=False):
 
     phmmerEXE=os.path.join(os.environ["CCP4"], "libexec", "phmmer")
     workingDIR=os.getcwd()
@@ -27,7 +27,7 @@ def make_best_fasta(scratch_directory=None, input_fasta=None, output_fasta="outp
     
     ssub="#!/bin/bash\n"
     ssub+="#SBATCH --job-name=phmmer_%a     # Job name\n"
-    ssub+="#SBATCH --array=1-%d%%24             # set array\n" % max(splits_list)
+    ssub+="#SBATCH --array=1-%d%%%d             # set array\n" % (max(splits_list), nproc)
     ssub+="#SBATCH --ntasks=1                                   # Run on a single CPU\n"
     ssub+="#SBATCH --mem=1gb                                    # Job memory request\n"
     ssub+="#SBATCH --time=00:60:00                              # Time limit hrs:min:sec\n"
@@ -59,6 +59,8 @@ def make_best_fasta(scratch_directory=None, input_fasta=None, output_fasta="outp
     subfile.write(ssub)
     subfile.close()
     
+    sys.exit()
+
     os.system("sbatch %s" % subscript)
     
     bestfasta=""
