@@ -110,8 +110,13 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
             if phmmer_dblvl == "af2":
                 logger.info("Attempting to run phmmer alphafold database search through EBI API..")
                 try:
-                    json_file = run_phmmer_alphafold_api(seq_info, max_hits=max_hits)
-                    hits = _find_json_hits(json_file, target_sequence=seq_info, max_hits=max_hits)
+                    ebidev=False
+                    if ebidev:
+                        json_file = ebidev_search_api(seq_info)
+                        hits = _find_json_hits(json_file, target_sequence=seq_info, max_hits=max_hits, dev=True)
+                    else:
+                        json_file = run_phmmer_alphafold_api(seq_info, max_hits=max_hits)
+                        hits = _find_json_hits(json_file, target_sequence=seq_info, max_hits=max_hits)
                     return hits
                 except json.JSONDecodeError:
                     logger.debug("Phmmer API unavailable, running local phmmer search of AFDB")
@@ -274,10 +279,13 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
     return hitDict
 
 
-def _find_json_hits(json_file, target_sequence, max_hits=10):
+def _find_json_hits(json_file, target_sequence, max_hits=10, dev=False):
     hitDict = OrderedDict()
     with open(json_file, 'r') as f_in:
         data = json.load(f_in)
+        print(data)
+        import sys
+        sys.exit()
         for i, hit in enumerate(data['results']['hits']):
             try:
                 sh = SequenceHit()
@@ -450,6 +458,36 @@ def run_phmmer_alphafold_api(seq_info, max_hits=10):
         f_out.write(data.text)
 
     return logfile
+
+#########################################################################################################
+
+def ebidev_search_api(seq_info):
+    headers = {'accept' : 'application/json', 'Content-Type' : 'application/json'}
+    params = { 'sequence': seq_info.sequence }
+
+    # post the search request to the server
+    #results_url = requests.post(url='https://wwwdev.ebi.ac.uk/pdbe/pdbe-kb/3dbeacons/api/sequence/search', data=params).url
+    results = requests.post('https://wwwdev.ebi.ac.uk/pdbe/pdbe-kb/3dbeacons/api/sequence/search', json=params, headers=headers)
+
+    data=results.json()
+    job_id=data['job_id']
+
+    headers = {'accept' : 'application/json'}
+    output = requests.get('https://wwwdev.ebi.ac.uk/pdbe/pdbe-kb/3dbeacons/api/sequence/result?job_id=%s' % job_id, headers=headers)
+
+    while 'message' in output.json():
+        print(output.json()['message'])
+        time.sleep(10)
+        output = requests.get('https://wwwdev.ebi.ac.uk/pdbe/pdbe-kb/3dbeacons/api/sequence/result?job_id=%s' % job_id, headers=headers)
+        print('https://wwwdev.ebi.ac.uk/pdbe/pdbe-kb/3dbeacons/api/sequence/result?job_id=%s' % job_id)
+
+    logfile = "ebidev.json"
+    with open(logfile, 'w') as f_out:
+        f_out.write(output.text)
+
+    return logfile 
+
+#########################################################################################################
 
 def get_seqres_protein(pdbseqfile, outfile):
     """ extract the protein sequences from the full pdb_seqres.txt file """
