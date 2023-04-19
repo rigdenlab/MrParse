@@ -110,9 +110,10 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
             if phmmer_dblvl == "af2":
                 logger.info("Attempting to run phmmer alphafold database search through EBI API..")
                 try:
-                    ebidev=False
+                    ebidev=True
                     if ebidev:
-                        json_file = ebidev_search_api(seq_info)
+                        #json_file = ebidev_search_api(seq_info)
+                        json_file = "/home/rmk65/Projects/3d-beacons/examples/7UG8/f.json"
                         hits = _find_json_hits(json_file, target_sequence=seq_info, max_hits=max_hits, dev=True)
                     else:
                         json_file = run_phmmer_alphafold_api(seq_info, max_hits=max_hits)
@@ -283,41 +284,86 @@ def _find_json_hits(json_file, target_sequence, max_hits=10, dev=False):
     hitDict = OrderedDict()
     with open(json_file, 'r') as f_in:
         data = json.load(f_in)
-        print(data)
-        import sys
-        sys.exit()
-        for i, hit in enumerate(data['results']['hits']):
-            try:
-                sh = SequenceHit()
-                sh.rank = i + 1
-                sh.pdb_id = "AF-" + hit['name'].split("_")[0] + "-F1"
-                sh.evalue = hit['evalue']
+        if dev:
 
-                alignment_info = hit['domains'][0]
-                qstart = alignment_info['alihmmfrom']
-                qstop = alignment_info['alihmmto']
-                sh.query_start = qstart
-                sh.query_stop = qstop
-                sh.hit_start = alignment_info['alisqfrom']
-                sh.hit_stop = alignment_info['alisqto']
-                seq_ali = zip(range(qstart, qstop), alignment_info['aliaseq'])
-                sh.seq_ali = [x[0] for x in seq_ali if x[1] != '-']
-                alignment = alignment_info['aliaseq'].upper()
-                target_alignment = alignment_info['alimodel'].upper()
-                sh.target_alignment = alignment
-                sh.alignment = target_alignment
-                local, overall = simpleSeqID().getPercent(alignment, target_alignment, target_sequence)
-                sh.local_sequence_identity = np.round(local)
-                sh.overall_sequence_identity = np.round(overall)
+            import string, random, gemmi
+            from simbad.util.pdb_util import PdbStructure
+            from mrbump.file_info import PDB_info
+            tmp_download_dir=os.path.join(os.environ["CCP4_SCR"], "tmp_%s" % ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(20))) 
+            os.mkdir(tmp_download_dir)
 
-                sh.score = hit['score']
-                hit_name = hit['name'].split("_")[0] + "_" + str(hit['ndom'])
-                sh.name = hit_name
-                sh.search_engine = "phmmer"
-                if sh.rank <= max_hits:
-                    hitDict[hit_name] = sh
-            except Exception:
-                logger.debug(f"Issue with target {hit['name']}")
+            count=1
+            for hit in (data):
+                try:
+                    hit_summary=hit['summary']['structures'][0]['summary']
+                    if "AlphaFold DB" in hit_summary['provider']:
+                        sh = SequenceHit()
+                        sh.rank = count
+                        sh.pdb_id = "AF-" + hit['accession'].split("_")[0] + "-F1"
+                        pdb_url = hit_summary['model_url'].replace(".cif", ".pdb")
+                        query = requests.get(pdb_url)
+
+                        pdb_name = f"{sh.pdb_id}-model_v4.pdb"
+                        pdb_struct = PdbStructure()
+                        try:
+                            pdb_struct.structure = gemmi.read_pdb_string(query.text)
+                        except RuntimeError:
+                            raise PdbModelException(f"Error downloading PDB file for: {sh.pdb_id}")
+                    
+                        pdb_file = os.path.join(tmp_download_dir, pdb_name)
+                        pdb_struct.save(str(pdb_file))
+                        pi=PDB_info.PDB_info()
+                        pi.getAllSeqs(pdb_file)
+                        my_full_seq=pi.seq_dict["A"]
+
+                        sh.query_start = my_full_seq.find(hit["hit_hsps"][0]["hsp_hseq"])+1
+                        sh.query_stop  = sh.query_start+len(hit["hit_hsps"][0]["hsp_hseq"])-1
+                        sh.hit_start = sh.query_start
+                        sh.hit_stop = sh.query_stop
+
+                        # seq_ali = zip(range(qstart, qstop), alignment_info['aliaseq'])
+                       # sh.evalue = hit['evalue']
+                       # alignment_info = hit['domains'][0]
+                        count+=1
+                except Exception:
+                    logger.debug(f"Issue with target {hit['accession']}")
+            import sys
+            import shutil
+            shutil.rmtree(tmp_download_dir)
+            sys.exit()
+        else:
+            for i, hit in enumerate(data['results']['hits']):
+                try:
+                    sh = SequenceHit()
+                    sh.rank = i + 1
+                    sh.pdb_id = "AF-" + hit['name'].split("_")[0] + "-F1"
+                    sh.evalue = hit['evalue']
+    
+                    alignment_info = hit['domains'][0]
+                    qstart = alignment_info['alihmmfrom']
+                    qstop = alignment_info['alihmmto']
+                    sh.query_start = qstart
+                    sh.query_stop = qstop
+                    sh.hit_start = alignment_info['alisqfrom']
+                    sh.hit_stop = alignment_info['alisqto']
+                    seq_ali = zip(range(qstart, qstop), alignment_info['aliaseq'])
+                    sh.seq_ali = [x[0] for x in seq_ali if x[1] != '-']
+                    alignment = alignment_info['aliaseq'].upper()
+                    target_alignment = alignment_info['alimodel'].upper()
+                    sh.target_alignment = alignment
+                    sh.alignment = target_alignment
+                    local, overall = simpleSeqID().getPercent(alignment, target_alignment, target_sequence)
+                    sh.local_sequence_identity = np.round(local)
+                    sh.overall_sequence_identity = np.round(overall)
+    
+                    sh.score = hit['score']
+                    hit_name = hit['name'].split("_")[0] + "_" + str(hit['ndom'])
+                    sh.name = hit_name
+                    sh.search_engine = "phmmer"
+                    if sh.rank <= max_hits:
+                        hitDict[hit_name] = sh
+                except Exception:
+                    logger.debug(f"Issue with target {hit['name']}")
     return hitDict
 
 
