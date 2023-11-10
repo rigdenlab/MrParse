@@ -56,7 +56,7 @@ class SearchModelFinder(object):
             logger.debug(f'SearchModelFinder AF2 model regions done at {now()}')
             self.prepare_af2_models()
             logger.debug(f'SearchModelFinder AF2 models done at {now()}')
-        if self.database in ['all', 'esmfold']:
+        if self.database in ['esmfold']:
             self.prepare_esm_model()
             logger.debug(f'SearchModelFinder ESM models done at {now()}')
         return self
