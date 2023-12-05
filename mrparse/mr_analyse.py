@@ -68,6 +68,8 @@ def run(seqin, **kwargs):
 
     try:
         seq_info = Sequence(seqin)
+        seq_info.write(os.path.join(work_dir, 'input.fasta'))
+        seq_info.sequence_file = os.path.join(work_dir, 'input.fasta')
     except MultipleSequenceException:
         logger.info(f"Multiple sequences found seqin: {seqin}\n\nAttempting to merge sequences")
         seq_info = merge_multiple_sequences(seqin)
