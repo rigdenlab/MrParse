@@ -30,6 +30,8 @@ class SequenceHit:
         self.name = None
         self.pdb_id = None
         self.chain_id = None
+        self.data_created = None
+        self.model_url = None
         self.rank = None
         self.prob = 0.0
         self.evalue = 0.0
@@ -107,10 +109,10 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
     if search_engine == PHMMER:
         if use_api:
             if phmmer_dblvl == "af2":
-                logger.info("Attempting to run phmmer alphafold database search through EBI API..")
+                logger.info("Attempting to search alphafold database search through 3DBeacons API..")
                 try:
-                    json_file = run_phmmer_alphafold_api(seq_info, max_hits=max_hits)
-                    hits = _find_json_hits(json_file, target_sequence=seq_info, max_hits=max_hits)
+                    results = run_3dbeacons_alphafold_api(seq_info, max_hits=max_hits)
+                    hits = _find_api_hits(results, max_hits=max_hits)
                     return hits
                 except json.JSONDecodeError:
                     logger.debug("Phmmer API unavailable, running local phmmer search of AFDB")
@@ -258,42 +260,29 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
     return hitDict
 
 
-def _find_json_hits(json_file, target_sequence, max_hits=10):
+def _find_api_hits(json_list, max_hits=10):
     hitDict = OrderedDict()
-    with open(json_file, 'r') as f_in:
-        data = json.load(f_in)
-        for i, hit in enumerate(data['results']['hits']):
-            try:
-                sh = SequenceHit()
-                sh.rank = i + 1
-                sh.pdb_id = "AF-" + hit['name'].split("_")[0] + "-F1"
-                sh.evalue = hit['evalue']
+    for i, structure in enumerate(json_list):
+        hsp_data = structure[0][0]
+        data = structure[1]['summary']
 
-                alignment_info = hit['domains'][0]
-                qstart = alignment_info['alihmmfrom']
-                qstop = alignment_info['alihmmto']
-                sh.query_start = qstart
-                sh.query_stop = qstop
-                sh.hit_start = alignment_info['alisqfrom']
-                sh.hit_stop = alignment_info['alisqto']
-                seq_ali = zip(range(qstart, qstop), alignment_info['aliaseq'])
-                sh.seq_ali = [x[0] for x in seq_ali if x[1] != '-']
-                alignment = alignment_info['aliaseq'].upper()
-                target_alignment = alignment_info['alimodel'].upper()
-                sh.target_alignment = alignment
-                sh.alignment = target_alignment
-                local, overall = simpleSeqID().getPercent(alignment, target_alignment, target_sequence)
-                sh.local_sequence_identity = np.round(local)
-                sh.overall_sequence_identity = np.round(overall)
+        try:
+            sh = SequenceHit()
+            sh.rank = i + 1
+            sh.pdb_id = data['model_identifier']
+            sh.evalue = hsp_data['hsp_expect']
 
-                sh.score = hit['score']
-                hit_name = hit['name'].split("_")[0] + "_" + str(hit['ndom'])
-                sh.name = hit_name
-                sh.search_engine = "phmmer"
-                if sh.rank <= max_hits:
-                    hitDict[hit_name] = sh
-            except Exception:
-                logger.debug(f"Issue with target {hit['name']}")
+            sh.overall_sequence_identity = data['sequence_identity']
+            sh.score = hsp_data['hsp_score']
+            sh.date_created = data['created']
+            sh.model_url = data['model_url']
+            hit_name = data['entities'][0]['identifier']
+            sh.name = hit_name
+            sh.search_engine = "3D Beacons"
+            if sh.rank <= max_hits:
+                hitDict[hit_name] = sh
+        except Exception:
+            print(f"Issue with target {data['entities'][0]['identifier']}")
     return hitDict
 
 
@@ -394,30 +383,43 @@ def run_hhsearch(seq_info, hhsearch_exe, hhsearch_db):
     return logfile
 
 
-        #'seqdb': 'alphafold',
-def run_phmmer_alphafold_api(seq_info, max_hits=10):
+def run_3dbeacons_alphafold_api(seq_info, max_hits=10):
+    url = 'https://www.ebi.ac.uk/pdbe/pdbe-kb/3dbeacons/api/sequence/search'
+    headers = {
+    'accept': 'application/json',
+    'Content-Type': 'application/json'
+    }
+    data = {
+    'sequence': seq_info.sequence,
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+    job_id = json.loads(response.text)['job_id']
+
+    url = 'https://www.ebi.ac.uk/pdbe/pdbe-kb/3dbeacons/api/sequence/result?job_id=' + job_id
+
+
+    url = 'https://www.ebi.ac.uk/pdbe/pdbe-kb/3dbeacons/api/sequence/result'
     params = {
-        'seqdb': 'uniprotkb',
-        'seq': f'>Seq\n{seq_info.sequence}'
+        'job_id': job_id,
+    }
+    headers = {
+        'accept': 'application/json'
     }
 
-    # post the seqrch request to the server
-    results_url = requests.post(url='https://www.ebi.ac.uk/Tools/hmmer/search/phmmer', data=params).url
+    response = requests.get(url, params=params, headers=headers)
 
-    # modify the range, format and presence of alignments in your results here
-    res_params = {
-        'output': 'json',
-        'range': '1,%d' % max_hits
-    }
+    data = json.loads(response.text)
 
-    # send a GET request to the server
-    data = requests.get(results_url, params=res_params)
+    alphafold_structures = []
+    for entry in data:
+        hsp_data = entry['hit_hsps']
+        for structure in entry['summary']['structures']:
+            provider = structure['summary']['provider']
+            if provider == 'AlphaFold DB':
+                alphafold_structures.append([hsp_data, structure])
 
-    logfile = "phmmer_afdb.json"
-    with open(logfile, 'w') as f_out:
-        f_out.write(data.text)
-
-    return logfile
+    return alphafold_structures
 
 def get_seqres_protein(pdbseqfile, outfile):
     """ extract the protein sequences from the full pdb_seqres.txt file """
