@@ -140,18 +140,22 @@ class phmmer:
                     if "-----" not in line.split()[0]:
                         if "ECOD" not in DB:
                             if "AFDB" in DB:
-                                hitName=hit[8].split(":")[1] + "_PHR"
+                                if ":" in hit[8]:
+                                    hitName=hit[8].split(":")[1] + "_PHR"
+                                else:
+                                    hitName=hit[8].split("_")[0].replace("-model","") + "_PHR"
                             elif "AFCCP4" in DB:
                                 hitName=hit[8].split("_")[0].replace("-model","") + "_PHR"
                             else:
                                 hitName=hit[8] + "_PHR"
                             TEMPresultsDict[hitName] = PHHit()
                             if "AFDB" in DB:
-                                TEMPresultsDict[hitName].afdbName = hit[8].split(":")[1]
+                                if ":" in hit[8]:
+                                    TEMPresultsDict[hitName].afdbName = hit[8].split(":")[1]
+                                else:
+                                    TEMPresultsDict[hitName].afdbName = hit[8].split("_")[0].replace("-model","")
                                 TEMPresultsDict[hitName].chainID = "A"
                                 TEMPresultsDict[hitName].expdta = "AFDB"
-                                #TEMPresultsDict[hitName].resolution = float(hit[10])
-                                #TEMPresultsDict[hitName].releaseDate = hit[14]
                             elif "AFCCP4" in DB:
                                 TEMPresultsDict[hitName].afdbName = hit[8].split("_")[0].replace("-model","")
                                 TEMPresultsDict[hitName].chainID = "A"
@@ -230,7 +234,10 @@ class phmmer:
                 if "No individual domains that satisfy reporting thresholds" not in lines[count+1]:
                     if "ECOD" not in DB:
                         if "AFDB" in DB:
-                            hit = line.split()[1].split(":")[1] + "_PHR"
+                            if ":" in line.split()[1]:
+                                hit = line.split()[1].split(":")[1] + "_PHR"
+                            else:
+                                hit = line.split()[1].split("_")[0].replace("-model","") + "_PHR"
                         elif "AFCCP4" in DB:
                             hit = line.split()[1].split("_")[0].replace("-model","") + "_PHR"
                         else:
