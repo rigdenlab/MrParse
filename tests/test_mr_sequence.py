@@ -3,7 +3,7 @@ import set_mrparse_path
 import os
 from mrparse.mr_sequence import Sequence, merge_multiple_sequences
 from Bio import SeqIO
-from Bio.Alphabet import generic_protein
+# from Bio.Alphabet import generic_protein
 import data_constants
 
 
@@ -19,7 +19,7 @@ def test_2uvo_write(test_data):
     filename = 'foo.fasta'
     seq_info.write(filename)
     assert os.path.isfile(filename)
-    s = SeqIO.read(filename, 'fasta', alphabet=generic_protein)
+    s = SeqIO.read(filename, 'fasta')
     assert len(s) == 171
     os.unlink(filename)
     
@@ -30,7 +30,7 @@ def test_2uvo_write_description(test_data):
     description = 'foo'
     seq_info.write(filename, description=description)
     assert os.path.isfile(filename)
-    s = SeqIO.read(filename, 'fasta', alphabet=generic_protein)
+    s = SeqIO.read(filename, 'fasta')
     assert len(s) == 171
     assert s.description == description
     os.unlink(filename)
@@ -48,7 +48,7 @@ def test_2uvo_seq_write():
     filename = 'foo.fasta'
     seq_info.write(filename)
     assert os.path.isfile(filename)
-    s = SeqIO.read(filename, 'fasta', alphabet=generic_protein)
+    s = SeqIO.read(filename, 'fasta')
     assert len(s) == 171
     os.unlink(filename)
 

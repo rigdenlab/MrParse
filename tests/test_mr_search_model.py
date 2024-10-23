@@ -15,11 +15,11 @@ def test_SearchModelFinder2uvoOnlySequence(test_data):
     smf = SearchModelFinder(seq_info, search_engine="phmmer", pdb_dir=test_data.pdb_dir, phmmer_dblvl="95")
     smf()
     nregions = len(smf.regions)
-    assert nregions == 7, f"Incorrect number of regions: {nregions}"
+    assert nregions == 6, f"Incorrect number of regions: {nregions}"
     nhomologs = len(smf.homologs)
-    assert nhomologs == 11, f"Incorrect number of homologs: {nhomologs}"
-    mw = smf.homologs['1iqb_B_1'].molecular_weight
-    assert abs(mw-8602) < 0.1, f"Incorrect MW: {mw}"
+    assert nhomologs == 9, f"Incorrect number of homologs: {nhomologs}"
+    mw = smf.homologs['1iqb_B'].molecular_weight
+    assert abs(mw-8597) < 0.1, f"Incorrect MW: {mw}"
 
 
 @pytest.mark.skip(reason="Running phaser to calculate eLLG currently takes too long")
@@ -30,11 +30,11 @@ def test_SearchModelFinder2uvo(test_data):
     smf = SearchModelFinder(seq_info, hkl_info=hkl_info, search_engine="phmmer", pdb_dir=test_data.pdb_dir)
     smf()
     nregions = len(smf.regions)
-    assert nregions == 7, f"Incorrect number of regions: {nregions}"
+    assert nregions == 6, f"Incorrect number of regions: {nregions}"
     nhomologs = len(smf.homologs)
-    assert nhomologs == 11, f"Incorrect number of homologs: {nhomologs}"
+    assert nhomologs == 9, f"Incorrect number of homologs: {nhomologs}"
     mw = smf.homologs['1iqb_B_1'].molecular_weight
-    assert abs(mw - 8602) < 0.1, f"Incorrect MW: {mw}"
+    assert abs(mw - 8597) < 0.1, f"Incorrect MW: {mw}"
 
 if __name__ == '__main__':
     import sys

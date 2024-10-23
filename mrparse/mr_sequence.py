@@ -52,6 +52,7 @@ class Sequence(object):
         try:
             self._bio_seq_record = SeqIO.read(seq_file, sequence_type)
             self._bio_seq = self._bio_seq_record.seq
+
         except ValueError:
             raise MultipleSequenceException
 

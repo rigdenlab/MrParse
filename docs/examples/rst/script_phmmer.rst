@@ -53,5 +53,6 @@ The sections of the MrParse report page are highlighted in different colours:
 * In teal is information about the PDB entries identified by Phmmer and visualisations of the matches.
 * In purple is the protein classification report. This includes a secondary structure prediction, a coiled-coil prediction, and a transmembrane prediction.
 * In blue is information about the AlphaFold models identified by Phmmer and visualisations of the matches coloured by pLDDT on an orange to blue scale, where orange indicates very low confidence in the model and blue indicates very high confidence in the model.
+ 
 
 Individual models can be downloaded by clicking on the name of the model in the report page. They can also be found by navigating to the homologs/models directory within the MrParse run directory.

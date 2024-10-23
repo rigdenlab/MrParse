@@ -1,5 +1,5 @@
 """
-Created on 23 Jul 2021
+Created on 17 Oct 2024
 
 @author: hlasimpk
 """
@@ -17,13 +17,9 @@ from pkg_resources import parse_version
 import requests
 from simbad.util.pdb_util import PdbStructure
 
+from mrparse.mr_alphafold import PdbModelException, calculate_avg_plddt, calculate_sum_plddt, calculate_quality_h_score
+from mrparse.mr_alphafold import get_plddt_regions, remove_residues_below_plddt_threshold, convert_plddt_to_bfactor
 
-class PdbModelException(Exception):
-    pass
-
-
-AF_BASE_URL = 'https://alphafold.ebi.ac.uk/entry/'
-AF2_DIR = Path('AF2_files')
 MODELS_DIR = Path('models')
 
 logger = logging.getLogger(__name__)
@@ -120,22 +116,19 @@ class ModelData(object):
 
 
 def models_from_hits(hits, plddt_cutoff):
-    if not AF2_DIR.exists():
-        AF2_DIR.mkdir()
     if not MODELS_DIR.exists():
         MODELS_DIR.mkdir()
 
-    db_ver = get_afdb_version()
     models = OrderedDict()
     for hit in hits.values():
         mlog = ModelData()
         mlog.hit = hit
         hit._homolog = mlog
-        mlog.model_url = AF_BASE_URL + hit.pdb_id.split("-")[1] 
+        mlog.model_url = url = f"https://bfvd.steineggerlab.workers.dev/pdb/{hit.pdb_id}.pdb"
         try:
             mlog.pdb_file, mlog.molecular_weight, \
             mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, \
-            mlog.date_made, mlog.plddt_regions = prepare_pdb(hit, plddt_cutoff, db_ver)
+            mlog.date_made, mlog.plddt_regions = prepare_pdb(hit, plddt_cutoff)
         except PdbModelException as e:
             logger.critical(f"Error processing pdb: {e}")
             continue
@@ -143,14 +136,13 @@ def models_from_hits(hits, plddt_cutoff):
     return models
 
 
-def download_model(pdb_name):
-    """Download AlphaFold2 model"""
-    url = 'https://alphafold.ebi.ac.uk/files/' + pdb_name
-    query = requests.get(url)
+def download_model(uniprot_id):
+    url = f"https://bfvd.steineggerlab.workers.dev/pdb/{uniprot_id}.pdb"
+    query = requests.get(url, verify=False)
     return query.text
 
-
-def prepare_pdb(hit, plddt_cutoff, database_version):
+    
+def prepare_pdb(hit, plddt_cutoff):
     """
     Download pdb or take file from cache
     trucate to required residues
@@ -162,30 +154,27 @@ def prepare_pdb(hit, plddt_cutoff, database_version):
     if hit.model_url is not None:
         pdb_name = os.path.basename(hit.model_url)
     else:
-        pdb_name = f"{hit.pdb_id}-model_{database_version}.pdb"
+        pdb_name = f"{hit.name.split('_')[0]}"
     pdb_struct = PdbStructure()
     try:
         pdb_string = download_model(pdb_name)
         pdb_struct.structure = gemmi.read_pdb_string(pdb_string)
+        pdb_struct.assert_structure()
         pdb_struct.structure.setup_entities()
         if hit.data_created is not None:
             date_made = hit.data_created
         else:
-            date_made = pdb_string.split('\n')[0].split()[-1]
-        
+            date_made = "17 Oct 2024"
     except RuntimeError:
         # SIMBAD currently raises an empty RuntimeError for download problems.
         raise PdbModelException(f"Error downloading PDB file for: {hit.pdb_id}")
+    except AssertionError:
+        raise PdbModelException(f"Error downloading PDB file for: {hit.pdb_id}")
 
-    pdb_file = AF2_DIR.joinpath(pdb_name)
+    pdb_file = MODELS_DIR.joinpath(pdb_name)
     pdb_struct.save(str(pdb_file))
 
     seqid_range = range(hit.hit_start, hit.hit_stop + 1)
-    try:
-        pdb_struct.select_residues(to_keep_idx=seqid_range)
-    except IndexError:
-        # SIMBAD occasionally raises an empty IndexError when selecting residues.
-        raise PdbModelException(f"Error selecting residues for: {hit.pdb_id}")
 
     avg_plddt = calculate_avg_plddt(pdb_struct.structure)
     sum_plddt = calculate_sum_plddt(pdb_struct.structure)
@@ -199,132 +188,8 @@ def prepare_pdb(hit, plddt_cutoff, database_version):
     # Convert plddt to bfactor score
     pdb_struct.structure = convert_plddt_to_bfactor(pdb_struct.structure)
 
-    truncated_pdb_name = f"{hit.pdb_id}_{database_version}_{hit.hit_start}-{hit.hit_stop}.pdb"
+    truncated_pdb_name = f"bfvd_{hit.pdb_id}.pdb"
     truncated_pdb_path = MODELS_DIR.joinpath(truncated_pdb_name)
     pdb_struct.save(str(truncated_pdb_path),
-                    remarks=[f"PHASER ENSEMBLE MODEL 1 ID {hit.local_sequence_identity}"])
+                    remarks=[f"PHASER ENSEMBLE MODEL 1 ID 1"])
     return str(truncated_pdb_path), int(pdb_struct.molecular_weight), avg_plddt, sum_plddt, h_score, date_made, plddt_regions
-
-
-def calculate_quality_threshold(struct, plddt_threshold=70):
-    res = above_threshold = 0
-    for chain in struct[0]:
-        for residue in chain:
-            res += 1
-            if residue[0].b_iso >= plddt_threshold:
-                above_threshold += 1
-    return (100.0 / res) * above_threshold
-
-
-def calculate_quality_h_score(struct):
-    score = 0
-    for i in reversed(range(1, 101)):
-        if calculate_quality_threshold(struct, plddt_threshold=i) >= i:
-            score = i
-            break
-    return score
-
-
-def get_afdb_version():
-    """Query the FTP site to find the latest version of the AFDB"""
-    try:
-        ftp_host = "ftp.ebi.ac.uk"
-        ftp_user = "anonymous"
-        ftp_pass = ""
-        ftp = ftplib.FTP(ftp_host, ftp_user, ftp_pass)
-        ftp.cwd('/pub/databases/alphafold/')
-        versions = [x for x in ftp.nlst() if x.startswith('v')]
-        return max(versions, key=parse_version)
-    except ftplib.all_errors as e:
-        logger.debug(f"FTP failed with {e}")
-        logger.debug("Using database version specified in mrparse.config")
-        config_file = Path(os.environ["CCP4"], "share", "mrparse", "data", "mrparse.config")
-        config = ConfigParser.SafeConfigParser()
-        config.read(str(config_file))
-        return dict(config.items("Databases"))['afdb_version']
-
-
-def get_plddt(struct):
-    plddt_values = []
-    for chain in struct[0]:
-        for residue in chain:
-            plddt_values.append(residue[0].b_iso)
-    return plddt_values
-
-
-def get_plddt_regions(struct, seqid_range):
-    regions = {}
-    plddt_values = get_plddt(struct)
-    residues = zip(seqid_range, plddt_values)
-
-    v_low = []
-    low = []
-    confident = []
-    v_high = []
-
-    for i, plddt in residues:
-        if plddt < 50:
-            v_low.append(i)
-        elif 70 > plddt >= 50:
-            low.append(i)
-        elif 90 > plddt >= 70:
-            confident.append(i)
-        elif plddt >= 90:
-            v_high.append(i)
-
-    regions['v_low'] = _get_regions(v_low)
-    regions['low'] = _get_regions(low)
-    regions['confident'] = _get_regions(confident)
-    regions['v_high'] = _get_regions(v_high)
-
-    return regions
-
-
-def _get_regions(residues):
-    regions = []
-    for k, g in groupby(enumerate(residues), lambda x: x[0] - x[1]):
-        group = (map(itemgetter(1), g))
-        group = list(map(int, group))
-        regions.append((group[0], group[-1]))
-    return regions
-
-
-def calculate_avg_plddt(struct):
-    plddt_values = get_plddt(struct)
-    return sum(plddt_values) / len(plddt_values)
-
-
-def calculate_sum_plddt(struct):
-    plddt_values = get_plddt(struct)
-    return sum(plddt_values)
-
-
-def convert_plddt_to_bfactor(struct):
-    for chain in struct[0]:
-        for residue in chain:
-            for atom in residue:
-                plddt_value = atom.b_iso
-                atom.b_iso = _convert_plddt_to_bfactor(plddt_value)
-    return struct
-
-
-def _convert_plddt_to_bfactor(plddt):
-    lddt = plddt / 100
-    if lddt <= 0.5:
-        return 657.97  # Same as the b-factor value with an rmsd estimate of 5.0
-    rmsd_est = (0.6 / (lddt ** 3))
-    bfactor = ((8 * (np.pi ** 2)) / 3.0) * (rmsd_est ** 2)
-    return bfactor
-
-
-def remove_residues_below_plddt_threshold(struct, plddt_cutoff):
-    to_remove = []
-    for chain in struct[0]:
-        for i, residue in enumerate(chain):
-            plddt_value = residue[0].b_iso
-            if plddt_value < plddt_cutoff:
-                to_remove.append(i)
-
-        for i in to_remove[::-1]:
-            del chain[i]
-    return struct

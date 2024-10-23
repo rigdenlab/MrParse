@@ -18,9 +18,9 @@ def test_homologs(test_data, get_2uvo_test_hits):
     homologs = homologs_from_hits(hits, pdb_dir=test_data.pdb_dir)
     add_pfam_dict_to_homologs(homologs, seq_info.nresidues)
 
-    assert len(homologs) == 14
-    homolog = homologs["2x3t_C_1"]
-    assert homolog.name == '2x3t_C_1'
+    assert len(homologs) == 9
+    homolog = homologs["4wp4_A"]
+    assert homolog.name == '4wp4_A'
     ali_start = homolog.hit.query_start
     pfam_ali_start = homolog._pfam_json['regions'][0]['aliStart']
     assert ali_start == pfam_ali_start

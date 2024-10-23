@@ -17,13 +17,12 @@ from mrparse.mr_version import __version__
 
 THIS_DIR = Path(__file__).parent.resolve()
 HTML_DIR = THIS_DIR.joinpath('html')
-HTML_TEMPLATE_ALL = HTML_DIR.joinpath('mrparse_all.html.jinja2')
-HTML_TEMPLATE_PDB = HTML_DIR.joinpath('mrparse_pdb.html.jinja2')
-HTML_TEMPLATE_AFDB = HTML_DIR.joinpath('mrparse_afdb.html.jinja2')
-HTML_TEMPLATE_ESM = HTML_DIR.joinpath('mrparse_esm.html.jinja2')
+HTML_TEMPLATE = HTML_DIR.joinpath('mrparse.html.jinja2')
+
 HTML_OUT = 'mrparse.html'
 HOMOLOGS_JS = 'homologs.json'
 AF_MODELS_JS = 'af_models.json'
+BFVD_MODELS_JS = 'bfvd_models.json'
 ESM_MODELS_JS = 'esm_models.json'
 
 logger = None
@@ -105,7 +104,7 @@ def run(seqin, **kwargs):
                                                                          hkl_info,
                                                                          do_classify)
 
-    html_out = write_output_files(search_model_finder, hkl_info=hkl_info, classifier=classifier, ccp4cloud=ccp4cloud, database=database)
+    html_out = write_output_files(search_model_finder, seq_info=seq_info, hkl_info=hkl_info, classifier=classifier, ccp4cloud=ccp4cloud, database=database)
     logger.info(f"Wrote MrParse output file: {html_out}")
 
     if not ccp4cloud:
@@ -120,6 +119,12 @@ def run(seqin, **kwargs):
 
 
 def run_analyse_serial(search_model_finder, classifier, hkl_info, do_classify):
+    if hkl_info:
+        try:
+            hkl_info()
+        except Exception as e:
+            logger.critical(f'HklInfo failed: {e}')
+            logger.debug("Traceback is:", exc_info=sys.exc_info())
     try:
         search_model_finder()
     except Exception as e:
@@ -131,13 +136,7 @@ def run_analyse_serial(search_model_finder, classifier, hkl_info, do_classify):
         except Exception as e:
             logger.critical(f'MrClassifier failed: {e}')
             logger.debug("Traceback is:", exc_info=sys.exc_info())
-    if hkl_info:
-        try:
-            hkl_info()
-        except Exception as e:
-            logger.critical(f'HklInfo failed: {e}')
-            logger.debug("Traceback is:", exc_info=sys.exc_info())
-
+    
 
 def run_analyse_parallel(search_model_finder, classifier, hkl_info, do_classify):
     nproc = 3 if hkl_info else 2
@@ -153,6 +152,12 @@ def run_analyse_parallel(search_model_finder, classifier, hkl_info, do_classify)
     logger.debug("Pool waiting")
     pool.join()
     logger.debug("Pool finished")
+    if hkl_info:
+        try:
+            hkl_info = hklin_result.get()
+        except Exception as e:
+            logger.critical(f'HklInfo failed: {e}')
+            logger.debug("Traceback is:", exc_info=sys.exc_info())
     try:
         search_model_finder = smf_result.get()
     except Exception as e:
@@ -164,16 +169,11 @@ def run_analyse_parallel(search_model_finder, classifier, hkl_info, do_classify)
         except Exception as e:
             logger.critical(f'MrClassifier failed: {e}')
             logger.debug("Traceback is:", exc_info=sys.exc_info())
-    if hkl_info:
-        try:
-            hkl_info = hklin_result.get()
-        except Exception as e:
-            logger.critical(f'HklInfo failed: {e}')
-            logger.debug("Traceback is:", exc_info=sys.exc_info())
+    
     return search_model_finder, classifier, hkl_info
 
 
-def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4cloud=None, database="all"):
+def write_output_files(search_model_finder, seq_info=None, hkl_info=None, classifier=None, ccp4cloud=None, database="all"):
     # write out homologs for CCP4cloud
     # This code should be updated to separate the storing of homologs from the PFAM directives
 
@@ -202,6 +202,19 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4
     except RuntimeError:
         logger.debug('No models found')
 
+    bfvd_models_pfam = {}
+    try:
+        bfvd_models = search_model_finder.bfvd_models_as_dicts()
+        bfvd_models_js_out = Path(BFVD_MODELS_JS).resolve()
+        with open(bfvd_models_js_out, 'w') as w:
+            w.write(json.dumps(bfvd_models))
+        bfvd_models_pfam = search_model_finder.bfvd_models_with_graphics()
+        if ccp4cloud:
+            for bfvd_model in bfvd_models_pfam:
+                del bfvd_model['pdb_file']
+    except RuntimeError:
+        logger.debug('No models found')
+
     esm_models_pfam = {}
     try:
         esm_models = search_model_finder.esm_models_as_dicts()
@@ -215,7 +228,7 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4
     except RuntimeError:
         logger.debug('No models found')
 
-    results_dict = {'pfam': {'homologs': homologs_pfam, 'af_models': af_models_pfam, 'esm_models': esm_models_pfam}}
+    results_dict = {'pfam': {'sequence': seq_info.sequence, 'homologs': homologs_pfam, 'af_models': af_models_pfam, 'bfvd_models': bfvd_models_pfam, 'esm_models': esm_models_pfam}}
     if classifier:
         results_dict['pfam'].update(classifier.pfam_dict())
     if hkl_info:
@@ -223,15 +236,6 @@ def write_output_files(search_model_finder, hkl_info=None, classifier=None, ccp4
         if ccp4cloud:
             del results_dict['hkl_info']['hklin']
     results_json = json.dumps(results_dict)
-
-    if "all" in database:
-        HTML_TEMPLATE=HTML_TEMPLATE_ALL
-    elif "pdb" in database:
-        HTML_TEMPLATE=HTML_TEMPLATE_PDB
-    elif "afdb" in database:
-        HTML_TEMPLATE=HTML_TEMPLATE_AFDB
-    elif "esmfold" in database:
-        HTML_TEMPLATE = HTML_TEMPLATE_ESM
 
     html_out = Path(HTML_OUT).resolve()
     render_template(HTML_TEMPLATE, html_out,

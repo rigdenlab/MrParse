@@ -95,7 +95,7 @@ class HklInfo(object):
         if self.input_mtz_obj.i and self.input_mtz_obj.free:
             ctr.ctruncate(hklin, hklout, ctr_colin, ctr_colin_sig, colout="from_MRPARSE",
                           colinFREE=self.input_mtz_obj.free, USEINTEN=True, INPUTF=input_f, PLUSMINUS=plus_minus)
-        elif self.input_mtz_obj.i and not self.input_mtz_obj.free:
+        if self.input_mtz_obj.i and not self.input_mtz_obj.free:
             ctr.ctruncate(hklin, hklout, ctr_colin, ctr_colin_sig, colout="from_MRPARSE",
                           USEINTEN=True, INPUTF=input_f, PLUSMINUS=plus_minus)
         elif self.input_mtz_obj.free:
@@ -108,7 +108,11 @@ class HklInfo(object):
         self.has_ncs = ctr.NCS
         self.has_twinning = ctr.TWIN
         self.has_anisotropy = ctr.ANISO
-        Path(hklout).unlink()
+
+        logger.info('Updating HKLIN to %s', hklout)
+        self.hklin = hklout
+        self.input_mtz_obj = mtz_parser.MtzParser(hklout)
+        self.input_mtz_obj.parse()
         return
 
     def as_dict(self):

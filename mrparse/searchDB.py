@@ -115,7 +115,7 @@ class phmmer:
                     self.resultsDict[i].alignment += line.split()[-1]
                     self.resultsDict[i].alnRange = line.split("/")[-1].split()[0]
 
-    def getPhmmerAlignments(self, targetSequence="", phmmerALNLog="", PDBLOCAL=None, DB=None, seqMetaDB=None):
+    def getPhmmerAlignments(self, targetSequence="", phmmerALNLog="", PDBLOCAL=None, DB=None, seqMetaDB=None, max_hits=1000):
         """ Extract the alignments from the Phmmer logfile """
 
         if os.path.isfile(self.logfile) == False:
@@ -128,13 +128,11 @@ class phmmer:
         scoreList=[]
         TEMPresultsDict = dict([])
         for line in phmmerALNLog:
-
             if "No hits satisfy inclusion thresholds; no alignment saved" in line:
                 sys.stdout.write("Sorry, Phmmer found no hits! Try HHpred. Exciting...\n")
-                return
+                return 
 
-#     4.3e-36  125.7   6.1    4.6e-36  125.6   6.1    1.0  1  1smm_A    resolution: 1.36 experiment: XRAY release_date: 2004-03-16 [ 348741 : ALL ]
-            if CAPTURE:
+            if CAPTURE and count <= max_hits:
                 hit = line.split()
                 if len(hit) >= 9: 
                     if "-----" not in line.split()[0]:
@@ -150,8 +148,6 @@ class phmmer:
                                 TEMPresultsDict[hitName].afdbName = hit[8].split(":")[1]
                                 TEMPresultsDict[hitName].chainID = "A"
                                 TEMPresultsDict[hitName].expdta = "AFDB"
-                                #TEMPresultsDict[hitName].resolution = float(hit[10])
-                                #TEMPresultsDict[hitName].releaseDate = hit[14]
                             elif "AFCCP4" in DB:
                                 TEMPresultsDict[hitName].afdbName = hit[8].split("_")[0].replace("-model","")
                                 TEMPresultsDict[hitName].chainID = "A"
@@ -178,16 +174,6 @@ class phmmer:
                                     TEMPresultsDict[hitName].chainID = hit[8][5:]
                                 else:
                                     TEMPresultsDict[hitName].chainID = "A"
-                                #tempRange=hit[20].replace("['", "").replace("']","").split("-")
-                                #if len(tempRange) == 2:
-                                #    TEMPresultsDict[hitName].modelResStart= int(tempRange[-2])
-                                #    TEMPresultsDict[hitName].modelResEnd  = int(tempRange[-1])
-                                #elif len(tempRange) == 3:
-                                #    TEMPresultsDict[hitName].modelResStart= -(int(tempRange[-2]))
-                                #    TEMPresultsDict[hitName].modelResEnd  = int(tempRange[-1])
-                                #elif len(tempRange) == 4:
-                                #    TEMPresultsDict[hitName].modelResStart= -(int(tempRange[-3]))
-                                #    TEMPresultsDict[hitName].modelResEnd  = -(int(tempRange[-1]))
                         else:
                             hitName=hit[8].split("|")[1][1:5] + "_" + hit[8].split("|")[1][5:] + "_PHR"
                             TEMPresultsDict[hitName] = PHHit()
@@ -198,12 +184,6 @@ class phmmer:
                         TEMPresultsDict[hitName].score = float(hit[1])
                         TEMPresultsDict[hitName].evalue = float(hit[3])
                         TEMPresultsDict[hitName].ndomains = int(hit[7])
-                        #self.resultsDict[hit[1]].prob=float(out[35:40])
-                        #self.resultsDict[hit[1]].prob=float(hit[len(hit)-9])
-                        #self.resultsDict[hit[1]].score=float(hit[len(hit)-6])
-                        #self.resultsDict[hit[1]].evalue=float(hit[len(hit)-8])
-                        #self.resultsDict[hit[1]].pvalue=float(hit[len(hit)-7])
-                        #self.resultsDict[hit[1]].cols=float(hit[len(hit)-4])
                         count = count + 1
                 else:
                     CAPTURE = False
@@ -267,10 +247,8 @@ class phmmer:
                             start = (lines[count + 8 + domCount + (6 * s)]).split()[1].upper()
                             end = (lines[count + 8 + domCount + (6 * s)]).split()[-1].upper()
                             if self.resultsDict[hitname].modelResStart is not None:
-                                #self.resultsDict[hitname].alnRange = "%d-%d" % (int(start)+self.resultsDict[hitname].modelResStart, int(end)+self.resultsDict[hitname].modelResStart)
                                 self.resultsDict[hitname].alnRange = [int(start)+self.resultsDict[hitname].modelResStart, int(end)+self.resultsDict[hitname].modelResStart]
                             else:
-                                #self.resultsDict[hitname].alnRange = "%s-%s" % (start, end)
                                 self.resultsDict[hitname].alnRange = [int(start.replace("(","")), int(end.replace(")",""))]
                             if "SW" in line.split()[1].split("-")[-1]:
                                 self.resultsDict[hitname].modelResRange="[" + line.split("[")[-1]
@@ -278,10 +256,7 @@ class phmmer:
                                 self.resultsDict[hitname].modelResRange="['%s-%s']" % (start, end)
                             # If we are using an ECOD database we need to capture all of the ranges presented
                             if "ECOD" in DB:
-                                #print(lines[count + 8 + domCount + (6 * s)]).split("|")[-1].split()[0]
                                 ecodRange.append((lines[count + 8 + domCount + (6 * s)]).split("|")[-1].split()[0])
-                                #ecodRange=(lines[count + 8 + domCount + (6 * s)]).split("|")[-1].split()[0].split(":")[-1]
-                                #ecodRange=(lines[count + 8 + domCount + (6 * s)])[0].split("|").split()[-1].split(",")
                                 self.resultsDict[hitname].ecodRange=ecodRange
                             startT = (lines[count + 6 + domCount + (6 * s)]).split()[1].upper()
                             endT = (lines[count + 6 + domCount + (6 * s)]).split()[-1].upper()
