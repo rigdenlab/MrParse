@@ -9202,9 +9202,6 @@ if ( typeof noGlobal === strundefined ) {
 	window.jQuery = window.$ = jQuery;
 }
 
-
-
-
 return jQuery;
 
 }));
@@ -9350,8 +9347,8 @@ function sortTableAndFeatures(table_id, sequence, feature_viewer, rowFeatureMap,
 	}
 	
 	selectTableAndFeatures(feature_viewer);
-	
 }
+
 function collapseDiv(className) {
 	var coll = document.getElementsByClassName(className);
 	var i;
@@ -9371,11 +9368,54 @@ function collapseDiv(className) {
 			}
 		});
 	}
-
-	
 }
 
 function toggleDisplay(elementId, show) {
     let element = document.getElementById(elementId);
     element.style.display = show ? "block" : "none";
 }
+
+
+$(document).ready(function() {
+    var coll = $(".collapsible");
+    coll.each(function() {
+        var content = $(this).next();
+        content.show(); // Show the content by default
+
+        $(this).on("click", function() {
+            $(this).toggleClass("active");
+            content.toggle();
+        });
+    });
+
+    function toggleDisplay(elementId, show) {
+        $("#" + elementId).css("display", show ? "block" : "none");
+    }
+
+    // Dark mode toggle switch functionality
+    $("#dark-mode-switch").on("change", function() {
+        $("body").toggleClass("dark-mode");
+        const logo = $(".logo");
+        if ($("body").hasClass("dark-mode")) {
+            logo.attr("src", mrparse_html_dir + "/static/MrParse-logo-dark.svg");
+            localStorage.setItem("darkMode", "enabled");
+        } else {
+            logo.attr("src", mrparse_html_dir + "/static/MrParse-logo-tight.svg");
+            localStorage.setItem("darkMode", "disabled");
+        }
+    });
+
+    // Check the stored dark mode state on page load
+    const storedDarkMode = localStorage.getItem("darkMode");
+    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+    if (storedDarkMode === "enabled" || (storedDarkMode === 'disabled' && systemPrefersDark)) {
+        $("body").addClass("dark-mode");
+        $(".logo").attr("src", mrparse_html_dir + "/static/MrParse-logo-dark.svg");
+        $("#dark-mode-switch").prop("checked", true);
+    } else if (storedDarkMode === "disabled" || (storedDarkMode === 'disabled' && !systemPrefersDark)) {
+        $("body").removeClass("dark-mode");
+        $(".logo").attr("src", mrparse_html_dir + "/static/MrParse-logo-tight.svg");
+        $("#dark-mode-switch").prop("checked", false);
+    }
+});

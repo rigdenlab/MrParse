@@ -250,22 +250,20 @@ Vue.component('esm-table', {
             <table id="esm_table">
                 <thead>
                     <tr>
-                        <tr>
-                            <th title="Name of the model in the ESMfold Atlas database"
-                                onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 0)">Name ↓</th>
-                            <th title="The date the model was made"
-                                onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 1)">Date made ↓</th>
-                            <th title="Start-stop of the model in the sequence"
-                                onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 2)">Range ↓</th>
-                            <th title="Length of the model"
-                                onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 3)">Length ↓</th>
-                            <th title="The average pLDDT score of the model"
-                                onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 4)">Average pLDDT ↓</th>
-                            <th title="The H-score of the model"
-                                onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 5)">H-score ↓</th>
-                            <th title="The sequence identity of the model to the target protein"
-                                onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 6)">Sequence Identity ↓</th>
-                        </tr>
+                        <th title="Name of the model in the ESMfold Atlas database"
+                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 0)">Name ↓</th>
+                        <th title="The date the model was made"
+                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 1)">Date made ↓</th>
+                        <th title="Start-stop of the model in the sequence"
+                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 2)">Range ↓</th>
+                        <th title="Length of the model"
+                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 3)">Length ↓</th>
+                        <th title="The average pLDDT score of the model"
+                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 4)">Average pLDDT ↓</th>
+                        <th title="The H-score of the model"
+                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 5)">H-score ↓</th>
+                        <th title="The sequence identity of the model to the target protein"
+                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 6)">Sequence Identity ↓</th>
                     </tr>
                 </thead>
                 <tbody>

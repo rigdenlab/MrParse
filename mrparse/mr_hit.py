@@ -5,22 +5,18 @@ Created on 18 Oct 2018
 """
 from Bio import SearchIO
 from collections import OrderedDict
-import gemmi
 import json
 import logging
 import numpy as np
 import os
 from pathlib import Path
 from pyjob.script import EXE_EXT
-import re
 import requests
-import shutil
 import uuid
 import time, random
 
 from mrparse.mr_alphafold import PdbModelException
 from mrparse.mr_util import run_cmd
-import mrparse.mr_mmseqs
 from mrparse.searchDB import phmmer
 from mrbump.seq_align.simpleSeqID import simpleSeqID
 from mrbump.tools import makeSeqDB
@@ -28,6 +24,8 @@ from simbad.util.pdb_util import PdbStructure
 
 PHMMER = 'phmmer'
 HHSEARCH = 'hhsearch'
+
+api_url = "http://localhost:8080/phmmer/v1/jobs"
 
 logger = logging.getLogger(__name__)
 logging.getLogger("requests").setLevel(logging.WARNING)
@@ -116,25 +114,10 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
     dbtype = None
     if search_engine == PHMMER:
         if use_api:
-            logger.info("Searching for hits using MMseqs2 API..")
-            try:
-                results = run_mmseqs_api(seq_info.sequence, 1000)
-            except:
-                logger.info("Error accessing MMSeqs2 API unavailable, running local phmmer search instead")
-            if phmmer_dblvl == "af2":
-                if results:
-                    hits = _find_api_hits(results[0], seq_info, max_hits=max_hits)
-                    return hits
-                else:
-                    af2 = True
-                    logfile, dbtype = run_phmmer(seq_info, afdb_seqdb=afdb_seqdb, pdb_seqdb=pdb_seqdb, dblvl=phmmer_dblvl, nproc=nproc)
-                    searchio_type = 'hmmer3-text'
-            if phmmer_dblvl == "esmfold":
-                if results:
-                    hits = _find_esm_hits(results[1], seq_info, max_hits=max_hits)
-                    return hits
-                else:
-                    pass
+            if phmmer_dblvl in ['af2', 'bfvd', 'esmfold']:
+                logger.info("Searching for hits using CCP4 phmmer API..")
+                hits = _find_api_hits(seq_info, max_hits=max_hits, database=phmmer_dblvl)
+                return hits
         else:
             if phmmer_dblvl == "af2":
                 logger.info("Running phmmer alphafold database search locally..")
@@ -144,35 +127,13 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
                     logger.info("Using CCP4 afdb sequence file..")
                 af2 = True
             elif phmmer_dblvl == "bfvd":
-                bfvd_seqdb = Path(os.environ["CCP4"], "share", "mrparse", "data", "bfvd_sequences.fasta")
-                logger.info("Running phmmer bfvd database search locally..")
-                if bfvd_seqdb is not None:
-                    logger.info("Database file: %s" % bfvd_seqdb)
-                    afdb_seqdb = bfvd_seqdb
-                else:
-                    logger.info("Using CCP4 bfvd sequence file..")
-                af2 = True
+                logger.info("Running phmmer bfvd database search using CCP4 phmmer API..")
+                hits = _find_api_hits(seq_info, max_hits=max_hits, database=phmmer_dblvl)
+                return hits
             elif phmmer_dblvl == "esmfold":
-                    logger.info("Finding ESM atlas hits")
-                    sequence_search_url = 'https://www.rbvi.ucsf.edu/chimerax/cgi-bin/esmfold_search_cgi.py'
-                    request = json.dumps({'sequences': [target_sequence]})
-                    try:
-                        r = requests.post(sequence_search_url, data=request)
-                    except requests.exceptions.ConnectionError:
-                        logger.error('Unable to reach ESMFold sequence search web service\n\n%s' % sequence_search_url)
-
-                    if r.status_code != 200:
-                        logger.error('ESMFold sequence search web service failed (%s) "%s"\n\n%s'
-                                        % (r.status_code, r.reason, sequence_search_url))
-
-                    results = r.json()
-                    if 'error' in results:
-                        logger.error('ESMFold sequence search web service\n\n%s\n\nreported error:\n\n%s'
-                                        % (sequence_search_url, results['error']))
-
-                    results_list = [hit['mgnify id'] for hit in results['sequences'] if hit]
-                    hits =  _find_esm_hits(results_list, seq_info, max_hits=max_hits)
-                    return hits
+                logger.info("Running phmmer ESMFold atlas database search using CCP4 phmmer API..")
+                hits = _find_api_hits(seq_info, max_hits=max_hits, database=phmmer_dblvl)
+                return hits
             else:
                 logger.info("Running phmmer pdb database search locally..")
                 if pdb_seqdb is not None:
@@ -187,6 +148,71 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
     else:
         raise RuntimeError(f"Unrecognised search_engine: {search_engine}")
     return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence, af2=af2, max_hits=max_hits, dbtype=dbtype)
+
+def _find_api_hits(seq_info, max_hits=10, database="af2"):
+    databases = {'af2': 'afdb', 'bfvd': 'bfvd', 'esmfold': 'esmatlas'}
+    headers = {
+        'accept': 'application/json',
+        'Content-Type': 'application/json'
+    }
+
+    data = {
+        "input_sequence": seq_info.sequence,
+        "database": databases[database],
+        "number_of_hits": max_hits,
+        "run_type": "mrparse"
+    }
+
+    response = requests.post(api_url, headers=headers, json=data)
+
+    job_id = response.json()['jobId']
+    status_url = f"{api_url}/{job_id}/status"
+    headers = {
+        'accept': 'application/json'
+    }
+
+    response = requests.get(status_url, headers=headers)
+    status = response.json()['status']
+    while status != 'completed':
+        time.sleep(30)
+        response = requests.get(status_url, headers=headers)
+        status = response.json()['status']
+
+    result_url = f"{api_url}/{job_id}/result"
+    headers = {
+        'accept': 'text/plain'
+    }
+
+    response = requests.get(result_url, headers=headers)
+    results_dict = json.loads(response.text)
+
+
+    hitDict = OrderedDict()
+    for hit in results_dict:
+        sh = SequenceHit()
+        if ':' in hit:
+            name = hit.split(":")[1].rsplit("_", 1)[0]
+        else:
+            name = hit.rsplit("_", 1)[0]
+        result = results_dict[hit]
+        sh.rank = result['rank']
+        sh.pdb_id = name
+        sh.evalue = result['evalue']
+        sh.query_start = result['query_start']
+        sh.query_stop = result['query_stop']
+        sh.hit_start = result['hit_start']
+        sh.hit_stop = result['hit_stop']
+        sh.target_alignment = result['target_alignment']
+        sh.alignment = result['alignment']
+        seq_ali = zip(range(sh.query_start, sh.query_stop), sh.alignment)
+        sh.seq_ali = [x[0] for x in seq_ali if x[1] != '-']
+        sh.local_sequence_identity = result['local_sequence_identity']
+        sh.overall_sequence_identity = result['overall_sequence_identity']
+        sh.search_engine = 'phmmer'
+        sh.name = name
+        hitDict[sh.name] = sh
+
+    return hitDict
 
 
 def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False, max_hits=10, dbtype=None):
@@ -306,159 +332,6 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
     return hitDict
 
 
-def _find_api_hits(results, input_sequence, max_hits):
-    hitDict = OrderedDict()
-    for model_id in results:
-        base_url = "http://www.uniprot.org/uniprot/"
-        current_url = base_url + model_id + ".fasta"
-        response = requests.post(current_url)
-        model_sequence = ''.join(response.text)
-
-        if model_sequence != "":
-            if os.path.exists('downloaded_sequences.fasta'):
-                with open('downloaded_sequences.fasta', 'a') as f:
-                    f.write(f"{model_sequence}")
-            else:
-                with open("downloaded_sequences.fasta", "w") as f:
-                    f.write(f"{model_sequence}")
-
-    print('Running Phmmer search..')
-    run_phmmer(input_sequence, afdb_seqdb="downloaded_sequences.fasta", dblvl="af2")
-    print("Finished Phmmer search..")
-    phr = phmmer()
-    logfile = "phmmer_af2.log"
-    plog = open(logfile, "r")
-    phmmerALNLog = plog.readlines()
-    plog.close()
-    phr.logfile = logfile
-    print('Getting Phmmer alignments..')
-    phr.getPhmmerAlignments(targetSequence=input_sequence.sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB="simple", seqMetaDB=None)
-    print('Finished getting Phmmer alignments..')
-
-    print(f'Parsing Phmmer results, found {len(phr.resultsDict)} hits..')
-
-    for hitname in phr.resultsDict.keys():
-        try:
-            name = 'AF-' + hitname.split('|')[1] + '-F1'
-            sh = SequenceHit()
-            sh.rank = phr.resultsDict[hitname].rank
-            sh.name = name
-            sh.pdb_id = name
-            sh.evalue = phr.resultsDict[hitname].evalue
-            sh.query_start = phr.resultsDict[hitname].tarRange[0]
-            sh.query_stop = phr.resultsDict[hitname].tarRange[1]
-            sh.hit_start = int(phr.resultsDict[hitname].alnRange[0])
-            sh.hit_stop = int(phr.resultsDict[hitname].alnRange[1])
-            sh.target_alignment = phr.resultsDict[hitname].targetAlignment
-            sh.alignment = phr.resultsDict[hitname].alignment
-
-            hstart = sh.hit_start
-            hstop = sh.hit_stop
-            qstart, qstop = sh.query_start, sh.query_stop
-
-            sh.query_start = qstart
-            sh.query_stop = qstop
-            sh.hit_start = hstart
-            sh.hit_stop = hstop
-
-            seq_ali = zip(range(qstart, qstop), sh.alignment)
-            sh.seq_ali = [x[0] for x in seq_ali if x[1] != '-']
-
-            local, overall = phr.resultsDict[hitname].localSEQID, phr.resultsDict[hitname].overallSEQID
-            sh.local_sequence_identity = np.round(local)
-            sh.overall_sequence_identity = np.round(overall)
-
-            sh.search_engine = "MMseqs2"
-
-            if sh.rank <= max_hits:
-                    hitDict[name] = sh
-            else:
-                break
-
-        except Exception:
-            logger.debug(f"Issue with target {name}")
-    print('Finished parsing Phmmer results..')
-    os.unlink("downloaded_sequences.fasta")
-    return hitDict
-
-def _find_esm_hits(results, input_sequence, max_hits):
-    hitDict = OrderedDict()
-    for mgnify_id in results:
-        url = f"https://api.esmatlas.com/fetchPredictedStructure/{mgnify_id}.pdb"
-        esm_pdb = requests.get(url, verify=False)
-
-        for line in esm_pdb.text.split('\n'):
-            if line.startswith('HEADER'):
-                date_made = line.split()[-1]
-
-        pdb_struct = PdbStructure()
-        try:
-            pdb_struct.structure = gemmi.read_pdb_string(esm_pdb.text)
-            pdb_struct.structure.setup_entities()
-            model_sequence = pdb_struct.get_sequence_info['A']
-        except FileNotFoundError:
-            raise PdbModelException("Error downloading PDB file")
-        except:
-            pass
-        
-        if os.path.exists('downloaded_sequences.fasta'):
-            with open('downloaded_sequences.fasta', 'a') as f:
-                f.write(f">{mgnify_id}\n{model_sequence}")
-        else:
-            with open("downloaded_sequences.fasta", "w") as f:
-                f.write(f">{mgnify_id}\n{model_sequence}")
-
-
-    mrparse.mr_hit.run_phmmer(input_sequence, afdb_seqdb="downloaded_sequences.fasta", dblvl="esm")
-    phr = phmmer()
-    logfile = "phmmer_esm.log"
-    plog = open(logfile, "r")
-    phmmerALNLog = plog.readlines()
-    plog.close()
-    phr.logfile = logfile
-    phr.getPhmmerAlignments(targetSequence=input_sequence.sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB="simple", seqMetaDB=None)
-
-    for hitname in phr.resultsDict.keys():
-        try:
-            name = hitname.replace('_PHR', '')
-            sh = SequenceHit()
-            sh.name = name
-            sh.rank = phr.resultsDict[hitname].rank
-            sh.pdb_id = name
-            sh.evalue = phr.resultsDict[hitname].evalue
-            sh.query_start = phr.resultsDict[hitname].tarRange[0]
-            sh.query_stop = phr.resultsDict[hitname].tarRange[1]
-            sh.hit_start = int(phr.resultsDict[hitname].alnRange[0])
-            sh.hit_stop = int(phr.resultsDict[hitname].alnRange[1])
-            sh.target_alignment = phr.resultsDict[hitname].targetAlignment
-            sh.alignment = phr.resultsDict[hitname].alignment
-
-            hstart = sh.hit_start
-            hstop = sh.hit_stop
-            qstart, qstop = sh.query_start, sh.query_stop
-
-            sh.query_start = qstart
-            sh.query_stop = qstop
-            sh.hit_start = hstart
-            sh.hit_stop = hstop
-
-            seq_ali = zip(range(qstart, qstop), sh.alignment)
-            sh.seq_ali = [x[0] for x in seq_ali if x[1] != '-']
-
-            local, overall = phr.resultsDict[hitname].localSEQID, phr.resultsDict[hitname].overallSEQID
-            sh.local_sequence_identity = np.round(local)
-            sh.overall_sequence_identity = np.round(overall)
-
-            if sh.rank <= max_hits:
-                hitDict[hitname] = sh
-            else:
-                break
-
-        except Exception:
-            logger.debug(f"Issue with target {hitname}")
-    os.unlink("downloaded_sequences.fasta")
-    return hitDict 
-
 
 def fix_af_phmmer_log(input_log, output_log):
     """Function to fix locally run alphafold phmmer results when there are duplicate entries"""
@@ -490,13 +363,10 @@ def run_phmmer(seq_info, afdb_seqdb=None, pdb_seqdb=None, dblvl=95, nproc=1):
     phmmerEXE = Path(os.environ["CCP4"], "libexec", "phmmer")
     delete_db = False
     dbtype = None
-    if dblvl == "af2" or dblvl == "bfvd" or dblvl == "esm":
+    if dblvl == "af2":
         if afdb_seqdb is not None:
             seqdb = afdb_seqdb
             dbtype = "AFDB"
-        elif dblvl == "bfvd":
-            seqdb = Path(os.environ["CCP4"], "share", "mrparse", "data", "bfvd_sequences.fasta")
-            dbtype = "BFVD"
         else:
             seqdb = Path(os.environ["CCP4"], "share", "mrbump", "data", "afdb.fasta")
             dbtype= "AFCCP4"
@@ -517,7 +387,7 @@ def run_phmmer(seq_info, afdb_seqdb=None, pdb_seqdb=None, dblvl=95, nproc=1):
             dbtype= "PDBCCP4"
             delete_db = True
 
-    if afdb_seqdb is not None and dblvl == "af2" or dblvl == "bfvd" or dblvl == "esm":
+    if afdb_seqdb is not None and dblvl == "af2":
         cmd = [str(phmmerEXE) + EXE_EXT,
            '--notextw',
            '--tblout', phmmerTblout,
@@ -558,25 +428,6 @@ def run_hhsearch(seq_info, hhsearch_exe, hhsearch_db):
            '-o', logfile]
     run_cmd(cmd)
     return logfile
-
-
-def run_mmseqs_api(sequence, max_hits):
-    a3m_lines = mrparse.mr_mmseqs.run(sequence, prefix="mmseqs", use_env=True, use_filter=True, use_templates=False, filter=None, use_pairing=False, host_url="https://a3m.mmseqs.com")
-    uniprot_ids = []
-    mgnify_ids = []
-    for line in a3m_lines[0].split('\n'):
-        if line.startswith(">"):
-            id = line.split()[0][1:]
-            pattern = r'^[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9]([A-Z][A-Z0-9]{2}[0-9]){1,2}$'
-            if re.match(pattern, id):
-                if len(uniprot_ids) < max_hits:
-                    uniprot_ids.append(id)
-            elif id.startswith("MGY"):
-                if len(mgnify_ids) < max_hits and id not in mgnify_ids:
-                    mgnify_ids.append(id)
-    shutil.rmtree("mmseqs")
-
-    return [uniprot_ids, mgnify_ids]
 
 
 def get_seqres_protein(pdbseqfile, outfile):

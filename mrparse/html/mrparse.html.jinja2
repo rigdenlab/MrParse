@@ -4,6 +4,7 @@
     <title>MrParse Results</title>
     <script>
         const mrparse_data = {{ results_json | safe }};
+        const mrparse_html_dir = "{{ mrparse_html_dir | safe }}";
     </script>
 
     <link rel="stylesheet" href="{{ mrparse_html_dir }}/bootstrap.css" type="text/css" />
@@ -14,7 +15,7 @@
     <script type="text/javascript" src="{{ mrparse_html_dir }}/vue.min.js"></script>
     <script type="text/javascript" src="{{ mrparse_html_dir }}/lodash.min.js"></script>
     <script src="{{ mrparse_html_dir }}/jquery.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/calipho-sib/feature-viewer@v1.1.0/dist/feature-viewer.bundle.js"></script>
+    <script type="text/javascript" src="{{ mrparse_html_dir }}/feature-viewer.js"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     
 </head>
@@ -25,6 +26,15 @@
 </div>
 
 <body>
+    <div class="toggle-switch-container">
+        <div class="toggle-switch">
+            <input type="checkbox" id="dark-mode-switch">
+            <label for="dark-mode-switch" class="switch-label">
+                <span class="switch-inner"></span>
+                <span class="switch-slider"></span>
+            </label>
+        </div>
+    </div>
     <div id="app">
         <h3 id="hklinfo-title" class="collapsible1">HKL Information</h3>
         <div id="div1" class="content">

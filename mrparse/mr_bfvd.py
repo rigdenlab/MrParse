@@ -124,7 +124,7 @@ def models_from_hits(hits, plddt_cutoff):
         mlog = ModelData()
         mlog.hit = hit
         hit._homolog = mlog
-        mlog.model_url = url = f"https://bfvd.steineggerlab.workers.dev/pdb/{hit.pdb_id}.pdb"
+        mlog.model_url = url = f"https://bfvd.foldseek.com/cluster/{hit.pdb_id.split('_')[0]}"
         try:
             mlog.pdb_file, mlog.molecular_weight, \
             mlog.avg_plddt, mlog.sum_plddt, mlog.h_score, \
@@ -164,7 +164,16 @@ def prepare_pdb(hit, plddt_cutoff):
         if hit.data_created is not None:
             date_made = hit.data_created
         else:
-            date_made = "17 Oct 2024"
+            # Get the upload date of the database
+            url = 'https://bfvd.steineggerlab.workers.dev/'
+            response = requests.get(url)
+            html = response.text
+            file_info_start = html.find('bfvd.tar.gz')
+            date_start = html.find('<td>', file_info_start) + 4
+            date_end = html.find('</td>', date_start)
+            full_date = html[date_start:date_end]
+            upload_date = full_date.split(' ')[1:4]
+            date_made = ' '.join(upload_date)
     except RuntimeError:
         # SIMBAD currently raises an empty RuntimeError for download problems.
         raise PdbModelException(f"Error downloading PDB file for: {hit.pdb_id}")
