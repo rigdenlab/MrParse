@@ -90,7 +90,7 @@ def run(seqin, **kwargs):
     search_model_finder = SearchModelFinder(seq_info, hkl_info=hkl_info, pdb_dir=pdb_dir, phmmer_dblvl=phmmer_dblvl,
                                             plddt_cutoff=plddt_cutoff, search_engine=search_engine, hhsearch_exe=hhsearch_exe, 
                                             hhsearch_db=hhsearch_db, afdb_seqdb=afdb_seqdb, pdb_seqdb=pdb_seqdb,
-                                            use_api=use_api, max_hits=max_hits, database=database, nproc=nproc, pdb_local=pdb_local)
+                                            max_hits=max_hits, database=database, nproc=nproc, pdb_local=pdb_local, ccp4cloud=ccp4cloud)
 
     classifier = None
     if do_classify:

@@ -26,7 +26,8 @@ conn.commit()
 
 dbs = { 
     "afdb": "/data/ccp4/opt/db/afdb_split/seqs",
-    "esmatlas": "/data/ccp4/opt/db/mgnify/split" 
+    "esmatlas": "/data/ccp4/opt/db/mgnify/split",
+    "bfvd": "/data/ccp4/opt/db/bfvd/bfvd_sequences.fasta"
 }
 
 def parse_json(input_json):
@@ -259,15 +260,23 @@ if __name__ == '__main__':
         if run_type == "mrparse":
             mrparse = True
 
-        parallel_out = run_parallel_phmmer(input_file, dbs[database], maxhits=number_of_hits, nproc=500, debug=False, mrparse=mrparse, source=database)
-        run_phmmer(input_file, parallel_out)
-        results = parse_phmmer_results(input_sequence, 'phmmer.log', max_hits=number_of_hits)
+        parallel_out = None
+        if database in ['afdb', 'esmatlas']:
+            parallel_out = run_parallel_phmmer(input_file, dbs[database], maxhits=number_of_hits, nproc=500, debug=False, mrparse=mrparse, source=database)
+            run_phmmer(input_file, parallel_out)
+            results = parse_phmmer_results(input_sequence, 'phmmer.log', max_hits=number_of_hits)
+        else:
+            run_phmmer(input_file, dbs[database])
+            results = parse_phmmer_results(input_sequence, 'phmmer.log', max_hits=number_of_hits)
+
         with open(output_json, 'w') as f:
             json.dump(results, f, indent=4)
 
         # Tidy up output
         os.unlink(input_file)
-        os.unlink(parallel_out)
+        if parallel_out:
+            if os.path.isfile(parallel_out):
+                os.unlink(parallel_out)
         os.unlink('phmmer.log')
 
         remove_line('running.txt', job_id)

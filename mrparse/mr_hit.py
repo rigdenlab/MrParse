@@ -108,16 +108,15 @@ class SequenceHit:
         return out_str
 
 
-def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, pdb_seqdb=None, phmmer_dblvl=95, use_api=False, max_hits=10, nproc=1):
+def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, pdb_seqdb=None, phmmer_dblvl=95, max_hits=10, nproc=1, ccp4cloud=False):
     target_sequence = seq_info.sequence
     af2 = False
     dbtype = None
     if search_engine == PHMMER:
-        if use_api:
-            if phmmer_dblvl in ['af2', 'bfvd', 'esmfold']:
-                logger.info("Searching for hits using CCP4 phmmer API..")
-                hits = _find_api_hits(seq_info, max_hits=max_hits, database=phmmer_dblvl)
-                return hits
+        if ccp4cloud and phmmer_dblvl in ['af2', 'bfvd', 'esmfold']:
+            logger.info("Searching for hits using CCP4 phmmer API..")
+            hits = _find_api_hits(seq_info, max_hits=max_hits, database=phmmer_dblvl)
+            return hits
         else:
             if phmmer_dblvl == "af2":
                 logger.info("Running phmmer alphafold database search locally..")
@@ -126,14 +125,8 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
                 else:
                     logger.info("Using CCP4 afdb sequence file..")
                 af2 = True
-            elif phmmer_dblvl == "bfvd":
-                logger.info("Running phmmer bfvd database search using CCP4 phmmer API..")
-                hits = _find_api_hits(seq_info, max_hits=max_hits, database=phmmer_dblvl)
-                return hits
-            elif phmmer_dblvl == "esmfold":
-                logger.info("Running phmmer ESMFold atlas database search using CCP4 phmmer API..")
-                hits = _find_api_hits(seq_info, max_hits=max_hits, database=phmmer_dblvl)
-                return hits
+            elif phmmer_dblvl in ["bfvd", "esmfold"]:
+                return {}
             else:
                 logger.info("Running phmmer pdb database search locally..")
                 if pdb_seqdb is not None:
@@ -151,41 +144,28 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
 
 def _find_api_hits(seq_info, max_hits=10, database="af2"):
     databases = {'af2': 'afdb', 'bfvd': 'bfvd', 'esmfold': 'esmatlas'}
-    headers = {
-        'accept': 'application/json',
-        'Content-Type': 'application/json'
-    }
 
+    job_id = str(uuid.uuid4())
     data = {
+        "job_id": job_id,
         "input_sequence": seq_info.sequence,
         "database": databases[database],
         "number_of_hits": max_hits,
         "run_type": "mrparse"
     }
+    json_file = str(Path(seq_info.sequence_file).parent.resolve().joinpath('phmmer.json'))
+    with open(json_file, 'w') as f:
+        json.dump(data, f)
 
-    response = requests.post(api_url, headers=headers, json=data)
+    api_file = str(Path(__file__).parent.resolve().joinpath('scripts', 'phmmer_api.py'))
+    
+    cmd = ['ccp4-python', api_file, '-i', json_file, '-o', Path.cwd()]
 
-    job_id = response.json()['jobId']
-    status_url = f"{api_url}/{job_id}/status"
-    headers = {
-        'accept': 'application/json'
-    }
+    run_cmd(cmd)
+    with open(Path.cwd().joinpath(f'{job_id}.log'), 'r') as f:
+        data = f.read()
 
-    response = requests.get(status_url, headers=headers)
-    status = response.json()['status']
-    while status != 'completed':
-        time.sleep(30)
-        response = requests.get(status_url, headers=headers)
-        status = response.json()['status']
-
-    result_url = f"{api_url}/{job_id}/result"
-    headers = {
-        'accept': 'text/plain'
-    }
-
-    response = requests.get(result_url, headers=headers)
-    results_dict = json.loads(response.text)
-
+    results_dict = json.loads(data)
 
     hitDict = OrderedDict()
     for hit in results_dict:

@@ -34,6 +34,7 @@ class SearchModelFinder(object):
         self.max_hits = kwargs.get("max_hits", 10)
         self.database = kwargs.get("database", "all")
         self.nproc = kwargs.get("nproc", 1)
+        self.ccp4cloud = kwargs.get("ccp4cloud", False)
         self.hits = None
         self.af_model_hits = None
         self.bfvd_model_hits = None
@@ -78,8 +79,8 @@ class SearchModelFinder(object):
     def find_homolog_regions(self):
         self.hits = mr_hit.find_hits(self.seq_info, search_engine=self.search_engine, hhsearch_exe=self.hhsearch_exe,
                                      hhsearch_db=self.hhsearch_db, afdb_seqdb=self.afdb_seqdb, pdb_seqdb=self.pdb_seqdb,
-                                     phmmer_dblvl=self.phmmer_dblvl, use_api=self.use_api, max_hits=self.max_hits,
-                                     nproc=self.nproc)
+                                     phmmer_dblvl=self.phmmer_dblvl, max_hits=self.max_hits,
+                                     nproc=self.nproc, ccp4cloud=self.ccp4cloud)
         if not self.hits:
             logger.critical('SearchModelFinder PDB search could not find any hits!')
             return None
@@ -89,8 +90,8 @@ class SearchModelFinder(object):
     def find_af2_model_regions(self):
         self.af_model_hits = mr_hit.find_hits(self.seq_info, search_engine="phmmer", hhsearch_exe=None,
                                               hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, pdb_seqdb=self.pdb_seqdb,
-                                              phmmer_dblvl="af2", use_api=self.use_api, max_hits=self.max_hits,
-                                              nproc=self.nproc)
+                                              phmmer_dblvl="af2", max_hits=self.max_hits,
+                                              nproc=self.nproc, ccp4cloud=self.ccp4cloud)
         if not self.af_model_hits:
             logger.critical('SearchModelFinder EBI Alphafold database search could not find any hits!')
             return None
@@ -100,8 +101,8 @@ class SearchModelFinder(object):
     def find_bfvd_model_regions(self):
         self.bfvd_model_hits = mr_hit.find_hits(self.seq_info, search_engine="phmmer", hhsearch_exe=None,
                                               hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, pdb_seqdb=self.pdb_seqdb,
-                                              phmmer_dblvl="bfvd", use_api=self.use_api, max_hits=self.max_hits,
-                                              nproc=self.nproc)
+                                              phmmer_dblvl="bfvd", max_hits=self.max_hits,
+                                              nproc=self.nproc, ccp4cloud=self.ccp4cloud)
         if not self.bfvd_model_hits:
             logger.critical('SearchModelFinder Big Fantastic Virus Database search could not find any hits!')
             return None
@@ -111,8 +112,8 @@ class SearchModelFinder(object):
     def find_esm_model_regions(self):
         self.esm_model_hits = mr_hit.find_hits(self.seq_info, search_engine="phmmer", hhsearch_exe=None,
                                               hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, pdb_seqdb=self.pdb_seqdb,
-                                              phmmer_dblvl="esmfold", use_api=self.use_api, max_hits=self.max_hits,
-                                              nproc=self.nproc)
+                                              phmmer_dblvl="esmfold", max_hits=self.max_hits,
+                                              nproc=self.nproc, ccp4cloud=self.ccp4cloud)
         if not self.esm_model_hits:
             logger.critical('SearchModelFinder ESMfold Atlas database search could not find any hits!')
             return None
