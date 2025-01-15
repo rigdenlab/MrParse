@@ -15,7 +15,7 @@ from mrparse.mr_sequence import Sequence, MultipleSequenceException, merge_multi
 from mrparse.mr_classify import MrClassifier
 from mrparse.mr_version import __version__
 
-THIS_DIR = Path(__file__).parent.resolve()
+THIS_DIR = Path(__file__).parent
 HTML_DIR = THIS_DIR.joinpath('html')
 HTML_TEMPLATE = HTML_DIR.joinpath('mrparse.html.jinja2')
 
