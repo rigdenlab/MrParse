@@ -159,7 +159,7 @@ def _find_api_hits(seq_info, max_hits=10, database="af2"):
 
     api_file = str(Path(__file__).parent.resolve().joinpath('scripts', 'phmmer_api.py'))
     
-    cmd = ['ccp4-python', api_file, '-i', json_file, '-o', Path.cwd()]
+    cmd = ['ccp4-python', api_file, '-i', json_file, '-o', str(Path.cwd())]
 
     run_cmd(cmd)
     with open(Path.cwd().joinpath(f'{job_id}.log'), 'r') as f:
