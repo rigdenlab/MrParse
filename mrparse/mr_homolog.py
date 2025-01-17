@@ -28,7 +28,7 @@ class HomologData(object):
     OBJECT_ATTRIBUTES = ['hit', 'region']
 
     def __init__(self):
-        self.ellg = None
+        self.ellg = 0.0
         self.frac_scat = None
         self.molecular_weight = None
         self.ncopies = None
