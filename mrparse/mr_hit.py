@@ -142,6 +142,7 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
                 seqdb = pdb_seqdb
             else:
                 logger.info("Using CCP4 pdb sequence file..")
+                seqdb=None
         logfile, dbtype = run_phmmer(seq_info, seqdb=seqdb, dblvl=phmmer_dblvl, nproc=nproc)
         searchio_type = 'hmmer3-text'
     elif search_engine == HHSEARCH:
