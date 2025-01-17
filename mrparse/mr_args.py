@@ -44,6 +44,8 @@ def mrparse_argparse(parser):
                     help="Location of hhsearch executable")
     sg.add_argument('--hhsearch_db', help="Location of hhsearch database")
     sg.add_argument('--afdb_seqdb', help="Location of alternative alphafold sequence database. To search the entire alphafold database, download the latest sequence listing here: https://ftp.ebi.ac.uk/pub/databases/alphafold/sequences.fasta and set path to file using this option. Note: very large file size!")
+    sg.add_argument('--bfvd_seqdb', help="Location of BFVD sequence database.")
+    sg.add_argument('--esmfold_seqdb', help="Location of ESMFold sequence database.")
     sg.add_argument('--pdb_seqdb', help="Location of alternative PDB sequence database. To search the entire PDB database, download the latest sequence listing here: https://ftp.pdbj.org/pub/pdb/derived_data/pdb_seqres.txt and set path to file using this option.")
     sg.add_argument('--ccp4cloud', action='store_true', help="Specify running through CCP4Cloud")
     sg.add_argument('--use_api', action='store_true', default=True, help='Run alphafold database search using EBI API database search')

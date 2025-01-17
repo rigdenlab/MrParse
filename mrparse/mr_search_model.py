@@ -29,6 +29,8 @@ class SearchModelFinder(object):
         self.hhsearch_exe = kwargs.get("hhsearch_exe", None)
         self.hhsearch_db = kwargs.get("hhsearch_db", None)
         self.afdb_seqdb = kwargs.get("afdb_seqdb", None)
+        self.bfvd_seqdb = kwargs.get("bfvd_seqdb", None)
+        self.esm_seqdb = kwargs.get("esm_seqdb", None)
         self.pdb_seqdb = kwargs.get("pdb_seqdb", None)
         self.use_api = kwargs.get("use_api", False)
         self.max_hits = kwargs.get("max_hits", 10)
@@ -78,7 +80,8 @@ class SearchModelFinder(object):
     
     def find_homolog_regions(self):
         self.hits = mr_hit.find_hits(self.seq_info, search_engine=self.search_engine, hhsearch_exe=self.hhsearch_exe,
-                                     hhsearch_db=self.hhsearch_db, afdb_seqdb=self.afdb_seqdb, pdb_seqdb=self.pdb_seqdb,
+                                     hhsearch_db=self.hhsearch_db, afdb_seqdb=self.afdb_seqdb, bfvd_seqdb=self.bfvd_seqdb,
+                                     esm_seqdb=self.esm_seqdb, pdb_seqdb=self.pdb_seqdb,
                                      phmmer_dblvl=self.phmmer_dblvl, max_hits=self.max_hits,
                                      nproc=self.nproc, ccp4cloud=self.ccp4cloud)
         if not self.hits:
@@ -89,7 +92,8 @@ class SearchModelFinder(object):
 
     def find_af2_model_regions(self):
         self.af_model_hits = mr_hit.find_hits(self.seq_info, search_engine="phmmer", hhsearch_exe=None,
-                                              hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, pdb_seqdb=self.pdb_seqdb,
+                                              hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, bfvd_seqdb=self.bfvd_seqdb,
+                                              esm_seqdb=self.esm_seqdb, pdb_seqdb=self.pdb_seqdb,
                                               phmmer_dblvl="af2", max_hits=self.max_hits,
                                               nproc=self.nproc, ccp4cloud=self.ccp4cloud)
         if not self.af_model_hits:
@@ -100,7 +104,8 @@ class SearchModelFinder(object):
     
     def find_bfvd_model_regions(self):
         self.bfvd_model_hits = mr_hit.find_hits(self.seq_info, search_engine="phmmer", hhsearch_exe=None,
-                                              hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, pdb_seqdb=self.pdb_seqdb,
+                                              hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, bfvd_seqdb=self.bfvd_seqdb,
+                                              esm_seqdb=self.esm_seqdb, pdb_seqdb=self.pdb_seqdb,
                                               phmmer_dblvl="bfvd", max_hits=self.max_hits,
                                               nproc=self.nproc, ccp4cloud=self.ccp4cloud)
         if not self.bfvd_model_hits:
@@ -111,7 +116,8 @@ class SearchModelFinder(object):
     
     def find_esm_model_regions(self):
         self.esm_model_hits = mr_hit.find_hits(self.seq_info, search_engine="phmmer", hhsearch_exe=None,
-                                              hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, pdb_seqdb=self.pdb_seqdb,
+                                              hhsearch_db=None, afdb_seqdb=self.afdb_seqdb, bfvd_seqdb=self.bfvd_seqdb,
+                                              esm_seqdb=self.esm_seqdb, pdb_seqdb=self.pdb_seqdb,
                                               phmmer_dblvl="esmfold", max_hits=self.max_hits,
                                               nproc=self.nproc, ccp4cloud=self.ccp4cloud)
         if not self.esm_model_hits:

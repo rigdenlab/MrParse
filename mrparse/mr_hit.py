@@ -108,7 +108,7 @@ class SequenceHit:
         return out_str
 
 
-def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, pdb_seqdb=None, phmmer_dblvl=95, max_hits=10, nproc=1, ccp4cloud=False):
+def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, bfvd_seqdb=None, esm_seqdb=None, pdb_seqdb=None, phmmer_dblvl=95, max_hits=10, nproc=1, ccp4cloud=False):
     target_sequence = seq_info.sequence
     af2 = False
     dbtype = None
@@ -124,16 +124,30 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
                     logger.info("Database file: %s" % afdb_seqdb)
                 else:
                     logger.info("Using CCP4 afdb sequence file..")
+                seqdb = afdb_seqdb
                 af2 = True
-            elif phmmer_dblvl in ["bfvd", "esmfold"]:
-                return {}
+            elif phmmer_dblvl == "esmfold":
+                if esm_seqdb is not None:
+                    logger.info("Running phmmer esmfold database search locally..")
+                    logger.info("Database file: %s" % esm_seqdb)
+                    seqdb = esm_seqdb
+                else:
+                    return {}
+            elif phmmer_dblvl == "bfvd":
+                if bfvd_seqdb is not None:
+                    logger.info("Running phmmer bfvd database search locally..")
+                    logger.info("Database file: %s" % bfvd_seqdb)
+                    seqdb = bfvd_seqdb
+                else:
+                    return {}
             else:
                 logger.info("Running phmmer pdb database search locally..")
                 if pdb_seqdb is not None:
                     logger.info("Database file: %s" % pdb_seqdb)
+                    seqdb = pdb_seqdb
                 else:
                     logger.info("Using CCP4 pdb sequence file..")
-        logfile, dbtype = run_phmmer(seq_info, afdb_seqdb=afdb_seqdb, pdb_seqdb=pdb_seqdb, dblvl=phmmer_dblvl, nproc=nproc)
+        logfile, dbtype = run_phmmer(seq_info, seqdb=seqdb, dblvl=phmmer_dblvl, nproc=nproc)
         searchio_type = 'hmmer3-text'
     elif search_engine == HHSEARCH:
         searchio_type = 'hhsuite2-text'
@@ -142,58 +156,57 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
         raise RuntimeError(f"Unrecognised search_engine: {search_engine}")
     return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence, af2=af2, max_hits=max_hits, dbtype=dbtype)
 
-def _find_api_hits(seq_info, max_hits=10, database="af2"):
-    databases = {'af2': 'afdb', 'bfvd': 'bfvd', 'esmfold': 'esmatlas'}
+# def _find_api_hits(seq_info, max_hits=10, database="af2"):
+#     databases = {'af2': 'afdb', 'bfvd': 'bfvd', 'esmfold': 'esmatlas'}
 
-    job_id = str(uuid.uuid4())
-    data = {
-        "job_id": job_id,
-        "input_sequence": seq_info.sequence,
-        "database": databases[database],
-        "number_of_hits": max_hits,
-        "run_type": "mrparse"
-    }
-    json_file = str(Path(seq_info.sequence_file).parent.resolve().joinpath('phmmer.json'))
-    with open(json_file, 'w') as f:
-        json.dump(data, f)
+#     job_id = str(uuid.uuid4())
+#     data = {
+#         "job_id": job_id,
+#         "input_sequence": seq_info.sequence,
+#         "database": databases[database],
+#         "number_of_hits": max_hits,
+#         "run_type": "mrparse"
+#     }
+#     json_file = str(Path(seq_info.sequence_file).parent.resolve().joinpath('phmmer.json'))
+#     with open(json_file, 'w') as f:
+#         json.dump(data, f)
 
-    api_file = str(Path(__file__).parent.resolve().joinpath('scripts', 'phmmer_api.py'))
+#     api_file = str(Path(__file__).parent.resolve().joinpath('scripts', 'phmmer_api.py'))
     
-    cmd = ['ccp4-python', api_file, '-i', json_file, '-o', str(Path.cwd())]
+#     cmd = ['ccp4-python', api_file, '-i', json_file, '-o', str(Path.cwd())]
 
-    run_cmd(cmd)
-    with open(Path.cwd().joinpath(f'{job_id}.log'), 'r') as f:
-        data = f.read()
+#     run_cmd(cmd)
+#     with open(Path.cwd().joinpath(f'{job_id}.log'), 'r') as f:
+#         data = f.read()
 
-    results_dict = json.loads(data)
+#     results_dict = json.loads(data)
 
-    hitDict = OrderedDict()
-    for hit in results_dict:
-        sh = SequenceHit()
-        if ':' in hit:
-            name = hit.split(":")[1].rsplit("_", 1)[0]
-        else:
-            name = hit.rsplit("_", 1)[0]
-        result = results_dict[hit]
-        sh.rank = result['rank']
-        sh.pdb_id = name
-        sh.evalue = result['evalue']
-        sh.query_start = result['query_start']
-        sh.query_stop = result['query_stop']
-        sh.hit_start = result['hit_start']
-        sh.hit_stop = result['hit_stop']
-        sh.target_alignment = result['target_alignment']
-        sh.alignment = result['alignment']
-        seq_ali = zip(range(sh.query_start, sh.query_stop), sh.alignment)
-        sh.seq_ali = [x[0] for x in seq_ali if x[1] != '-']
-        sh.local_sequence_identity = result['local_sequence_identity']
-        sh.overall_sequence_identity = result['overall_sequence_identity']
-        sh.search_engine = 'phmmer'
-        sh.name = name
-        hitDict[sh.name] = sh
+#     hitDict = OrderedDict()
+#     for hit in results_dict:
+#         sh = SequenceHit()
+#         if ':' in hit:
+#             name = hit.split(":")[1].rsplit("_", 1)[0]
+#         else:
+#             name = hit.rsplit("_", 1)[0]
+#         result = results_dict[hit]
+#         sh.rank = result['rank']
+#         sh.pdb_id = name
+#         sh.evalue = result['evalue']
+#         sh.query_start = result['query_start']
+#         sh.query_stop = result['query_stop']
+#         sh.hit_start = result['hit_start']
+#         sh.hit_stop = result['hit_stop']
+#         sh.target_alignment = result['target_alignment']
+#         sh.alignment = result['alignment']
+#         seq_ali = zip(range(sh.query_start, sh.query_stop), sh.alignment)
+#         sh.seq_ali = [x[0] for x in seq_ali if x[1] != '-']
+#         sh.local_sequence_identity = result['local_sequence_identity']
+#         sh.overall_sequence_identity = result['overall_sequence_identity']
+#         sh.search_engine = 'phmmer'
+#         sh.name = name
+#         hitDict[sh.name] = sh
 
-    return hitDict
-
+#     return hitDict
 
 def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False, max_hits=10, dbtype=None):
     assert logfile and searchio_type and target_sequence
@@ -335,7 +348,7 @@ def sort_hits_by_size(hits, ascending=False):
     return OrderedDict(sorted(hits.items(), key=lambda x: x[1].length, reverse=reverse))
 
 
-def run_phmmer(seq_info, afdb_seqdb=None, pdb_seqdb=None, dblvl=95, nproc=1):
+def run_phmmer(seq_info, seqdb=None, dblvl=95, nproc=1):
     logfile = f"phmmer_{dblvl}.log"
     alnfile = f"phmmerAlignment_{dblvl}.log"
     phmmerTblout = f"phmmerTblout_{dblvl}.log"
@@ -344,17 +357,16 @@ def run_phmmer(seq_info, afdb_seqdb=None, pdb_seqdb=None, dblvl=95, nproc=1):
     delete_db = False
     dbtype = None
     if dblvl == "af2":
-        if afdb_seqdb is not None:
-            seqdb = afdb_seqdb
+        if seqdb is not None:
             dbtype = "AFDB"
         else:
             seqdb = Path(os.environ["CCP4"], "share", "mrbump", "data", "afdb.fasta")
             dbtype= "AFCCP4"
     else:
         sb = makeSeqDB.sequenceDatabase()
-        if pdb_seqdb is not None:
+        if seqdb is not None:
             seq_protein_file=Path(os.environ["CCP4_SCR"], "pdb_seqres_protein_%s.txt" % random.randint(0, 9999999)) 
-            get_seqres_protein(pdb_seqdb, seq_protein_file)
+            get_seqres_protein(seqdb, seq_protein_file)
             if os.path.isfile(seq_protein_file):
                 seqdb = seq_protein_file
             else:
@@ -367,7 +379,7 @@ def run_phmmer(seq_info, afdb_seqdb=None, pdb_seqdb=None, dblvl=95, nproc=1):
             dbtype= "PDBCCP4"
             delete_db = True
 
-    if afdb_seqdb is not None and dblvl == "af2":
+    if dblvl == "af2":
         cmd = [str(phmmerEXE) + EXE_EXT,
            '--notextw',
            '--tblout', phmmerTblout,
