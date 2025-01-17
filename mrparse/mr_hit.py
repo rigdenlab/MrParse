@@ -368,23 +368,41 @@ def run_phmmer(seq_info, afdb_seqdb=None, pdb_seqdb=None, dblvl=95, nproc=1):
             delete_db = True
 
     if afdb_seqdb is not None and dblvl == "af2":
-        cmd = [str(phmmerEXE) + EXE_EXT,
-           '--notextw',
-           '--tblout', phmmerTblout,
-           '--domtblout', phmmerDomTblout,
-           '--F1', '1e-15',
-           '--F2', '1e-15',
-           '--cpu', str(nproc),
-           '-A', alnfile,
-           str(seq_info.sequence_file), str(seqdb)]
+        if os.name != 'nt':
+                cmd = [str(phmmerEXE) + EXE_EXT,
+                   '--notextw',
+                   '--tblout', phmmerTblout,
+                   '--domtblout', phmmerDomTblout,
+                   '--F1', '1e-15',
+                   '--F2', '1e-15',
+                   '--cpu', str(nproc),
+                   '-A', alnfile,
+                   str(seq_info.sequence_file), str(seqdb)]
+        else:
+                cmd = [str(phmmerEXE) + EXE_EXT,
+                   '--notextw',
+                   '--tblout', phmmerTblout,
+                   '--domtblout', phmmerDomTblout,
+                   '--F1', '1e-15',
+                   '--F2', '1e-15',
+                   '-A', alnfile,
+                   str(seq_info.sequence_file), str(seqdb)]
     else:
-        cmd = [str(phmmerEXE) + EXE_EXT,
-           '--notextw',
-           '--tblout', phmmerTblout,
-           '--domtblout', phmmerDomTblout,
-           '--cpu', str(nproc),
-           '-A', alnfile,
-           str(seq_info.sequence_file), str(seqdb)]
+        if os.name != 'nt':
+            cmd = [str(phmmerEXE) + EXE_EXT,
+                       '--notextw',
+                       '--tblout', phmmerTblout,
+                       '--domtblout', phmmerDomTblout,
+                       '--cpu', str(nproc),
+                       '-A', alnfile,
+                       str(seq_info.sequence_file), str(seqdb)]
+        else:
+            cmd = [str(phmmerEXE) + EXE_EXT,
+                       '--notextw',
+                       '--tblout', phmmerTblout,
+                       '--domtblout', phmmerDomTblout,
+                       '-A', alnfile,
+                       str(seq_info.sequence_file), str(seqdb)]
     stdout = run_cmd(cmd)
     if os.name == 'nt':
         lines = stdout.split('\n')
