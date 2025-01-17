@@ -113,40 +113,35 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
     af2 = False
     dbtype = None
     if search_engine == PHMMER:
-        if ccp4cloud and phmmer_dblvl in ['af2', 'bfvd', 'esmfold']:
-            logger.info("Searching for hits using CCP4 phmmer API..")
-            hits = _find_api_hits(seq_info, max_hits=max_hits, database=phmmer_dblvl)
-            return hits
-        else:
-            if phmmer_dblvl == "af2":
-                logger.info("Running phmmer alphafold database search locally..")
-                if afdb_seqdb is not None:
-                    logger.info("Database file: %s" % afdb_seqdb)
-                else:
-                    logger.info("Using CCP4 afdb sequence file..")
-                seqdb = afdb_seqdb
-                af2 = True
-            elif phmmer_dblvl == "esmfold":
-                if esm_seqdb is not None:
-                    logger.info("Running phmmer esmfold database search locally..")
-                    logger.info("Database file: %s" % esm_seqdb)
-                    seqdb = esm_seqdb
-                else:
-                    return {}
-            elif phmmer_dblvl == "bfvd":
-                if bfvd_seqdb is not None:
-                    logger.info("Running phmmer bfvd database search locally..")
-                    logger.info("Database file: %s" % bfvd_seqdb)
-                    seqdb = bfvd_seqdb
-                else:
-                    return {}
+        if phmmer_dblvl == "af2":
+            logger.info("Running phmmer alphafold database search locally..")
+            if afdb_seqdb is not None:
+                logger.info("Database file: %s" % afdb_seqdb)
             else:
-                logger.info("Running phmmer pdb database search locally..")
-                if pdb_seqdb is not None:
-                    logger.info("Database file: %s" % pdb_seqdb)
-                    seqdb = pdb_seqdb
-                else:
-                    logger.info("Using CCP4 pdb sequence file..")
+                logger.info("Using CCP4 afdb sequence file..")
+            seqdb = afdb_seqdb
+            af2 = True
+        elif phmmer_dblvl == "esmfold":
+            if esm_seqdb is not None:
+                logger.info("Running phmmer esmfold database search locally..")
+                logger.info("Database file: %s" % esm_seqdb)
+                seqdb = esm_seqdb
+            else:
+                return {}
+        elif phmmer_dblvl == "bfvd":
+            if bfvd_seqdb is not None:
+                logger.info("Running phmmer bfvd database search locally..")
+                logger.info("Database file: %s" % bfvd_seqdb)
+                seqdb = bfvd_seqdb
+            else:
+                return {}
+        else:
+            logger.info("Running phmmer pdb database search locally..")
+            if pdb_seqdb is not None:
+                logger.info("Database file: %s" % pdb_seqdb)
+                seqdb = pdb_seqdb
+            else:
+                logger.info("Using CCP4 pdb sequence file..")
         logfile, dbtype = run_phmmer(seq_info, seqdb=seqdb, dblvl=phmmer_dblvl, nproc=nproc)
         searchio_type = 'hmmer3-text'
     elif search_engine == HHSEARCH:
@@ -390,13 +385,21 @@ def run_phmmer(seq_info, seqdb=None, dblvl=95, nproc=1):
            '-A', alnfile,
            str(seq_info.sequence_file), str(seqdb)]
     else:
-        cmd = [str(phmmerEXE) + EXE_EXT,
-           '--notextw',
-           '--tblout', phmmerTblout,
-           '--domtblout', phmmerDomTblout,
-           '--cpu', str(nproc),
-           '-A', alnfile,
-           str(seq_info.sequence_file), str(seqdb)]
+        if os.name != 'nt':
+            cmd = [str(phmmerEXE) + EXE_EXT,
+                       '--notextw',
+                       '--tblout', phmmerTblout,
+                       '--domtblout', phmmerDomTblout,
+                       '--cpu', str(nproc),
+                       '-A', alnfile,
+                       str(seq_info.sequence_file), str(seqdb)]
+        else:
+            cmd = [str(phmmerEXE) + EXE_EXT,
+                       '--notextw',
+                       '--tblout', phmmerTblout,
+                       '--domtblout', phmmerDomTblout,
+                       '-A', alnfile,
+                       str(seq_info.sequence_file), str(seqdb)]
     stdout = run_cmd(cmd)
     if os.name == 'nt':
         lines = stdout.split('\n')

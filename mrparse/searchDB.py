@@ -382,11 +382,19 @@ class phmmer:
 
         # Set the command line
         if pgap != 0.0:
-            command_line = self.phmmerEXE + " --pextend %.2lf --cpu %d --notextw --F1 1e-15 --F2 1e-15 -A %s %s %s" % (
-                pgap, self.cpu, self.alnfile, self.seqin, self.seqdb)
+            if os.name != "nt":
+                command_line = self.phmmerEXE + " --pextend %.2lf --cpu %d --notextw --F1 1e-15 --F2 1e-15 -A %s %s %s" % (
+                    pgap, self.cpu, self.alnfile, self.seqin, self.seqdb)
+            else:
+                command_line = self.phmmerEXE + " --pextend %.2lf --notextw --F1 1e-15 --F2 1e-15 -A %s %s %s" % (
+                    pgap, self.alnfile, self.seqin, self.seqdb)
         else:
-            command_line = self.phmmerEXE + " --cpu %d --notextw --F1 1e-15 --F2 1e-15 -A %s %s %s" % (
-                self.cpu, self.alnfile, self.seqin, self.seqdb)
+            if os.name != "nt":
+                command_line = self.phmmerEXE + " --cpu %d --notextw --F1 1e-15 --F2 1e-15 -A %s %s %s" % (
+                    self.cpu, self.alnfile, self.seqin, self.seqdb)
+            else:
+                command_line = self.phmmerEXE + " --notextw --F1 1e-15 --F2 1e-15 -A %s %s %s" % (
+                    self.alnfile, self.seqin, self.seqdb)
         if debug == True:
             sys.stdout.write("Phmmer command line:\n  %s\n" % command_line)
             sys.stdout.write("\n")
