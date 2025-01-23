@@ -110,7 +110,6 @@ class SequenceHit:
 
 def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, bfvd_seqdb=None, esm_seqdb=None, pdb_seqdb=None, phmmer_dblvl=95, max_hits=10, nproc=1, ccp4cloud=False):
     target_sequence = seq_info.sequence
-    af2 = False
     dbtype = None
     if search_engine == PHMMER:
         if phmmer_dblvl == "af2":
@@ -120,7 +119,6 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
             else:
                 logger.info("Using CCP4 afdb sequence file..")
             seqdb = afdb_seqdb
-            af2 = True
         elif phmmer_dblvl == "esmfold":
             if esm_seqdb is not None:
                 logger.info("Running phmmer esmfold database search locally..")
@@ -150,7 +148,7 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
         logfile = run_hhsearch(seq_info, hhsearch_exe, hhsearch_db)
     else:
         raise RuntimeError(f"Unrecognised search_engine: {search_engine}")
-    return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence, af2=af2, max_hits=max_hits, dbtype=dbtype)
+    return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence, phmmer_dblvl=phmmer_dblvl, max_hits=max_hits, dbtype=dbtype)
 
 # def _find_api_hits(seq_info, max_hits=10, database="af2"):
 #     databases = {'af2': 'afdb', 'bfvd': 'bfvd', 'esmfold': 'esmatlas'}
@@ -204,18 +202,18 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
 
 #     return hitDict
 
-def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False, max_hits=10, dbtype=None):
+def _find_hits(logfile=None, searchio_type=None, target_sequence=None, phmmer_dblvl=95, max_hits=10, dbtype=None):
     assert logfile and searchio_type and target_sequence
 
-    if not af2:
+    if phmmer_dblvl != "af2":
         # Read in the header meta data from the PDB ALL database file
         from mrbump.tools import MRBUMP_utils
         gr = MRBUMP_utils.getPDBres()
         seqMetaDB=gr.readPDBALL()
 
     hitDict = OrderedDict()
-    if af2 or searchio_type == "hmmer3-text":
-        if af2:
+    if phmmer_dblvl == "af2" or searchio_type == "hmmer3-text":
+        if phmmer_dblvl == "af2":
             fix_af_phmmer_log(logfile, "phmmer_af2_fixed.log")
             logfile = "phmmer_af2_fixed.log"
     
@@ -228,18 +226,26 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
     
         phr=phmmer()
         phr.logfile=logfile
-        if af2:
+        if phmmer_dblvl == "af2":
             phr.getPhmmerAlignments(targetSequence=target_sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB=dbtype, seqMetaDB=None)
         else:
             phr.getPhmmerAlignments(targetSequence=target_sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB='PDB', seqMetaDB=seqMetaDB)
         for hitname in (phr.resultsDict):
-    
+
+            if phmmer_dblvl == "bfvd" or phmmer_dblvl == "esmfold":
+                if ':' in hitname:
+                    name = hitname.split(":")[1].rsplit("_", 1)[0]
+                else:
+                    name = hitname.rsplit("_", 1)[0]
+            else:
+                name = phr.resultsDict[hitname].afdbName
+
             sh = SequenceHit()
             sh.rank = phr.resultsDict[hitname].rank
-            if af2:
+            if phmmer_dblvl == "af2":
                 sh.pdb_id = phr.resultsDict[hitname].afdbName
             else:
-                sh.pdb_id, sh.chain_id = phr.resultsDict[hitname].afdbName, phr.resultsDict[hitname].chainID
+                sh.pdb_id, sh.chain_id = name, phr.resultsDict[hitname].chainID
     
             sh.evalue = phr.resultsDict[hitname].evalue
     
@@ -261,10 +267,13 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
             sh.local_sequence_identity = np.round(local)
             sh.overall_sequence_identity = np.round(overall)
     
-            if af2:
+            if phmmer_dblvl == "af2":
                 sh.score = phr.resultsDict[hitname].score
                 hit_name = phr.resultsDict[hitname].afdbName # + "_" + str(phr.resultsDict[hitname].domainID)
                 sh.search_engine = "phmmer"
+            elif phmmer_dblvl == "bfvd" or phmmer_dblvl == "esmfold":
+                sh.score = phr.resultsDict[hitname].score
+                hit_name = name
             elif searchio_type == "hmmer3-text":
                 sh.score = phr.resultsDict[hitname].score
                 hit_name = phr.resultsDict[hitname].afdbName + "_" + phr.resultsDict[hitname].chainID # + "_" + str(phr.resultsDict[hitname].domainID)

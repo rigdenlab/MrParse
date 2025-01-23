@@ -138,6 +138,7 @@ def models_from_hits(hits, plddt_cutoff):
 
 def download_model(uniprot_id):
     url = f"https://bfvd.steineggerlab.workers.dev/pdb/{uniprot_id}.pdb"
+    logger.info(f"Downloading model from: {url}")
     query = requests.get(url, verify=False)
     return query.text
 
