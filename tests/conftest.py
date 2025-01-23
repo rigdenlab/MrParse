@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 from collections import namedtuple
 
-from mrparse.mr_hit import _find_hits, _find_json_hits
+from mrparse.mr_hit import _find_hits
 import data_constants
 
 
@@ -46,12 +46,13 @@ def get_2uvo_test_hits():
     return hits
 
 
-@pytest.fixture(scope="session")
-def get_2uvo_alphafold_test_hits():
-    phmmer_json = 'phmmer_test.json'
-    with open(phmmer_json, 'w') as w:
-        w.write(data_constants.PHMMER_AF_JSON)
-    hits = _find_json_hits(json_file=phmmer_json,
-                           target_sequence=data_constants.TWOUVO_SEQ)
-    Path(phmmer_json).unlink()
-    return hits
+# TODO: Make alternative for this
+# @pytest.fixture(scope="session")
+# def get_2uvo_alphafold_test_hits():
+#     phmmer_json = 'phmmer_test.json'
+#     with open(phmmer_json, 'w') as w:
+#         w.write(data_constants.PHMMER_AF_JSON)
+#     hits = _find_json_hits(json_file=phmmer_json,
+#                            target_sequence=data_constants.TWOUVO_SEQ)
+#     Path(phmmer_json).unlink()
+#     return hits

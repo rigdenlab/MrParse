@@ -13,9 +13,9 @@ logging.basicConfig(level=logging.DEBUG)
 def test_2uvoA_homologs(test_data, get_2uvo_test_hits):
     hits = get_2uvo_test_hits
     homologs = homologs_from_hits(hits, pdb_dir=test_data.pdb_dir)
-    h = homologs['1iqb_B_1']
-    assert h.length == 77
-    assert abs(h.molecular_weight - 8602) < 0.001
+    h = homologs['1iqb_B']
+    assert h.length == 76
+    assert abs(h.molecular_weight - 8597) < 0.001
     assert h.pdb_id == '1iqb'
     assert h.resolution == 0.00
     chain_id = 'B'
@@ -28,9 +28,9 @@ def test_2uvoA_homologs(test_data, get_2uvo_test_hits):
 def test_2uvoA_homologs_ellg(test_data, get_2uvo_test_hits):
     hits = get_2uvo_test_hits
     homologs = homologs_from_hits(hits, pdb_dir=test_data.pdb_dir)
-    h = homologs['1iqb_B_1']
+    h = homologs['1iqb_B']
     assert h.length == 77
-    assert abs(h.molecular_weight - 8602) < 0.001
+    assert abs(h.molecular_weight - 8597) < 0.001
     
     seq_info = Sequence(test_data.x2uvoA_fasta)
     hkl_info = HklInfo(test_data.x2uvo_mtz, seq_info=seq_info)
@@ -42,9 +42,9 @@ def test_phaser_log_ellg(test_data, get_2uvo_test_hits):
     hits = get_2uvo_test_hits
     homologs = homologs_from_hits(hits, pdb_dir=test_data.pdb_dir)
     ellg_data = ellg_data_from_phaser_log(test_data.phaser_log, homologs)
-    assert ellg_data['2x3t_C_1'].ellg == 1378.4
-    assert ellg_data['2x3t_C_1'].length == 168
-    assert ellg_data['2x3t_C_1'].molecular_weight == pytest.approx(16694)
+    assert ellg_data['6stq_B'].ellg == 387.3
+    assert ellg_data['6stq_B'].length == 166
+    assert ellg_data['6stq_B'].molecular_weight == pytest.approx(16194)
 
 
 if __name__ == '__main__':

@@ -69,7 +69,7 @@ Full installation instructions can be found on the `HH-suite Github page <https:
 
    .. code-block:: bash
 
-      ccp4-python -m pip install --upgrade biopython==1.76
+      ccp4-python -m pip install --upgrade biopython==1.84
 
 Config file
 +++++++++++

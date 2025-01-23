@@ -35,6 +35,7 @@ class Sequence(object):
             self._bio_seq = Seq(sequence)
             self._bio_seq_record = SeqRecord(self._bio_seq, id="")
         self.nresidues = len(self._bio_seq)
+        self.remove_dashes()
         self.sequence = str(self._bio_seq)
 
     def __len__(self):
@@ -51,8 +52,16 @@ class Sequence(object):
         try:
             self._bio_seq_record = SeqIO.read(seq_file, sequence_type)
             self._bio_seq = self._bio_seq_record.seq
+
         except ValueError:
             raise MultipleSequenceException
+
+    def remove_dashes(self):
+        """Remove dashes from sequence and replace with Xs"""
+        sequence_str = str(self._bio_seq)
+        sequence_str = sequence_str.replace('-', 'X')
+        self._bio_seq = Seq(sequence_str)
+        self._bio_seq_record.seq = self._bio_seq
 
     @staticmethod
     def sequence_type_from_filename(seq_file):

@@ -115,7 +115,7 @@ class phmmer:
                     self.resultsDict[i].alignment += line.split()[-1]
                     self.resultsDict[i].alnRange = line.split("/")[-1].split()[0]
 
-    def getPhmmerAlignments(self, targetSequence="", phmmerALNLog="", PDBLOCAL=None, DB=None, seqMetaDB=None):
+    def getPhmmerAlignments(self, targetSequence="", phmmerALNLog="", PDBLOCAL=None, DB=None, seqMetaDB=None, max_hits=1000):
         """ Extract the alignments from the Phmmer logfile """
 
         if os.path.isfile(self.logfile) == False:
@@ -134,7 +134,7 @@ class phmmer:
                 return
 
 #     4.3e-36  125.7   6.1    4.6e-36  125.6   6.1    1.0  1  1smm_A    resolution: 1.36 experiment: XRAY release_date: 2004-03-16 [ 348741 : ALL ]
-            if CAPTURE:
+            if CAPTURE and count <= max_hits:
                 hit = line.split()
                 if len(hit) >= 9: 
                     if "-----" not in line.split()[0]:
@@ -382,11 +382,19 @@ class phmmer:
 
         # Set the command line
         if pgap != 0.0:
-            command_line = self.phmmerEXE + " --pextend %.2lf --cpu %d --notextw --F1 1e-15 --F2 1e-15 -A %s %s %s" % (
-                pgap, self.cpu, self.alnfile, self.seqin, self.seqdb)
+            if os.name != "nt":
+                command_line = self.phmmerEXE + " --pextend %.2lf --cpu %d --notextw --F1 1e-15 --F2 1e-15 -A %s %s %s" % (
+                    pgap, self.cpu, self.alnfile, self.seqin, self.seqdb)
+            else:
+                command_line = self.phmmerEXE + " --pextend %.2lf --notextw --F1 1e-15 --F2 1e-15 -A %s %s %s" % (
+                    pgap, self.alnfile, self.seqin, self.seqdb)
         else:
-            command_line = self.phmmerEXE + " --cpu %d --notextw --F1 1e-15 --F2 1e-15 -A %s %s %s" % (
-                self.cpu, self.alnfile, self.seqin, self.seqdb)
+            if os.name != "nt":
+                command_line = self.phmmerEXE + " --cpu %d --notextw --F1 1e-15 --F2 1e-15 -A %s %s %s" % (
+                    self.cpu, self.alnfile, self.seqin, self.seqdb)
+            else:
+                command_line = self.phmmerEXE + " --notextw --F1 1e-15 --F2 1e-15 -A %s %s %s" % (
+                    self.alnfile, self.seqin, self.seqdb)
         if debug == True:
             sys.stdout.write("Phmmer command line:\n  %s\n" % command_line)
             sys.stdout.write("\n")

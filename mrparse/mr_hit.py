@@ -15,14 +15,20 @@ import requests
 import uuid
 import time, random
 
+from mrparse.mr_alphafold import PdbModelException
 from mrparse.mr_util import run_cmd
+from mrparse.searchDB import phmmer
 from mrbump.seq_align.simpleSeqID import simpleSeqID
 from mrbump.tools import makeSeqDB
+from simbad.util.pdb_util import PdbStructure
 
 PHMMER = 'phmmer'
 HHSEARCH = 'hhsearch'
 
+api_url = "http://localhost:8080/phmmer/v1/jobs"
+
 logger = logging.getLogger(__name__)
+logging.getLogger("requests").setLevel(logging.WARNING)
 
 
 class SequenceHit:
@@ -30,6 +36,8 @@ class SequenceHit:
         self.name = None
         self.pdb_id = None
         self.chain_id = None
+        self.data_created = None
+        self.model_url = None
         self.rank = None
         self.prob = 0.0
         self.evalue = 0.0
@@ -100,59 +108,112 @@ class SequenceHit:
         return out_str
 
 
-def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, pdb_seqdb=None, phmmer_dblvl=95, use_api=False, max_hits=10, nproc=1):
+def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, bfvd_seqdb=None, esm_seqdb=None, pdb_seqdb=None, phmmer_dblvl=95, max_hits=10, nproc=1, ccp4cloud=False):
     target_sequence = seq_info.sequence
-    af2 = False
     dbtype = None
     if search_engine == PHMMER:
-        if use_api:
-            if phmmer_dblvl == "af2":
-                logger.info("Attempting to run phmmer alphafold database search through EBI API..")
-                try:
-                    json_file = run_phmmer_alphafold_api(seq_info, max_hits=max_hits)
-                    hits = _find_json_hits(json_file, target_sequence=seq_info, max_hits=max_hits)
-                    return hits
-                except json.JSONDecodeError:
-                    logger.debug("Phmmer API unavailable, running local phmmer search of AFDB")
-                    af2 = True
-        else:
-            if phmmer_dblvl == "af2":
-                logger.info("Running phmmer alphafold database search locally..")
-                if afdb_seqdb is not None:
-                    logger.info("Database file: %s" % afdb_seqdb)
-                else:
-                    logger.info("Using CCP4 afdb sequence file..")
-                af2 = True
+        if phmmer_dblvl == "af2":
+            logger.info("Running phmmer alphafold database search locally..")
+            if afdb_seqdb is not None:
+                logger.info("Database file: %s" % afdb_seqdb)
             else:
-                logger.info("Running phmmer pdb database search locally..")
-                if pdb_seqdb is not None:
-                    logger.info("Database file: %s" % pdb_seqdb)
-                else:
-                    logger.info("Using CCP4 pdb sequence file..")
-        logfile, dbtype = run_phmmer(seq_info, afdb_seqdb=afdb_seqdb, pdb_seqdb=pdb_seqdb, dblvl=phmmer_dblvl, nproc=nproc)
+                logger.info("Using CCP4 afdb sequence file..")
+            seqdb = afdb_seqdb
+        elif phmmer_dblvl == "esmfold":
+            if esm_seqdb is not None:
+                logger.info("Running phmmer esmfold database search locally..")
+                logger.info("Database file: %s" % esm_seqdb)
+                seqdb = esm_seqdb
+            else:
+                return {}
+        elif phmmer_dblvl == "bfvd":
+            if bfvd_seqdb is not None:
+                logger.info("Running phmmer bfvd database search locally..")
+                logger.info("Database file: %s" % bfvd_seqdb)
+                seqdb = bfvd_seqdb
+            else:
+                return {}
+        else:
+            logger.info("Running phmmer pdb database search locally..")
+            if pdb_seqdb is not None:
+                logger.info("Database file: %s" % pdb_seqdb)
+                seqdb = pdb_seqdb
+            else:
+                logger.info("Using CCP4 pdb sequence file..")
+                seqdb=None
+        logfile, dbtype = run_phmmer(seq_info, seqdb=seqdb, dblvl=phmmer_dblvl, nproc=nproc)
         searchio_type = 'hmmer3-text'
     elif search_engine == HHSEARCH:
         searchio_type = 'hhsuite2-text'
         logfile = run_hhsearch(seq_info, hhsearch_exe, hhsearch_db)
     else:
         raise RuntimeError(f"Unrecognised search_engine: {search_engine}")
-    return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence, af2=af2, max_hits=max_hits, dbtype=dbtype)
+    return _find_hits(logfile=logfile, searchio_type=searchio_type, target_sequence=target_sequence, phmmer_dblvl=phmmer_dblvl, max_hits=max_hits, dbtype=dbtype)
 
+# def _find_api_hits(seq_info, max_hits=10, database="af2"):
+#     databases = {'af2': 'afdb', 'bfvd': 'bfvd', 'esmfold': 'esmatlas'}
 
-def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False, max_hits=10, dbtype=None):
+#     job_id = str(uuid.uuid4())
+#     data = {
+#         "job_id": job_id,
+#         "input_sequence": seq_info.sequence,
+#         "database": databases[database],
+#         "number_of_hits": max_hits,
+#         "run_type": "mrparse"
+#     }
+#     json_file = str(Path(seq_info.sequence_file).parent.resolve().joinpath('phmmer.json'))
+#     with open(json_file, 'w') as f:
+#         json.dump(data, f)
+
+#     api_file = str(Path(__file__).parent.resolve().joinpath('scripts', 'phmmer_api.py'))
+    
+#     cmd = ['ccp4-python', api_file, '-i', json_file, '-o', str(Path.cwd())]
+
+#     run_cmd(cmd)
+#     with open(Path.cwd().joinpath(f'{job_id}.log'), 'r') as f:
+#         data = f.read()
+
+#     results_dict = json.loads(data)
+
+#     hitDict = OrderedDict()
+#     for hit in results_dict:
+#         sh = SequenceHit()
+#         if ':' in hit:
+#             name = hit.split(":")[1].rsplit("_", 1)[0]
+#         else:
+#             name = hit.rsplit("_", 1)[0]
+#         result = results_dict[hit]
+#         sh.rank = result['rank']
+#         sh.pdb_id = name
+#         sh.evalue = result['evalue']
+#         sh.query_start = result['query_start']
+#         sh.query_stop = result['query_stop']
+#         sh.hit_start = result['hit_start']
+#         sh.hit_stop = result['hit_stop']
+#         sh.target_alignment = result['target_alignment']
+#         sh.alignment = result['alignment']
+#         seq_ali = zip(range(sh.query_start, sh.query_stop), sh.alignment)
+#         sh.seq_ali = [x[0] for x in seq_ali if x[1] != '-']
+#         sh.local_sequence_identity = result['local_sequence_identity']
+#         sh.overall_sequence_identity = result['overall_sequence_identity']
+#         sh.search_engine = 'phmmer'
+#         sh.name = name
+#         hitDict[sh.name] = sh
+
+#     return hitDict
+
+def _find_hits(logfile=None, searchio_type=None, target_sequence=None, phmmer_dblvl=95, max_hits=10, dbtype=None):
     assert logfile and searchio_type and target_sequence
 
-    if not af2:
-        #startT=time.time()
+    if phmmer_dblvl != "af2":
         # Read in the header meta data from the PDB ALL database file
         from mrbump.tools import MRBUMP_utils
         gr = MRBUMP_utils.getPDBres()
         seqMetaDB=gr.readPDBALL()
-        #print("Time to read sequence meta data: %.2lf seconds" % (time.time()-startT))
 
     hitDict = OrderedDict()
-    if af2 or searchio_type == "hmmer3-text":
-        if af2:
+    if phmmer_dblvl == "af2" or searchio_type == "hmmer3-text":
+        if phmmer_dblvl == "af2":
             fix_af_phmmer_log(logfile, "phmmer_af2_fixed.log")
             logfile = "phmmer_af2_fixed.log"
     
@@ -165,18 +226,26 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
     
         phr=phmmer()
         phr.logfile=logfile
-        if af2:
+        if phmmer_dblvl == "af2":
             phr.getPhmmerAlignments(targetSequence=target_sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB=dbtype, seqMetaDB=None)
         else:
             phr.getPhmmerAlignments(targetSequence=target_sequence, phmmerALNLog=phmmerALNLog, PDBLOCAL=None, DB='PDB', seqMetaDB=seqMetaDB)
         for hitname in (phr.resultsDict):
-    
+
+            if phmmer_dblvl == "bfvd" or phmmer_dblvl == "esmfold":
+                if ':' in hitname:
+                    name = hitname.split(":")[1].rsplit("_", 1)[0]
+                else:
+                    name = hitname.rsplit("_", 1)[0]
+            else:
+                name = phr.resultsDict[hitname].afdbName
+
             sh = SequenceHit()
             sh.rank = phr.resultsDict[hitname].rank
-            if af2:
+            if phmmer_dblvl == "af2":
                 sh.pdb_id = phr.resultsDict[hitname].afdbName
             else:
-                sh.pdb_id, sh.chain_id = phr.resultsDict[hitname].afdbName, phr.resultsDict[hitname].chainID
+                sh.pdb_id, sh.chain_id = name, phr.resultsDict[hitname].chainID
     
             sh.evalue = phr.resultsDict[hitname].evalue
     
@@ -198,10 +267,13 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
             sh.local_sequence_identity = np.round(local)
             sh.overall_sequence_identity = np.round(overall)
     
-            if af2:
+            if phmmer_dblvl == "af2":
                 sh.score = phr.resultsDict[hitname].score
                 hit_name = phr.resultsDict[hitname].afdbName # + "_" + str(phr.resultsDict[hitname].domainID)
                 sh.search_engine = "phmmer"
+            elif phmmer_dblvl == "bfvd" or phmmer_dblvl == "esmfold":
+                sh.score = phr.resultsDict[hitname].score
+                hit_name = name
             elif searchio_type == "hmmer3-text":
                 sh.score = phr.resultsDict[hitname].score
                 hit_name = phr.resultsDict[hitname].afdbName + "_" + phr.resultsDict[hitname].chainID # + "_" + str(phr.resultsDict[hitname].domainID)
@@ -258,44 +330,6 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, af2=False
     return hitDict
 
 
-def _find_json_hits(json_file, target_sequence, max_hits=10):
-    hitDict = OrderedDict()
-    with open(json_file, 'r') as f_in:
-        data = json.load(f_in)
-        for i, hit in enumerate(data['results']['hits']):
-            try:
-                sh = SequenceHit()
-                sh.rank = i + 1
-                sh.pdb_id = "AF-" + hit['name'].split("_")[0] + "-F1"
-                sh.evalue = hit['evalue']
-
-                alignment_info = hit['domains'][0]
-                qstart = alignment_info['alihmmfrom']
-                qstop = alignment_info['alihmmto']
-                sh.query_start = qstart
-                sh.query_stop = qstop
-                sh.hit_start = alignment_info['alisqfrom']
-                sh.hit_stop = alignment_info['alisqto']
-                seq_ali = zip(range(qstart, qstop), alignment_info['aliaseq'])
-                sh.seq_ali = [x[0] for x in seq_ali if x[1] != '-']
-                alignment = alignment_info['aliaseq'].upper()
-                target_alignment = alignment_info['alimodel'].upper()
-                sh.target_alignment = alignment
-                sh.alignment = target_alignment
-                local, overall = simpleSeqID().getPercent(alignment, target_alignment, target_sequence)
-                sh.local_sequence_identity = np.round(local)
-                sh.overall_sequence_identity = np.round(overall)
-
-                sh.score = hit['score']
-                hit_name = hit['name'].split("_")[0] + "_" + str(hit['ndom'])
-                sh.name = hit_name
-                sh.search_engine = "phmmer"
-                if sh.rank <= max_hits:
-                    hitDict[hit_name] = sh
-            except Exception:
-                logger.debug(f"Issue with target {hit['name']}")
-    return hitDict
-
 
 def fix_af_phmmer_log(input_log, output_log):
     """Function to fix locally run alphafold phmmer results when there are duplicate entries"""
@@ -319,7 +353,7 @@ def sort_hits_by_size(hits, ascending=False):
     return OrderedDict(sorted(hits.items(), key=lambda x: x[1].length, reverse=reverse))
 
 
-def run_phmmer(seq_info, afdb_seqdb=None, pdb_seqdb=None, dblvl=95, nproc=1):
+def run_phmmer(seq_info, seqdb=None, dblvl=95, nproc=1):
     logfile = f"phmmer_{dblvl}.log"
     alnfile = f"phmmerAlignment_{dblvl}.log"
     phmmerTblout = f"phmmerTblout_{dblvl}.log"
@@ -328,17 +362,16 @@ def run_phmmer(seq_info, afdb_seqdb=None, pdb_seqdb=None, dblvl=95, nproc=1):
     delete_db = False
     dbtype = None
     if dblvl == "af2":
-        if afdb_seqdb is not None:
-            seqdb = afdb_seqdb
+        if seqdb is not None:
             dbtype = "AFDB"
         else:
             seqdb = Path(os.environ["CCP4"], "share", "mrbump", "data", "afdb.fasta")
             dbtype= "AFCCP4"
     else:
         sb = makeSeqDB.sequenceDatabase()
-        if pdb_seqdb is not None:
+        if seqdb is not None:
             seq_protein_file=Path(os.environ["CCP4_SCR"], "pdb_seqres_protein_%s.txt" % random.randint(0, 9999999)) 
-            get_seqres_protein(pdb_seqdb, seq_protein_file)
+            get_seqres_protein(seqdb, seq_protein_file)
             if os.path.isfile(seq_protein_file):
                 seqdb = seq_protein_file
             else:
@@ -351,7 +384,7 @@ def run_phmmer(seq_info, afdb_seqdb=None, pdb_seqdb=None, dblvl=95, nproc=1):
             dbtype= "PDBCCP4"
             delete_db = True
 
-    if afdb_seqdb is not None and dblvl == "af2":
+    if dblvl == "af2":
         cmd = [str(phmmerEXE) + EXE_EXT,
            '--notextw',
            '--tblout', phmmerTblout,
@@ -362,13 +395,21 @@ def run_phmmer(seq_info, afdb_seqdb=None, pdb_seqdb=None, dblvl=95, nproc=1):
            '-A', alnfile,
            str(seq_info.sequence_file), str(seqdb)]
     else:
-        cmd = [str(phmmerEXE) + EXE_EXT,
-           '--notextw',
-           '--tblout', phmmerTblout,
-           '--domtblout', phmmerDomTblout,
-           '--cpu', str(nproc),
-           '-A', alnfile,
-           str(seq_info.sequence_file), str(seqdb)]
+        if os.name != 'nt':
+            cmd = [str(phmmerEXE) + EXE_EXT,
+                       '--notextw',
+                       '--tblout', phmmerTblout,
+                       '--domtblout', phmmerDomTblout,
+                       '--cpu', str(nproc),
+                       '-A', alnfile,
+                       str(seq_info.sequence_file), str(seqdb)]
+        else:
+            cmd = [str(phmmerEXE) + EXE_EXT,
+                       '--notextw',
+                       '--tblout', phmmerTblout,
+                       '--domtblout', phmmerDomTblout,
+                       '-A', alnfile,
+                       str(seq_info.sequence_file), str(seqdb)]
     stdout = run_cmd(cmd)
     if os.name == 'nt':
         lines = stdout.split('\n')
@@ -387,37 +428,12 @@ def run_hhsearch(seq_info, hhsearch_exe, hhsearch_db):
     logfile = "hhsearch.log"
     hhsearch_db = Path(hhsearch_db)
     cmd = [hhsearch_exe,
-           '-i', seq_info.sequence_file,
+           '-i', str(seq_info.sequence_file),
            '-d', str(hhsearch_db.joinpath(hhsearch_db.stem)),
            '-o', logfile]
     run_cmd(cmd)
     return logfile
 
-
-        #'seqdb': 'alphafold',
-def run_phmmer_alphafold_api(seq_info, max_hits=10):
-    params = {
-        'seqdb': 'uniprotkb',
-        'seq': f'>Seq\n{seq_info.sequence}'
-    }
-
-    # post the seqrch request to the server
-    results_url = requests.post(url='https://www.ebi.ac.uk/Tools/hmmer/search/phmmer', data=params).url
-
-    # modify the range, format and presence of alignments in your results here
-    res_params = {
-        'output': 'json',
-        'range': '1,%d' % max_hits
-    }
-
-    # send a GET request to the server
-    data = requests.get(results_url, params=res_params)
-
-    logfile = "phmmer_afdb.json"
-    with open(logfile, 'w') as f_out:
-        f_out.write(data.text)
-
-    return logfile
 
 def get_seqres_protein(pdbseqfile, outfile):
     """ extract the protein sequences from the full pdb_seqres.txt file """

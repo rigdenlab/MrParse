@@ -28,7 +28,7 @@ class HomologData(object):
     OBJECT_ATTRIBUTES = ['hit', 'region']
 
     def __init__(self):
-        self.ellg = None
+        self.ellg = 0.0
         self.frac_scat = None
         self.molecular_weight = None
         self.ncopies = None
@@ -152,11 +152,11 @@ def prepare_pdb(hit, pdb_dir, pdb_local):
 
     """
 
-    print("Retrieving and preparing model: %s" % hit.name)
+    logger.info("Retrieving and preparing model: %s" % hit.name)
   
     localfile=False
     if pdb_local is not None:
-        pdb_local_gzfile=os.path.join(pdb_local, hit.pdb_id[1:3], "pdb" + hit.pdb_id + ".ent.gz")
+        pdb_local_gzfile=os.path.join(pdb_local, hit.pdb_id[1:3].lower(), "pdb" + hit.pdb_id + ".ent.gz")
         if not os.path.isfile(pdb_local_gzfile):
             logger.info("pdb file not found in local mirror (%s)" % pdb_local_gzfile)
             logger.info("attempting to download or take file from directory instead..")
@@ -187,16 +187,19 @@ def prepare_pdb(hit, pdb_dir, pdb_local):
     else:
         try:
             pdb_struct = pdb_struct.from_pdb_code(hit.pdb_id)
+            pdb_struct.save(pdb_file)
         except RuntimeError:
             # SIMBAD currently raises an empty RuntimeError for download problems.
             raise PdbModelException(f"Error downloading PDB file for: {hit.pdb_id}")
-        pdb_struct.save(pdb_file)
 
     resolution = pdb_struct.structure.resolution
 
     pdb_struct.standardize()
     pdb_struct.select_chain_by_id(hit.chain_id)
-    res_ids = [x.seqid.num for x in pdb_struct.structure[0][0]]
+    try:
+        res_ids = [x.seqid.num for x in pdb_struct.structure[0][0]]
+    except IndexError:
+        raise PdbModelException(f"Error processing PDB file for: {hit.pdb_id}")
     first_res_id = min(res_ids)
     start = hit.hit_start+int(first_res_id) 
     stop = hit.hit_stop+int(first_res_id) 
@@ -228,10 +231,18 @@ def calculate_ellg(homologs, hkl_info):
     mrinput = phaser.InputMR_DAT()
     mrinput.setHKLI(hkl_info.hklin)
     mrinput.setMUTE(True)
-    if hkl_info.input_mtz_obj.i and hkl_info.input_mtz_obj.sigi:
-        mrinput.setLABI_I_SIGI(hkl_info.input_mtz_obj.i, hkl_info.input_mtz_obj.sigi)
-    elif hkl_info.input_mtz_obj.f and hkl_info.input_mtz_obj.sigf:
-        mrinput.setLABI_F_SIGF(hkl_info.input_mtz_obj.f, hkl_info.input_mtz_obj.sigf)
+
+    hkl_info.input_mtz_obj.read_reflections()
+    i_column = hkl_info.input_mtz_obj.i
+    sigi_column = hkl_info.input_mtz_obj.sigi
+    f_column = hkl_info.input_mtz_obj.f
+    sigf_column = hkl_info.input_mtz_obj.sigf
+
+    # Check explicitly for negative intensities
+    if i_column and sigi_column and all(hkl_info.input_mtz_obj.reflection_file.column_with_label(column).min_value >= 0 for column in (i_column, sigi_column)):   
+        mrinput.setLABI_I_SIGI(i_column, sigi_column)
+    elif f_column and sigf_column:
+        mrinput.setLABI_F_SIGF(f_column, sigf_column)
     else:
         msg = "No flags for intensities or amplitudes have been provided"
         raise RuntimeError(msg)
@@ -248,8 +259,13 @@ def calculate_ellg(homologs, hkl_info):
     # Should calculate MW without the search model so that the total MW will be correct when we add the search model
     ellginput.addCOMP_PROT_MW_NUM(hkl_info.molecular_weight, hkl_info.predicted_ncopies)
     search_models = []
+    struct = None
     for hname, d in homologs.items():
-        if d.pdb_file and d.seq_ident:
+        try:
+            struct = PdbStructure().from_file(d.pdb_file)
+        except:
+            continue
+        if d.pdb_file and d.seq_ident and struct:
             ellginput.addENSE_PDB_ID(hname, d.pdb_file, d.seq_ident)
             search_models.append(hname)
         else:
