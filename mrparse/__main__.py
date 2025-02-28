@@ -35,6 +35,7 @@ def main():
                               use_api=args.use_api,
                               max_hits=args.max_hits,
                               database=args.database,
+                              phmmer_exe=args.phmmer_exe,
                               nproc=args.nproc)
     except KeyboardInterrupt:
         sys.stderr.write("Interrupted by keyboard!")
