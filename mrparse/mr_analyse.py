@@ -50,6 +50,7 @@ def run(seqin, **kwargs):
     use_api = kwargs.get('use_api', None)
     max_hits = kwargs.get('max_hits', 10)
     database = kwargs.get('database', 'all')
+    phmmer_exe = kwargs.get('phmmer_exe', None)
     nproc = kwargs.get('nproc', 1)
 
     # Need to make a work directory first as all logs go into there
@@ -93,7 +94,7 @@ def run(seqin, **kwargs):
                                             plddt_cutoff=plddt_cutoff, search_engine=search_engine, hhsearch_exe=hhsearch_exe, 
                                             hhsearch_db=hhsearch_db, afdb_seqdb=afdb_seqdb, bfvd_seqdb=bfvd_seqdb, esm_seqdb=esm_seqdb, 
                                             pdb_seqdb=pdb_seqdb, max_hits=max_hits, database=database, nproc=nproc, pdb_local=pdb_local, 
-                                            ccp4cloud=ccp4cloud)
+                                            ccp4cloud=ccp4cloud, phmmer_exe=phmmer_exe)
 
     classifier = None
     if do_classify:

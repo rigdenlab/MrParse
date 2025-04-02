@@ -108,7 +108,7 @@ class SequenceHit:
         return out_str
 
 
-def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, bfvd_seqdb=None, esm_seqdb=None, pdb_seqdb=None, phmmer_dblvl=95, max_hits=10, nproc=1, ccp4cloud=False):
+def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=None, afdb_seqdb=None, bfvd_seqdb=None, esm_seqdb=None, pdb_seqdb=None, phmmer_dblvl=95, max_hits=10, nproc=1, ccp4cloud=False, phmmer_exe=None):
     target_sequence = seq_info.sequence
     dbtype = None
     if search_engine == PHMMER:
@@ -141,7 +141,7 @@ def find_hits(seq_info, search_engine=PHMMER, hhsearch_exe=None, hhsearch_db=Non
             else:
                 logger.info("Using CCP4 pdb sequence file..")
                 seqdb=None
-        logfile, dbtype = run_phmmer(seq_info, seqdb=seqdb, dblvl=phmmer_dblvl, nproc=nproc)
+        logfile, dbtype = run_phmmer(seq_info, seqdb=seqdb, dblvl=phmmer_dblvl, nproc=nproc, phmmer_exe=phmmer_exe)
         searchio_type = 'hmmer3-text'
     elif search_engine == HHSEARCH:
         searchio_type = 'hhsuite2-text'
@@ -353,16 +353,20 @@ def sort_hits_by_size(hits, ascending=False):
     return OrderedDict(sorted(hits.items(), key=lambda x: x[1].length, reverse=reverse))
 
 
-def run_phmmer(seq_info, seqdb=None, dblvl=95, nproc=1):
+def run_phmmer(seq_info, seqdb=None, dblvl=95, nproc=1, phmmer_exe=None):
     logfile = f"phmmer_{dblvl}.log"
     alnfile = f"phmmerAlignment_{dblvl}.log"
     phmmerTblout = f"phmmerTblout_{dblvl}.log"
     phmmerDomTblout = f"phmmerDomTblout_{dblvl}.log"
-    phmmerEXE = Path(os.environ["CCP4"], "libexec", "phmmer")
+    if phmmer_exe is not None and dblvl == "af2":
+        phmmerEXE=phmmer_exe
+    else:
+        phmmerEXE = Path(os.environ["CCP4"], "libexec", "phmmer")
     delete_db = False
     dbtype = None
+    print(phmmer_exe, dblvl)
     if dblvl == "af2":
-        if seqdb is not None:
+        if seqdb is not None or phmmer_exe is not None:
             dbtype = "AFDB"
         else:
             seqdb = Path(os.environ["CCP4"], "share", "mrbump", "data", "afdb.fasta")
