@@ -1,6 +1,7 @@
 #!/bin/bash
 
 afdb_split_dir=<path to AFDB sequence split files>
+# The AFDB sequence split files are the split version of the sequences.fasta file provided by the AFDB
 
 seqin="${@:(-2):1}"
 phmmer_args="${@:1:$#-1}"
