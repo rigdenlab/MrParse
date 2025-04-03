@@ -298,7 +298,7 @@ def _find_hits(logfile=None, searchio_type=None, target_sequence=None, phmmer_db
             for hsp in hit.hsps:
                 sh = SequenceHit()
                 sh.rank = rank
-                if af2:
+                if phmmer_dblvl == "af2":
                     sh.pdb_id = hsp.hit_id.split("-")[1]
                 else:
                     sh.pdb_id, sh.chain_id = hsp.hit_id.split('_')
@@ -364,7 +364,8 @@ def run_phmmer(seq_info, seqdb=None, dblvl=95, nproc=1, phmmer_exe=None):
         phmmerEXE = Path(os.environ["CCP4"], "libexec", "phmmer")
     delete_db = False
     dbtype = None
-    print(phmmer_exe, dblvl)
+    logger.debug("Running phmmer executable: %s" % phmmerEXE)
+    logger.debug("Running phmmer database level: %s" % dblvl)
     if dblvl == "af2":
         if seqdb is not None or phmmer_exe is not None:
             dbtype = "AFDB"
@@ -374,12 +375,17 @@ def run_phmmer(seq_info, seqdb=None, dblvl=95, nproc=1, phmmer_exe=None):
     else:
         sb = makeSeqDB.sequenceDatabase()
         if seqdb is not None:
-            seq_protein_file=Path(os.environ["CCP4_SCR"], "pdb_seqres_protein_%s.txt" % random.randint(0, 9999999)) 
+            seq_protein_file=Path(
+                os.environ["CCP4_SCR"], 
+                "pdb_seqres_protein_%s.txt" % random.randint(0, 9999999)
+            ) 
             get_seqres_protein(seqdb, seq_protein_file)
             if os.path.isfile(seq_protein_file):
                 seqdb = seq_protein_file
             else:
-                logger.exception("Failed to create PDB sequence file: %s" % seq_protein_file)
+                logger.exception(
+                    "Failed to create PDB sequence file: %s" % seq_protein_file
+                )
                 raise
             dbtype= "PDB"
             delete_db = True
