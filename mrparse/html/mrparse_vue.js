@@ -86,25 +86,25 @@ Vue.component('pdb-table', {
             <thead>
                 <tr>
                     <th title="Name of the homologue (&lt;PDB&gt;_&lt;CHAIN_ID&gt;)" 
-                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 0)">Name ↓</th>
+                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 0)">Name</th>
                     <th title="PDB code of the homlogue" 
-                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 1)">PDB ↓</th>
+                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 1)">PDB</th>
                     <th title="Resolution of the Xtal data for the PDB entry" 
-                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 2)">Resolution ↓</th>
+                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 2)">Resolution</th>
                     <th title="The region the homologue covers in the sequence"
-                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 3)">Region ↓</th>
+                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 3)">Region</th>
                     <th title="Start-stop of the homologue in the sequence"
-                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 4)">Range ↓</th>
+                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 4)">Range</th>
                     <th title="Length of the homologue"
-                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 5)">Length ↓</th>
+                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 5)">Length</th>
                     <th title="The estimated Log Liklihood Gain when the homologue is used in molecular replacement"
-                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 6)">eLLG ↓</th>
+                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 6)">eLLG</th>
                     <th title="The molecular weight of the homologue"
-                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 7)">Mol. Wt. ↓</th>
+                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 7)">Mol. Wt.</th>
                     <th title="The estimated Root Mean Square Deviation of the homologue to the target protein"
-                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 8)">eRMSD ↓</th>
+                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 8)">eRMSD</th>
                     <th title="The sequence identity of the homologue to the target protein"
-                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 9)">Seq. Ident. ↓</th>
+                        onclick="sortTableAndFeatures('pdb_table', sequence, ft2, PDB_rowFeatureMap, '#div3', 9)">Seq. Ident.</th>
                 </tr>
             </thead>
             <tbody>
@@ -149,19 +149,19 @@ Vue.component('af-table', {
             <thead>
                 <tr>
                     <th title="The name of the model in the AlphaFold database"
-                        onclick="sortTableAndFeatures('af_table', sequence, ft3, AF_rowFeatureMap, '#div4', 0)">Name ↓</th>
+                        onclick="sortTableAndFeatures('af_table', sequence, ft3, AF_rowFeatureMap, '#div4', 0)">Name</th>
                     <th title="The date the model was made"
-                        onclick="sortTableAndFeatures('af_table', sequence, ft3, AF_rowFeatureMap, '#div4', 1)">Date made ↓</th>
+                        onclick="sortTableAndFeatures('af_table', sequence, ft3, AF_rowFeatureMap, '#div4', 1)">Date made</th>
                     <th title="Start-stop of the model in the sequence"
-                        onclick="sortTableAndFeatures('af_table', sequence, ft3, AF_rowFeatureMap, '#div4', 2)">Range ↓</th>
+                        onclick="sortTableAndFeatures('af_table', sequence, ft3, AF_rowFeatureMap, '#div4', 2)">Range</th>
                     <th title="Length of the model"
-                        onclick="sortTableAndFeatures('af_table', sequence, ft3, AF_rowFeatureMap, '#div4', 3)">Length ↓</th>
+                        onclick="sortTableAndFeatures('af_table', sequence, ft3, AF_rowFeatureMap, '#div4', 3)">Length</th>
                     <th title="The average pLDDT score of the model"
-                        onclick="sortTableAndFeatures('af_table', sequence, ft3, AF_rowFeatureMap, '#div4', 4)">Average pLDDT ↓</th>
+                        onclick="sortTableAndFeatures('af_table', sequence, ft3, AF_rowFeatureMap, '#div4', 4)">Average pLDDT</th>
                     <th title="The H-score of the model"
-                        onclick="sortTableAndFeatures('af_table', sequence, ft3, AF_rowFeatureMap, '#div4', 5)">H-score ↓</th>
+                        onclick="sortTableAndFeatures('af_table', sequence, ft3, AF_rowFeatureMap, '#div4', 5)">H-score</th>
                     <th title="The sequence identity of the model to the target protein"
-                        onclick="sortTableAndFeatures('af_table', sequence, ft3, AF_rowFeatureMap, '#div4', 6)">Sequence Identity ↓</th>
+                        onclick="sortTableAndFeatures('af_table', sequence, ft3, AF_rowFeatureMap, '#div4', 6)">Sequence Identity</th>
                 </tr>
             </thead>
             <tbody>
@@ -200,19 +200,19 @@ Vue.component('bfvd-table', {
             <thead>
                 <tr>
                     <th title="The name of the model in the Big Fantastic Virus Database"
-                        onclick="sortTableAndFeatures('bfvd_table', sequence, ft4, BFVD_rowFeatureMap, '#div5', 0)">Name ↓</th>
+                        onclick="sortTableAndFeatures('bfvd_table', sequence, ft4, BFVD_rowFeatureMap, '#div5', 0)">Name</th>
                     <th title="The date the model was made"
-                        onclick="sortTableAndFeatures('bfvd_table', sequence, ft4, BFVD_rowFeatureMap, '#div5', 1)">Date made ↓</th>
+                        onclick="sortTableAndFeatures('bfvd_table', sequence, ft4, BFVD_rowFeatureMap, '#div5', 1)">Date made</th>
                     <th title="Start-stop of the model in the sequence"
-                        onclick="sortTableAndFeatures('bfvd_table', sequence, ft4, BFVD_rowFeatureMap, '#div5', 2)">Range ↓</th>
+                        onclick="sortTableAndFeatures('bfvd_table', sequence, ft4, BFVD_rowFeatureMap, '#div5', 2)">Range</th>
                     <th title="Length of the model"
-                        onclick="sortTableAndFeatures('bfvd_table', sequence, ft4, BFVD_rowFeatureMap, '#div5', 3)">Length ↓</th>
+                        onclick="sortTableAndFeatures('bfvd_table', sequence, ft4, BFVD_rowFeatureMap, '#div5', 3)">Length</th>
                     <th title="The average pLDDT score of the model"
-                        onclick="sortTableAndFeatures('bfvd_table', sequence, ft4, BFVD_rowFeatureMap, '#div5', 4)">Average pLDDT ↓</th>
+                        onclick="sortTableAndFeatures('bfvd_table', sequence, ft4, BFVD_rowFeatureMap, '#div5', 4)">Average pLDDT</th>
                     <th title="The H-score of the model"
-                        onclick="sortTableAndFeatures('bfvd_table', sequence, ft4, BFVD_rowFeatureMap, '#div5', 5)">H-score ↓</th>
+                        onclick="sortTableAndFeatures('bfvd_table', sequence, ft4, BFVD_rowFeatureMap, '#div5', 5)">H-score</th>
                     <th title="The sequence identity of the model to the target protein"
-                        onclick="sortTableAndFeatures('bfvd_table', sequence, ft4, BFVD_rowFeatureMap, '#div5', 6)">Sequence Identity ↓</th>
+                        onclick="sortTableAndFeatures('bfvd_table', sequence, ft4, BFVD_rowFeatureMap, '#div5', 6)">Sequence Identity</th>
                 </tr>
             </thead>
             <tbody>
@@ -251,19 +251,19 @@ Vue.component('esm-table', {
                 <thead>
                     <tr>
                         <th title="Name of the model in the ESMfold Atlas database"
-                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 0)">Name ↓</th>
+                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 0)">Name</th>
                         <th title="The date the model was made"
-                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 1)">Date made ↓</th>
+                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 1)">Date made</th>
                         <th title="Start-stop of the model in the sequence"
-                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 2)">Range ↓</th>
+                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 2)">Range</th>
                         <th title="Length of the model"
-                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 3)">Length ↓</th>
+                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 3)">Length</th>
                         <th title="The average pLDDT score of the model"
-                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 4)">Average pLDDT ↓</th>
+                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 4)">Average pLDDT</th>
                         <th title="The H-score of the model"
-                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 5)">H-score ↓</th>
+                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 5)">H-score</th>
                         <th title="The sequence identity of the model to the target protein"
-                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 6)">Sequence Identity ↓</th>
+                            onclick="sortTableAndFeatures('esm_table', sequence, ft5, ESM_rowFeatureMap, '#div6', 6)">Sequence Identity</th>
                     </tr>
                 </thead>
                 <tbody>

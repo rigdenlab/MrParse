@@ -9239,16 +9239,23 @@ function selectTableAndFeatures(feature_viewer) {
     });
 }
 
+var sortOrder = {};
+
 function sortTable(table_id, n) {
     var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
     table = document.getElementById(table_id);
-    var sortOrder = Array(table.rows[0].cells.length).fill(1);
+
+    // Initialize sortOrder for the table if it's not set yet
+    if (!sortOrder[table_id]) {
+        sortOrder[table_id] = Array(table.rows[0].cells.length).fill(-1);  // Start with descending order
+    }
 
     // Check if the column title is "Range"
     var isRangeColumn = table.rows[0].cells[n].textContent.includes("Range");
 
     switching = true;
-    dir = sortOrder[n] == 1 ? "asc" : "desc"; 
+    // Set the sorting direction based on the current value in sortOrder
+    dir = sortOrder[table_id][n] == -1 ? "desc" : "asc";
 
     while (switching) {
         switching = false;
@@ -9264,25 +9271,25 @@ function sortTable(table_id, n) {
                 var xValue = isRangeColumn ? Number(x.innerHTML.split("-")[0]) : Number(x.innerHTML);
                 var yValue = isRangeColumn ? Number(y.innerHTML.split("-")[0]) : Number(y.innerHTML);
 
-                if (dir == "asc") {
-                    if (xValue > yValue) {
+                if (dir == "desc") {
+                    if (xValue < yValue) {
                         shouldSwitch = true;
                         break;
                     }
-                } else if (dir == "desc") {
-                    if (xValue < yValue) {
+                } else if (dir == "asc") {
+                    if (xValue > yValue) {
                         shouldSwitch = true;
                         break;
                     }
                 }
             } else {
-                if (dir == "asc") {
-                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                if (dir == "desc") {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
                         shouldSwitch = true;
                         break;
                     }
-                } else if (dir == "desc") {
-                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                } else if (dir == "asc") {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
                         shouldSwitch = true;
                         break;
                     }
@@ -9292,24 +9299,28 @@ function sortTable(table_id, n) {
         if (shouldSwitch) {
             rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
             switching = true;
-            switchcount ++; 
+            switchcount++;
         } else {
-            if (switchcount == 0 && dir == "asc") {
-                dir = "desc";
+            if (switchcount == 0 && dir == "desc") {
+                dir = "asc";
                 switching = true;
             }
         }
     }
 
-    // Update the sort order for this column
-    sortOrder[n] *= -1;
+    // Toggle the sort order for the next click
+    sortOrder[table_id][n] = sortOrder[table_id][n] === -1 ? 1 : -1;  // Flip between ascending (1) and descending (-1)
 
-    // Get all the table headers
     var headers = document.querySelectorAll('#' + table_id + ' th');
+    var arrow = sortOrder[table_id][n] === 1 ? ' ▼' : ' ▲';
 
-    // Update the arrow for this column
-    var arrow = sortOrder[n] == 1 ? ' ↓' : ' ↑';
-    headers[n].textContent = headers[n].textContent.replace(/ ↓| ↑/, '') + arrow;
+    // Remove any existing arrow from the header text
+    headers.forEach(function(header, index) {
+        header.textContent = header.textContent.replace(/ ▼| ▲/, '');
+    });
+
+    // Add the new arrow to the clicked header
+    headers[n].textContent += arrow;
 }
 
 function sortTableAndFeatures(table_id, sequence, feature_viewer, rowFeatureMap, div_id, n) {
