@@ -170,7 +170,7 @@ def prepare_pdb(hit, pdb_dir, pdb_local):
                     shutil.copyfileobj(f_in, f_out)
 
     if not localfile:
-        if pdb_dir != "None":
+        if pdb_dir != "None" and pdb_dir is not None:
             pdb_dir = Path(pdb_dir)
             entry = list(pdb_dir.glob("*/*"))[0]
             prefix, ext = entry.stem[:-4], entry.suffix

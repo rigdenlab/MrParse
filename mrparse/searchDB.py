@@ -228,6 +228,8 @@ class phmmer:
         # Loop over the lines in the log file to grab target-hit alignments
         rawHitList=[]
         count = 0
+        gr = MRBUMP_utils.getPDBres()
+        gr.readPDBALL()
         for line in lines:
             if ">>" in line[:2]:
                 # Check the following line to make sure its not outside the threshold
@@ -302,10 +304,10 @@ class phmmer:
     
                             self.resultsDict[hitname].localSEQID = local
                             self.resultsDict[hitname].overallSEQID = overall
-                            gr = MRBUMP_utils.getPDBres()
+                            #gr = MRBUMP_utils.getPDBres()
                             if self.resultsDict[hitname].expdta != "AFDB":
                                 self.resultsDict[hitname].resolution, self.resultsDict[hitname].expdta, self.resultsDict[hitname].releaseDate \
-                                    =  gr.getResolution(pdbCODE=self.resultsDict[hitname].afdbName, PDBLOCAL=PDBLOCAL, seqMetaDB=seqMetaDB)
+                                    =  gr.getResolution(pdbCODE=self.resultsDict[hitname].afdbName, PDBLOCAL=PDBLOCAL, seqMetaDB=gr.seqMetaDB)
                         
             count = count + 1
 
